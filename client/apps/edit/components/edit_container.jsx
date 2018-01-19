@@ -8,6 +8,7 @@ import { EditAdmin } from './admin/index.jsx'
 import { EditContent } from './content/index.jsx'
 import { EditDisplay } from './display/index.jsx'
 import { EditHeader } from './header/index.jsx'
+import { Yoast } from './yoast'
 import EditError from './error/index.jsx'
 
 class EditContainer extends Component {
@@ -87,6 +88,7 @@ class EditContainer extends Component {
       <div className='EditContainer'>
 
         <EditHeader {...this.props} />
+        <Yoast {...this.props} />
 
         {error && <EditError />}
 

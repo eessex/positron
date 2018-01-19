@@ -4,8 +4,8 @@ yoastApp = require( "yoastseo" ).App
 
 module.exports = class YoastView extends Backbone.View
 
-  events:
-    'click .edit-seo__header-container': 'toggleDrawer'
+  # events:
+  #   'click .edit-seo__header-container': 'toggleDrawer'
 
   initialize: (options) ->
     @$msg = $('.edit-seo__unresolved-msg')
@@ -45,9 +45,9 @@ module.exports = class YoastView extends Backbone.View
     $("#snippet-editor-meta-description").val(
       @article.get('search_description') or @article.get('description'))
 
-  toggleDrawer: ->
-    $('#yoast-container').slideToggle duration: 100, easing: 'linear'
-    $('.edit-seo__close').toggleClass 'active'
+  # toggleDrawer: ->
+  #   $('#yoast-container').slideToggle duration: 100, easing: 'linear'
+  #   $('.edit-seo__close').toggleClass 'active'
 
   onKeyup: (contentField)->
     @setSnippetFields contentField

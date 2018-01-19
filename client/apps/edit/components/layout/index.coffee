@@ -20,9 +20,9 @@ module.exports = class EditLayout extends Backbone.View
     @article.on 'loading', @showSpinner
     @article.once 'sync', @onFirstSave if @article.isNew()
     @article.on 'savePublished', @savePublished
-    if @channel?.isArtsyChannel()
-      @setupYoast()
-      @article.on 'change', @onYoastKeyup
+    # if @channel?.isArtsyChannel()
+      # @setupYoast()
+      # @article.on 'change', @onYoastKeyup
     @setupOnBeforeUnload()
     @$('#edit-sections-spinner').hide()
 
