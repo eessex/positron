@@ -11,6 +11,9 @@ export const actions = keyMirror(
   'REMOVE_SECTION',
   'RESET_SECTIONS',
   'SAVE_ARTICLE',
+  'SAVE_ARTICLE_PENDING',
+  'SAVE_ARTICLE_SUCCESS',
+  'SAVE_ARTICLE_ERROR',
   'SET_SECTION'
 )
 
@@ -104,12 +107,51 @@ export const resetSections = (sections) => ({
 })
 
 export const saveArticle = (article) => {
-  article.save()
-
   return {
     type: actions.SAVE_ARTICLE,
     payload: {
+      article,
+      success: actions.SAVE_ARTICLE_SUCCESS,
+      error: actions.SAVE_ARTICLE_ERROR
+    }
+  }
+}
+
+export const onSaveArticle = () => {
+  return (dispatch, getState) => {
+    const { article } = getState().edit
+
+    dispatch(saveArticlePending())
+    dispatch(saveArticle(article))
+  }
+}
+
+export const saveArticlePending = () => {
+  return {
+    type: actions.SAVE_ARTICLE_PENDING,
+    payload: {
       isSaving: true
+    }
+  }
+}
+
+export const saveArticleSuccess = () => {
+  debugger
+  return {
+    type: actions.SAVE_ARTICLE_SUCCESS,
+    payload: {
+      isSaving: false
+    }
+  }
+}
+
+export const saveArticleError = (error) => {
+  debugger
+  return {
+    type: actions.SAVE_ARTICLE_ERROR,
+    payload: {
+      isSaving: false,
+      error
     }
   }
 }

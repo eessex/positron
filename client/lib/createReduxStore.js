@@ -4,13 +4,15 @@ import { createLogger } from 'redux-logger'
 import { compose, createStore, applyMiddleware } from 'redux'
 import { contains } from 'underscore'
 import { data as sd } from 'sharify'
+import { reduxMiddleware } from './redux_middleware'
 
 export function createReduxStore (rootReducer, initialState = {}) {
   const isDevelopment = contains(['development', 'staging'], sd.NODE_ENV)
   let composeEnhancers = compose
 
   const middleware = [
-    thunkMiddleware
+    thunkMiddleware,
+    reduxMiddleware
   ]
 
   if (isDevelopment) {

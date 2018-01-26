@@ -74,7 +74,8 @@ export function editReducer (state = initialState, action) {
       return u({
         article,
         sectionIndex,
-        section
+        section,
+        isSaved: false
       }, state)
     }
 
@@ -89,7 +90,8 @@ export function editReducer (state = initialState, action) {
 
       return u({
         article,
-        section
+        section,
+        isSaved: false
       }, state)
     }
 
@@ -121,9 +123,15 @@ export function editReducer (state = initialState, action) {
       }, state)
     }
 
-    case actions.SAVE_ARTICLE: {
+    case actions.SAVE_ARTICLE_PENDING: {
       return u({
         isSaving: true
+      }, state)
+    }
+
+    case actions.SAVE_ARTICLE_SUCCESS: {
+      return u({
+        isSaving: false
       }, state)
     }
   }

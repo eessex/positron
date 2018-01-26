@@ -87,7 +87,7 @@ class EditContainer extends Component {
     return (
       <div className='EditContainer'>
 
-        <EditHeader {...this.props} />
+        <EditHeader />
 
         {error && <EditError />}
 
