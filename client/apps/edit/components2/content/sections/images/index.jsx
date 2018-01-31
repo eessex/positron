@@ -1,40 +1,25 @@
 import FillWidth from '@artsy/reaction-force/dist/Utils/fillwidth'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { without } from 'lodash'
+import { connect } from 'react-redux'
 import DragContainer from 'client/components/drag_drop/index.coffee'
 import ImagesControls from './components/controls'
-import { EditImage } from './components/edit_image'
+import EditImage from './components/edit_image'
 import { ImageSet } from './components/image_set'
 import { ProgressBar } from 'client/components/file_input/progress_bar'
+import { onChangeSection } from 'client/actions/editActions'
 
 export class SectionImages extends Component {
   static propTypes = {
     article: PropTypes.object.isRequired,
     editing: PropTypes.bool,
     isHero: PropTypes.bool,
+    onChange: PropTypes.func,
     section: PropTypes.object.isRequired
   }
 
-  constructor (props) {
-    super(props)
-
-    this.state = {
-      dimensions: this.setFillWidthDimensions(),
-      progress: null
-    }
-  }
-
-  componentDidMount = () => {
-    const { section } = this.props
-
-    section.on('change:images', this.resetDimensions)
-  }
-
-  resetDimensions = () => {
-    const dimensions = this.setFillWidthDimensions()
-
-    this.setState({ dimensions })
+  state = {
+    progress: null
   }
 
   setFillWidthDimensions = () => {
@@ -42,7 +27,7 @@ export class SectionImages extends Component {
     const sizes = this.getContainerSizes()
 
     return FillWidth(
-      section.get('images') || [],
+      section.images || [],
       sizes.containerSize,
       30,
       sizes.targetHeight
@@ -51,17 +36,16 @@ export class SectionImages extends Component {
 
   getFillWidthDimensions = () => {
     const { section } = this.props
-    const { dimensions } = this.state
 
-    return section.get('layout') !== 'column_width'
-      ? dimensions
+    return section.layout !== 'column_width'
+      ? this.setFillWidthDimensions()
       : false
   }
 
   getContainerSizes = () => {
     const { article, section } = this.props
     const articleLayout = article.layout
-    const sectionLayout = section.get('layout')
+    const sectionLayout = section.layout
 
     let containerSize = sectionLayout === 'column_width' ? 680 : 780
     let targetHeight = window.innerHeight * 0.7
@@ -76,23 +60,15 @@ export class SectionImages extends Component {
     return { containerSize, targetHeight }
   }
 
-  removeImage = (image) => {
-    const { section } = this.props
-    const images = without(section.get('images'), image)
-
-    section.set('images', images)
-  }
-
   onDragEnd = (images) => {
-    const { section } = this.props
+    const { onChange } = this.props
 
-    section.set({ images })
-    this.resetDimensions()
+    onChange('images', images)
   }
 
   isImageSetWrapping = () => {
     const { section } = this.props
-    const { type, images } = section.attributes
+    const { type, images } = section
 
     return type === 'image_set' && images && images.length > 3
   }
@@ -110,16 +86,13 @@ export class SectionImages extends Component {
 
   renderImages = (images) => {
     return images.map((image, index) => {
-      const { article, editing, section } = this.props
-      const articleLayout = article.layout
+      const { editing, section } = this.props
       const width = this.getImageWidth(index)
 
       const props = {
-        articleLayout,
         editing,
         image,
         index,
-        removeImage: () => this.removeImage(image),
         section,
         width
       }
@@ -131,12 +104,12 @@ export class SectionImages extends Component {
   }
 
   renderDraggableImages = (images) => {
-    const { editing } = this.props
+    const { editing, onChange } = this.props
 
     return (
       <DragContainer
         items={images}
-        onDragEnd={this.onDragEnd}
+        onDragEnd={(images) => onChange('images', images)}
         isDraggable={editing}
         dimensions={this.getFillWidthDimensions()}
         isWrapping={this.isImageSetWrapping()}
@@ -154,14 +127,13 @@ export class SectionImages extends Component {
       isHero,
       section
     } = this.props
-    const images = section.get('images') || []
+    const images = section.images || []
 
     return (
       <section className='SectionImages'>
         {editing &&
           <ImagesControls
             section={section}
-            articleLayout={article.layout}
             editing={editing}
             images={images}
             isHero={isHero}
@@ -176,7 +148,7 @@ export class SectionImages extends Component {
           data-overflow={this.isImageSetWrapping()}
         >
           {images.length > 0
-            ? section.get('type') === 'image_set' && !editing
+            ? section.type === 'image_set' && !editing
               ? <ImageSet
                   articleLayout={article.layout}
                   section={section}
@@ -195,3 +167,16 @@ export class SectionImages extends Component {
     )
   }
 }
+
+const mapStateToProps = (state) => ({
+  article: state.edit.article
+})
+
+const mapDispatchToProps = {
+  onChange: onChangeSection
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SectionImages)
