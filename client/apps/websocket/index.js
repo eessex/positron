@@ -1,5 +1,4 @@
 import { messageTypes } from './messageTypes'
-import { filter } from 'lodash'
 
 const {
   articlesRequested,
@@ -12,7 +11,14 @@ const {
 export const sessions = {}
 
 export const getSessionsForChannel = (channel) => {
-  return filter(sessions, s => s.channel.id === channel.id)
+  const filteredSessions = {}
+
+  for (let [key, session] of Object.entries(sessions)) {
+    if (channel.id === session.channel.id) {
+      filteredSessions[key] = session
+    }
+  }
+  return filteredSessions
 }
 
 export const onArticlesRequested = ({io, socket}, { channel }) => {
@@ -56,6 +62,9 @@ export const onUserStartedEditing = ({io, socket}, data) => {
 
 export const onUserCurrentlyEditing = ({io, socket}, data) => {
   const { article, timestamp } = data
+  if (!sessions[article]) {
+    return
+  }
   sessions[article].timestamp = timestamp
 
   const event = articlesRequested
