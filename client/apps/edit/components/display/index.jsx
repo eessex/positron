@@ -1,22 +1,20 @@
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { DisplayPartner } from './components/partner'
 import { DropDownList } from 'client/components/drop_down/drop_down_list'
 import DisplayEmail from './components/email'
 import DisplayMagazine from './components/magazine'
+import DisplayPartner from './components/partner'
 import DisplaySearch from './components/search'
 import DisplaySocial from './components/social'
 
 export class EditDisplay extends Component {
   static propTypes = {
-    article: PropTypes.object,
-    channel: PropTypes.object,
-    onChange: PropTypes.func
+    channel: PropTypes.object
   }
 
   render () {
-    const { article, channel, onChange } = this.props
+    const { channel } = this.props
     const sections = [
       {title: 'Magazine'},
       {title: 'Social'},
@@ -27,15 +25,12 @@ export class EditDisplay extends Component {
     const isPartner = channel.type === 'partner'
 
     return (
-      <EditDisplayContainer
+      <EditArticleContainer
         className='EditDisplay'
         margin={isPartner ? 55 : 95}
       >
         {isPartner
-          ? <DisplayPartner
-              article={article}
-              onChange={onChange}
-            />
+          ? <DisplayPartner />
 
           : <DropDownList
               className='admin-form-container max-width-container'
@@ -44,20 +39,16 @@ export class EditDisplay extends Component {
               sections={sections}
             >
               <DisplayMagazine />
-
               <DisplaySocial />
-
               <DisplaySearch />
-
               <DisplayEmail />
-
             </DropDownList>
         }
-      </EditDisplayContainer>
+      </EditArticleContainer>
     )
   }
 }
 
-const EditDisplayContainer = styled.div`
+const EditArticleContainer = styled.div`
   margin-top: ${props => `${props.margin}px`};
 `
