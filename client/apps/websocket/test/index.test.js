@@ -36,38 +36,6 @@ describe('WebSocket Server', () => {
         type: 'editorial'
       }
     }
-
-    sessions['246810'] = {
-      timestamp: '2018-01-30T23:12:20.973Z',
-      user: {
-        id: '124',
-        name: 'Ellen Poe'
-      },
-      article: '246810',
-      channel: {
-        id: '2',
-        name: 'Other Editors',
-        type: 'editorial'
-      }
-    }
-  })
-
-  it('should return a filtered list by channels', () => {
-    expect(getSessionsForChannel({id: '2'})).toEqual({
-      '246810': {
-        timestamp: '2018-01-30T23:12:20.973Z',
-        user: {
-          id: '124',
-          name: 'Ellen Poe'
-        },
-        article: '246810',
-        channel: {
-          id: '2',
-          name: 'Other Editors',
-          type: 'editorial'
-        }
-      }
-    })
   })
 
   it('sends articles in session when requested by client', () => {
@@ -81,15 +49,6 @@ describe('WebSocket Server', () => {
       type: eventType,
       payload: getSessionsForChannel(sessions, data.channel)
     })
-  })
-
-  it('does not broadcast an update for #userCurrentlyEditing if the session is invalid', () => {
-    onUserCurrentlyEditing({io, socket}, {
-      timestamp: new Date().toISOString(),
-      article: '-1'
-    })
-
-    expect(io.sockets.emit.mock.calls.length).toBe(0)
   })
 
   it('broadcasts a message to clients when a user starts editing', () => {

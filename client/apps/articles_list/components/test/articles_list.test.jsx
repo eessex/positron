@@ -3,7 +3,6 @@ import { mount } from 'enzyme'
 import configureStore from 'redux-mock-store'
 import { Provider } from 'react-redux'
 import ArticleList from '../articles_list'
-
 require('typeahead.js')
 
 describe('ArticleList', () => {
@@ -72,15 +71,12 @@ describe('ArticleList', () => {
   })
 
   it('selects the article when clicking the check button', () => {
-    const element = component.find('.article-list__checkcircle').at(0)
+    const element = component.ref('123')
     element.simulate('click')
 
-    expect(props.selected.mock.calls[0][0].id).toEqual('123')
-    expect(props.selected.mock.calls[0][0].thumbnail_title).toEqual('Game of Thrones')
-    expect(props.selected.mock.calls[0][0].slug).toEqual('artsy-editorial-game-of-thrones')
-  })
-
-  it('check if user is available from redux', () => {
-    expect(component.childAt(0).props().user).toEqual(props.user)
+    const props = component.props()
+    expect(props.selected.args[0][0].id).toContainEqual('123')
+    expect(props.selected.args[0][0].thumbnail_title.text()).toContainEqual('Game of Thrones')
+    expect(props.selected.args[0][0].slug.text()).toContainEqual('artsy-editorial-game-of-thrones')
   })
 })
