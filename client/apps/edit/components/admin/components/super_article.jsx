@@ -1,25 +1,59 @@
+import request from 'superagent'
 import { connect } from 'react-redux'
+import { clone, uniq } from 'lodash'
+import { difference, flatten, pluck, without } from 'underscore'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { Autocomplete } from '/client/components/autocomplete2'
+import { AutocompleteList } from '/client/components/autocomplete2/list'
 import { onChangeArticle } from 'client/actions/editActions'
 import ImageUpload from './image_upload.coffee'
+import { SubArticleQuery } from 'client/queries/sub_articles'
 
 export class AdminSuperArticle extends Component {
   static propTypes = {
     article: PropTypes.object,
     apiURL: PropTypes.string,
-    onChangeArticleAction: PropTypes.func
+    onChangeArticleAction: PropTypes.func,
+    user: PropTypes.object
   }
 
   onChange = (key, value) => {
-    debugger
     const { article, onChangeArticleAction } = this.props
-    const super_article = article.super_article || {}
+    const super_article = clone(article.super_article) || {}
 
     super_article[key] = value
     onChangeArticleAction('super_article', super_article)
+  }
+
+  fetchArticles = (fetchedItems, cb) => {
+    const { apiURL, article, user } = this.props
+    const super_article = article.super_article || {}
+    const { related_articles } = super_article
+
+    const alreadyFetched = pluck(fetchedItems, 'id')
+    const idsToFetch = difference(related_articles, alreadyFetched)
+    let newItems = clone(fetchedItems)
+
+    if (idsToFetch.length) {
+      request
+        .get(`${apiURL}/graphql`)
+        .set({
+          'Accept': 'application/json',
+          'X-Access-Token': (user && user.access_token)
+        })
+        .query({ query: SubArticleQuery(idsToFetch) })
+        .end((err, res) => {
+          if (err) {
+            console.error(err)
+          }
+          newItems.push(res.body.data.articles)
+          const uniqItems = uniq(flatten(newItems))
+          cb(uniqItems)
+        })
+    } else {
+      return fetchedItems
+    }
   }
 
   render () {
@@ -134,6 +168,7 @@ export class AdminSuperArticle extends Component {
             <div className='field-group'>
               <label>Partner Logo</label>
               <ImageUpload
+                disabled={isDisabled}
                 name='partner_logo'
                 src={partner_logo || ''}
                 onChange={this.onChange}
@@ -143,6 +178,7 @@ export class AdminSuperArticle extends Component {
             <div className='field-group'>
               <label>Partner Fullscreen</label>
               <ImageUpload
+                disabled={isDisabled}
                 name='partner_fullscreen_header_logo'
                 src={partner_fullscreen_header_logo || ''}
                 onChange={this.onChange}
@@ -152,6 +188,7 @@ export class AdminSuperArticle extends Component {
             <div className='field-group'>
               <label>Secondary Logo</label>
               <ImageUpload
+                disabled={isDisabled}
                 name='secondary_partner_logo'
                 src={secondary_partner_logo || ''}
                 onChange={this.onChange}
@@ -159,7 +196,10 @@ export class AdminSuperArticle extends Component {
             </div>
           </Col>
           <Col xs={4}>
-            <Autocomplete
+            <label>SubArticles</label>
+            <AutocompleteList
+              disabled={isDisabled}
+              fetchItems={this.fetchArticles}
               items={related_articles || []}
               onSelect={(results) => this.onChange('related_articles', results)}
               placeholder='Search by title...'
@@ -173,8 +213,9 @@ export class AdminSuperArticle extends Component {
 }
 
 const mapStateToProps = (state) => ({
+  apiURL: state.app.apiURL,
   article: state.edit.article,
-  apiURL: state.app.apiURL
+  user: state.app.user
 })
 
 const mapDispatchToProps = {
