@@ -1,4 +1,6 @@
+
 import { clone, extend } from 'lodash'
+
 import keyMirror from 'client/lib/keyMirror'
 import Article from 'client/models/article.coffee'
 import { emitAction } from 'client/apps/websocket/client'
