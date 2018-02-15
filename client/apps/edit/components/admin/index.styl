@@ -1,7 +1,6 @@
 @import '../stylus_lib'
 @import './article'
 @import './featuring'
-@import './super_article'
 
 .edit-admin__fields
   display flex
@@ -38,9 +37,14 @@
     background-color gray-lightest-color
     border-color gray-lighter-color
     cursor no-drop
-
+  .image-upload-form.disabled
+    background-color gray-lightest-color
+    h1, h2, span
+      color gray-lighter-color
   .Autocomplete__item-title
     garamond s-body
+  .Autocomplete__list
+    margin-top 5px
 
 .AdminVerticalsTags
   .Autocomplete

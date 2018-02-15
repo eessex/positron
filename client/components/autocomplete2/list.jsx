@@ -55,30 +55,30 @@ export class AutocompleteList extends Component {
 
     return (
       <div className={`Autocomplete--list ${className || ''}`}>
-
-        <div className='Autocomplete__list'>
-          {items.length > 0 && items.map((item, i) => {
-            const { title, name } = item
-            return (
-              <div
-                className='Autocomplete__list-item'
-                key={i}
-              >
-                {formatSelected
-                  ? formatSelected()
-                  : <span className='selected'>
-                      {title || name}
-                    </span>
-                }
-                <button
-                  className='remove-button'
-                  onClick={() => this.onRemoveItem(i)}
-                />
-              </div>
-            )
-          })}
-        </div>
-
+        {items.length > 0 &&
+          <div className='Autocomplete__list'>
+            {items.map((item, i) => {
+              const title = item ? item.title || item.name : ''
+              return (
+                <div
+                  className='Autocomplete__list-item'
+                  key={i}
+                >
+                  {formatSelected
+                    ? formatSelected()
+                    : <span className='selected'>
+                        {title}
+                      </span>
+                  }
+                  <button
+                    className='remove-button'
+                    onClick={() => this.onRemoveItem(i)}
+                  />
+                </div>
+              )
+            })}
+          </div>
+        }
         <Autocomplete {...this.props} />
 
       </div>

@@ -1,7 +1,7 @@
 import request from 'superagent'
 import { connect } from 'react-redux'
 import { clone, uniq } from 'lodash'
-import { difference, flatten, pluck, without } from 'underscore'
+import { difference, flatten, pluck } from 'underscore'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
