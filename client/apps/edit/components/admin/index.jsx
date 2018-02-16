@@ -7,7 +7,7 @@ import AdminSuperArticle from './components/super_article'
 import AdminAppearances from './appearances/index.coffee'
 import AdminArticle from './components/article'
 import AdminSponsor from './components/sponsor'
-import { AdminTags } from './components/tags'
+import AdminTags from './components/tags'
 import { AdminVerticalsTags } from './components/verticals_tags'
 
 export class EditAdmin extends Component {
@@ -56,7 +56,7 @@ export class EditAdmin extends Component {
 
           {isEditorial
             ? <AdminVerticalsTags {...this.props} />
-            : <AdminTags {...this.props} />
+            : <AdminTags />
           }
 
           <AdminArticle />
