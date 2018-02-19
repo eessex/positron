@@ -2,7 +2,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { DropDownList } from 'client/components/drop_down/drop_down_list'
 
-import AdminFeaturing from './featuring/index.coffee'
+import AdminFeaturing from './components/featuring'
 import AdminSuperArticle from './components/super_article'
 import AdminAppearances from './appearances/index.coffee'
 import AdminArticle from './components/article'
@@ -61,7 +61,7 @@ export class EditAdmin extends Component {
 
           <AdminArticle />
 
-          <AdminFeaturing {...this.props} />
+          <AdminFeaturing />
 
           <AdminAppearances {...this.props} />
 

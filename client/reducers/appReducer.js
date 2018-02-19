@@ -5,8 +5,10 @@ export const initialState = {
   isAdmin: sd.USER.type === 'Admin',
   user: sd.USER,
   appURL: sd.APP_URL,
+  artsyURL: sd.ARTSY_URL,
   forceURL: sd.FORCE_URL,
-  apiURL: sd.API_URL
+  apiURL: sd.API_URL,
+  metaphysicsURL: sd.METAPHYSICS_ENDPOINT
 }
 
 export function appReducer (state = initialState, action) {
