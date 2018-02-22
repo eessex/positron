@@ -1,15 +1,56 @@
-import React, { Component } from 'react'
+import request from 'superagent'
 import { connect } from 'react-redux'
+import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { onRemoveFeature } from 'client/actions/editActions'
+import { onFetchFeatured, onRemoveFeature } from 'client/actions/editActions'
+import * as Queries from 'client/queries/metaphysics'
 
 export class FeaturingList extends Component {
   static propTypes = {
+    article: PropTypes.object,
     featured: PropTypes.object,
     metaphysicsURL: PropTypes.string,
     model: PropTypes.string,
+    onFetchFeaturedAction: PropTypes.func,
     onRemoveFeatureAction: PropTypes.func,
     user: PropTypes.object
+  }
+
+  componentWillMount = () => {
+    this.fetchFeatured()
+  }
+
+  fetchFeatured = () => {
+    const { article, model, metaphysicsURL, onFetchFeaturedAction, user } = this.props
+    let query
+    let key
+
+    if (model === 'artist') {
+      return false
+      // key = 'primary_featured_artist_ids'
+      // query = Queries.ArtistsQuery
+    } else {
+      key = 'featured_artwork_ids'
+      query = Queries.ArtworksQuery
+    }
+    const ids = article[key]
+    if (ids && ids.length) {
+      request
+        .get(`${metaphysicsURL}`)
+        .set({
+          'Accept': 'application/json',
+          'X-Access-Token': (user && user.access_token)
+        })
+        .query({ query: query(ids) })
+        .end((err, res) => {
+          if (err) {
+            console.error(err)
+          }
+          const items = res.body.data[`${model}s`]
+          onFetchFeaturedAction(model, items)
+          this.setState({loading: false, value: ''})
+        })
+    }
   }
 
   renderItem = (item, index) => {
@@ -44,12 +85,14 @@ export class FeaturingList extends Component {
 }
 
 const mapStateToProps = (state) => ({
+  article: state.edit.article,
   featured: state.edit.featured,
   metaphysicsURL: state.app.metaphysicsURL,
   user: state.app.user
 })
 
 const mapDispatchToProps = {
+  onFetchFeaturedAction: onFetchFeatured,
   onRemoveFeatureAction: onRemoveFeature
 }
 

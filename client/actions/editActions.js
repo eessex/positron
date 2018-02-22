@@ -292,6 +292,16 @@ export const onAddFeature = (model, item) => {
   }
 }
 
+export const onFetchFeatured = (model, items) => {
+  return (dispatch, getState) => {
+    const { featured } = getState().edit
+    let newFeatured = cloneDeep(featured)
+
+    newFeatured[model] = items
+    dispatch(changeFeatured(newFeatured))
+  }
+}
+
 export const onRemoveFeature = (model, item, index) => {
   return (dispatch, getState) => {
     const { article, featured } = getState().edit

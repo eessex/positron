@@ -11,6 +11,17 @@ export function ArtworkQuery (id) {
   `
 }
 
+export function ArtworksQuery (ids) {
+  return `
+    {
+      artworks(ids: ${stringifyJSONForWeb(ids)}) {
+        _id
+        title
+      }
+    }
+  `
+}
+
 export function ArtistQuery (id) {
   return `
     {
