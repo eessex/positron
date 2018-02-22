@@ -8,7 +8,7 @@ export const initialState = {
   artsyURL: sd.ARTSY_URL,
   forceURL: sd.FORCE_URL,
   apiURL: sd.API_URL,
-  metaphysicsURL: sd.METAPHYSICS_ENDPOINT
+  metaphysicsURL: sd.GRAPHQL_ENDPOINT
 }
 
 export function appReducer (state = initialState, action) {

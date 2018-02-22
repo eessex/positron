@@ -16,17 +16,21 @@ const setupArticle = () => {
 }
 
 export const initialState = {
-  article: setupArticle(),
-  sectionIndex: null,
   activeView: 'content',
+  article: setupArticle(),
+  currentSession: sd.CURRENT_SESSION,
   error: null,
+  featured: {
+    artist: [],
+    artwork: []
+  },
   isDeleting: false,
   isPublishing: false,
   isSaving: false,
   isSaved: true,
   lastUpdated: null,
   section: null,
-  currentSession: sd.CURRENT_SESSION
+  sectionIndex: null
 }
 
 export function editReducer (state = initialState, action) {
@@ -67,6 +71,14 @@ export function editReducer (state = initialState, action) {
       return u({
         article,
         isSaved: false
+      }, state)
+    }
+
+    case actions.CHANGE_FEATURED: {
+      const { featured } = action.payload
+
+      return u({
+        featured
       }, state)
     }
 

@@ -1,6 +1,6 @@
 import async from 'async'
 import request from 'superagent'
-import { clone, uniq } from 'lodash'
+import { clone, last, uniq } from 'lodash'
 import { connect } from 'react-redux'
 import { difference, flatten, pluck } from 'underscore'
 import PropTypes from 'prop-types'
@@ -9,6 +9,9 @@ import { Col, Row } from 'react-styled-flexboxgrid'
 import { onChangeArticle } from 'client/actions/editActions'
 import { AutocompleteList } from '/client/components/autocomplete2/list'
 import { AuctionsQuery } from 'client/queries/auctions'
+import FeaturingUrlInput from './featuring_url_input'
+import FeaturingList from './featuring_list'
+import * as Queries from 'client/queries/metaphysics'
 
 export class AdminFeaturing extends Component {
   static propTypes = {
@@ -94,43 +97,63 @@ export class AdminFeaturing extends Component {
     } = this.props
 
     return (
-      <Row>
-        <Col xs={6}>
-          <div className='field-group'>
-          <label>Partners</label>
-            {/* <AutocompleteList
-              fetchItems={this.fetchPartners}
-              items={article.partner_ids || []}
-              filter={(items) => {
-                return items.results.map((item) => {
-                  return { id: item._id, name: item.name }
-                })
-              }}
-              onSelect={(results) => onChangeArticleAction('partner_ids', results)}
-              placeholder='Search by partner name...'
-              url={`${artsyURL}/api/v1/match/partners?term=%QUERY`}
-            /> */}
-          </div>
-        </Col>
+      <div>
+        <Row>
+          <Col xs={6}>
+            <div className='field-group'>
+            <label>Partners</label>
+              {/* <AutocompleteList
+                fetchItems={this.fetchPartners}
+                items={article.partner_ids || []}
+                filter={(items) => {
+                  return items.results.map((item) => {
+                    return { id: item._id, name: item.name }
+                  })
+                }}
+                onSelect={(results) => onChangeArticleAction('partner_ids', results)}
+                placeholder='Search by partner name...'
+                url={`${artsyURL}/api/v1/match/partners?term=%QUERY`}
+              /> */}
+            </div>
+          </Col>
 
-        <Col xs={6}>
-          <div className='field-group'>
-            <label>Auctions</label>
-            <AutocompleteList
-              fetchItems={this.fetchAuctions}
-              items={article.auction_ids || []}
-              filter={(items) => {
-                return items.map((item) => {
-                  return { id: item._id, name: item.name }
-                })
-              }}
-              onSelect={(results) => onChangeArticleAction('auction_ids', results)}
-              placeholder='Search by partner name...'
-              url={`${artsyURL}/api/v1/match/sales?term=%QUERY`}
+          <Col xs={6}>
+            <div className='field-group'>
+              <label>Auctions</label>
+              <AutocompleteList
+                fetchItems={this.fetchAuctions}
+                items={article.auction_ids || []}
+                filter={(items) => {
+                  return items.map((item) => {
+                    return { id: item._id, name: item.name }
+                  })
+                }}
+                onSelect={(results) => onChangeArticleAction('auction_ids', results)}
+                placeholder='Search by partner name...'
+                url={`${artsyURL}/api/v1/match/sales?term=%QUERY`}
+              />
+            </div>
+          </Col>
+        </Row>
+
+        <Row>
+          <Col xs={6}>
+            <FeaturingUrlInput
+              label='Artists'
+              model='artist'
             />
-          </div>
-        </Col>
-      </Row>
+            <FeaturingList model='artist' />
+          </Col>
+
+          <Col xs={6}>
+            <FeaturingUrlInput
+              label='Artworks'
+              model='artwork'
+            />
+            <FeaturingList model='artwork' />
+          </Col>
+        </Row>
+      </div>
     )
   }
 }
