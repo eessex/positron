@@ -3,12 +3,11 @@ import { last } from 'lodash'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { onAddFeature } from 'client/actions/editActions'
+import { onAddFeature } from 'client/actions/editActions.js'
 import * as Queries from 'client/queries/metaphysics'
 
-export class FeaturingUrlInput extends Component {
+export class FeaturingInput extends Component {
   static propTypes = {
-    label: PropTypes.string,
     metaphysicsURL: PropTypes.string,
     model: PropTypes.string,
     onAddFeatureAction: PropTypes.func,
@@ -58,24 +57,21 @@ export class FeaturingUrlInput extends Component {
   }
 
   render () {
-    const { label, model } = this.props
+    const { model } = this.props
     const { value } = this.state
 
-    return (     
-      <div className='field-group'>
-        <label>{label}</label>
-        <input
-          className='bordered-input'
-          value={value}
-          onChange={(e) => this.setState({value: e.target.value})}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              this.onFeature(e.target.value)
-            }
-          }}
-          placeholder={`Add an ${model} by slug or URL...`}
-        />
-      </div>
+    return (
+      <input
+        className='FeaturingInput bordered-input'
+        value={value}
+        onChange={(e) => this.setState({value: e.target.value})}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            this.onFeature(e.target.value)
+          }
+        }}
+        placeholder={`Add an ${model} by slug or URL...`}
+      />
     )
   }
 }
@@ -92,4 +88,4 @@ const mapDispatchToProps = {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(FeaturingUrlInput)
+)(FeaturingInput)

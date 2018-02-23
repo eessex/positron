@@ -29,6 +29,10 @@ export const initialState = {
   isSaving: false,
   isSaved: true,
   lastUpdated: null,
+  mentioned: {
+    artist: [],
+    artwork: []
+  },
   section: null,
   sectionIndex: null
 }
@@ -155,6 +159,16 @@ export function editReducer (state = initialState, action) {
     case actions.SAVE_ARTICLE: {
       return u({
         isSaving: true
+      }, state)
+    }
+
+    case actions.SET_MENTIONED: {
+      const mentioned = cloneDeep(state.mentioned)
+      const { model, items } = action.payload
+      mentioned[model] = items
+
+      return u({
+        mentioned
       }, state)
     }
   }

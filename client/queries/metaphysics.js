@@ -32,3 +32,47 @@ export function ArtistQuery (id) {
     }
   `
 }
+
+export function AuctionsQuery (ids) {
+  return `
+    {
+      sales(ids: ${stringifyJSONForWeb(ids)}) {
+        id
+        name
+      }
+    }
+  `
+}
+
+export function FairsQuery (ids) {
+  return `
+    {
+      fairs(ids: ${stringifyJSONForWeb(ids)}) {
+        id
+        name
+      }
+    }
+  `
+}
+
+export function PartnersQuery (ids) {
+  return `
+    {
+      partners(ids: ${stringifyJSONForWeb(ids)}) {
+        id
+        name
+      }
+    }
+  `
+}
+
+export function ShowsQuery (ids) {
+  return `
+    {
+      partner_shows(ids: ${stringifyJSONForWeb(ids)}) {
+        id
+        name
+      }
+    }
+  `
+}

@@ -2,7 +2,7 @@ import request from 'superagent'
 import { connect } from 'react-redux'
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { onFetchFeatured, onRemoveFeature } from 'client/actions/editActions'
+import { onFetchFeatured, onRemoveFeature } from 'client/actions/editActions.js'
 import * as Queries from 'client/queries/metaphysics'
 
 export class FeaturingList extends Component {
@@ -21,7 +21,13 @@ export class FeaturingList extends Component {
   }
 
   fetchFeatured = () => {
-    const { article, model, metaphysicsURL, onFetchFeaturedAction, user } = this.props
+    const {
+      article,
+      model,
+      metaphysicsURL,
+      onFetchFeaturedAction,
+      user
+    } = this.props
     let query
     let key
 
@@ -73,6 +79,7 @@ export class FeaturingList extends Component {
       </div>
     )
   }
+
   render () {
     const { featured, model } = this.props
 

@@ -1,5 +1,4 @@
 @import '../stylus_lib'
-@import './featuring'
 
 .edit-admin__fields
   display flex
@@ -65,3 +64,45 @@
       border-color black
     .field-group:first-child
       margin-bottom 30px
+
+.FeaturingList,
+.MentionedList
+  display flex
+  flex-direction column
+.FeaturingList__item,
+.MentionedList__item
+  garamond()
+  text-transform none
+  letter-spacing 0
+  padding 5px 20px 7px 10px
+  position relative
+  cursor pointer
+  color purple-color
+  overflow ellipsis
+  margin-bottom 10px
+  border 2px solid gray-lighter-color
+  border-radius 0
+  &:focus
+    border-color gray-light-color
+  &:first-child
+    margin-top 10px
+.MentionedList__item
+  color gray-darker-color
+  display flex
+  justify-content space-between
+  align-items center
+  .mention
+    avant-garde s-headline
+    color gray-color
+    &:after
+      content 'Mentioned'
+  &:hover
+    .mention
+      &:after
+        color purple-color
+        content 'Feature'
+        background url(/icons/check_p.svg) 99% top no-repeat
+        background-size 13px 13px
+        padding-right 18px
+.MentionedList .field-group
+  margin 25px 0
