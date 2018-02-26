@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { onFetchFeatured, onRemoveFeature } from 'client/actions/editActions.js'
+import { ListItem } from 'client/components/autocomplete2/list'
 import * as Queries from 'client/queries/metaphysics'
 
 export class FeaturingList extends Component {
@@ -65,7 +66,7 @@ export class FeaturingList extends Component {
     const text = model === 'artist' ? name : title
 
     return (
-      <div
+      <ListItem
         className='FeaturingList__item'
         key={_id}
       >
@@ -76,7 +77,7 @@ export class FeaturingList extends Component {
           className='remove-button'
           onClick={() => onRemoveFeatureAction(model, item, index)}
         />
-      </div>
+      </ListItem>
     )
   }
 

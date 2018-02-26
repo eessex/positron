@@ -1,3 +1,4 @@
+import colors from '@artsy/reaction-force/dist/Assets/Colors'
 import { connect } from 'react-redux'
 import { pluck } from 'underscore'
 import React, { Component } from 'react'
@@ -7,6 +8,7 @@ import {
   getMentionedArtworks,
   onAddFeature
 } from 'client/actions/editActions.js'
+import { ListItem } from 'client/components/autocomplete2/list'
 
 export class MentionedList extends Component {
   static propTypes = {
@@ -65,14 +67,15 @@ export class MentionedList extends Component {
 
     if (!this.isFeatured(_id)) {
       return (
-        <div
+        <ListItem
           className='MentionedList__item'
+          color={colors.grayDark}
           key={_id}
           onClick={() => onAddFeatureAction(model, item)}
         >
           {name}
           <span className='mention' />
-        </div>
+        </ListItem>
       )
     }
   }

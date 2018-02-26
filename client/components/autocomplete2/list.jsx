@@ -1,6 +1,9 @@
+import colors from '@artsy/reaction-force/dist/Assets/Colors'
+import styled from 'styled-components'
 import { clone } from 'lodash'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
+import { Fonts } from '@artsy/reaction-force/dist/Components/Publishing/Fonts'
 import { Autocomplete } from '/client/components/autocomplete2/index'
 
 export class AutocompleteList extends Component {
@@ -60,7 +63,7 @@ export class AutocompleteList extends Component {
             {items.map((item, i) => {
               const title = item ? item.title || item.name : ''
               return (
-                <div
+                <ListItem
                   className='Autocomplete__list-item'
                   key={i}
                 >
@@ -74,7 +77,7 @@ export class AutocompleteList extends Component {
                     className='remove-button'
                     onClick={() => this.onRemoveItem(i)}
                   />
-                </div>
+                </ListItem>
               )
             })}
           </div>
@@ -85,3 +88,20 @@ export class AutocompleteList extends Component {
     )
   }
 }
+
+export const ListItem = styled.div`
+  ${Fonts.garamond('s17')}
+  align-items: center;
+  border: 2px solid ${colors.grayRegular};
+  color: ${props => props.color ? props.color : colors.purpleRegular};
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  letter-spacing: 0;
+  line-height: 26px;
+  margin-bottom: 10px;
+  overflow: ellipsis;
+  padding: 5px 20px 5px 10px;
+  position: relative;
+  text-transform: none;
+`
