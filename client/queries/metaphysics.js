@@ -33,6 +33,17 @@ export function ArtistQuery (id) {
   `
 }
 
+export function ArtistsQuery (ids) {
+  return `
+    {
+      artists(ids: ${stringifyJSONForWeb(ids)}) {
+        _id
+        name
+      }
+    }
+  `
+}
+
 export function AuctionsQuery (ids) {
   return `
     {

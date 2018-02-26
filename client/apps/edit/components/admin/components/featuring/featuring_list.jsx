@@ -21,6 +21,16 @@ export class FeaturingList extends Component {
     this.fetchFeatured()
   }
 
+  getQuery = (ids) => {
+    const { model } = this.props
+
+    if (model === 'artist') {
+      return Queries.ArtistsQuery(ids)
+    } else {
+      return Queries.ArtworksQuery(ids)
+    }
+  }
+
   fetchFeatured = () => {
     const {
       article,
@@ -29,18 +39,16 @@ export class FeaturingList extends Component {
       onFetchFeaturedAction,
       user
     } = this.props
-    let query
     let key
 
     if (model === 'artist') {
-      return false
-      // key = 'primary_featured_artist_ids'
-      // query = Queries.ArtistsQuery
+      key = 'primary_featured_artist_ids'
     } else {
       key = 'featured_artwork_ids'
-      query = Queries.ArtworksQuery
     }
-    const ids = article[key]
+    const ids = article[key] || []
+    const query = this.getQuery(ids)
+
     if (ids && ids.length) {
       request
         .get(`${metaphysicsURL}`)
@@ -48,7 +56,7 @@ export class FeaturingList extends Component {
           'Accept': 'application/json',
           'X-Access-Token': (user && user.access_token)
         })
-        .query({ query: query(ids) })
+        .query({ query })
         .end((err, res) => {
           if (err) {
             console.error(err)

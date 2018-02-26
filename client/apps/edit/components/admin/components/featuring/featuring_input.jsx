@@ -18,6 +18,16 @@ export class FeaturingInput extends Component {
     value: ''
   }
 
+  getQuery = () => {
+    const { model } = this.props
+
+    if (model === 'artist') {
+      return Queries.ArtistQuery
+    } else {
+      return Queries.ArtworkQuery
+    }
+  }
+
   fetchItem = (id) => {
     const {
       metaphysicsURL,
@@ -26,20 +36,13 @@ export class FeaturingInput extends Component {
       user
     } = this.props
 
-    let query
-    if (model === 'artist') {
-      query = Queries.ArtistQuery
-    } else {
-      query = Queries.ArtworkQuery
-    }
-
     request
       .get(`${metaphysicsURL}`)
       .set({
         'Accept': 'application/json',
         'X-Access-Token': (user && user.access_token)
       })
-      .query({ query: query(id) })
+      .query({ query: this.getQuery(id) })
       .end((err, res) => {
         if (err) {
           console.error(err)

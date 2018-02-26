@@ -21,9 +21,6 @@ export class AdminFeaturing extends Component {
 
   getQuery = (model) => {
     switch (model) {
-      case 'sales': {
-        return Queries.AuctionsQuery
-      }
       case 'fairs': {
         return Queries.FairsQuery
       }
@@ -32,6 +29,9 @@ export class AdminFeaturing extends Component {
       }
       case 'partner_shows': {
         return Queries.PartnersQuery
+      }
+      case 'sales': {
+        return Queries.AuctionsQuery
       }
     }
   }

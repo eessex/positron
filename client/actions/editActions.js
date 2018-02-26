@@ -2,9 +2,6 @@
 import { clone, cloneDeep, extend, without } from 'lodash'
 import keyMirror from 'client/lib/keyMirror'
 import Article from 'client/models/article.coffee'
-import * as ArticleUtils from 'client/models/article.js'
-import Artists from 'client/collections/artists.coffee'
-import Artworks from 'client/collections/artworks.coffee'
 import { emitAction } from 'client/apps/websocket/client'
 import { messageTypes } from 'client/apps/websocket/messageTypes'
 import $ from 'jquery'
@@ -327,48 +324,6 @@ export const changeFeatured = (featured) => {
     payload: {
       featured
     }
-  }
-}
-
-export const getMentionedArtists = () => {
-  return (dispatch, getState) => {
-    const { article } = getState().edit
-    const artists = new Artists()
-
-    artists.getOrFetchIds(
-      ArticleUtils.getMentionedArtistSlugs(article),
-      {
-        success: () => {
-          if (artists.length) {
-            const denormalizedArtists = artists.models.map((item) => {
-              return { _id: item.get('_id'), name: item.get('name') }
-            })
-            dispatch(setMentioned('artist', denormalizedArtists))
-          }
-        }
-      }
-    )
-  }
-}
-
-export const getMentionedArtworks = () => {
-  return (dispatch, getState) => {
-    const { article } = getState().edit
-    const artworks = new Artworks()
-
-    artworks.getOrFetchIds(
-      ArticleUtils.getMentionedArtworkSlugs(article),
-      {
-        success: () => {
-          if (artworks.length) {
-            const denormalizedArtworks = artworks.models.map((item) => {
-              return { _id: item.get('_id'), name: item.get('title') }
-            })
-            dispatch(setMentioned('artwork', denormalizedArtworks))
-          }
-        }
-      }
-    )
   }
 }
 

@@ -3,35 +3,60 @@ import { connect } from 'react-redux'
 import { pluck } from 'underscore'
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import {
-  getMentionedArtists,
-  getMentionedArtworks,
-  onAddFeature
-} from 'client/actions/editActions.js'
+import { onAddFeature, setMentioned } from 'client/actions/editActions.js'
+import * as ArticleUtils from 'client/models/article.js'
+import Artists from 'client/collections/artists.coffee'
+import Artworks from 'client/collections/artworks.coffee'
 import { ListItem } from 'client/components/autocomplete2/list'
 
 export class MentionedList extends Component {
   static propTypes = {
+    article: PropTypes.object,
     featured: PropTypes.object,
-    getMentionedArtistsAction: PropTypes.func,
-    getMentionedArtworksAction: PropTypes.func,
     mentioned: PropTypes.object,
     model: PropTypes.string,
-    onAddFeatureAction: PropTypes.func
+    onAddFeatureAction: PropTypes.func,
+    setMentionedAction: PropTypes.func
   }
 
   componentWillMount = () => {
-    const {
-      getMentionedArtistsAction,
-      getMentionedArtworksAction,
-      model
-    } = this.props
+    const { model } = this.props
 
     if (model === 'artist') {
-      getMentionedArtistsAction()
+      this.getMentionedArtists()
     } else {
-      getMentionedArtworksAction()
+      this.getMentionedArtworks()
     }
+  }
+
+  getMentionedArtists = () => {
+    const { article, setMentionedAction } = this.props
+    const artists = new Artists()
+    const ids = ArticleUtils.getMentionedArtistSlugs(article)
+
+    artists.getOrFetchIds(ids, {
+      success: () => {
+        const denormalizedArtists = artists.models.map((item) => {
+          return { _id: item.get('_id'), name: item.get('name') }
+        })
+        setMentionedAction('artist', denormalizedArtists)
+      }
+    })
+  }
+
+  getMentionedArtworks = () => {
+    const { article, setMentionedAction } = this.props
+    const artworks = new Artworks()
+    const ids = ArticleUtils.getMentionedArtworkSlugs(article)
+
+    artworks.getOrFetchIds(ids, {
+      success: () => {
+        const denormalizedArtworks = artworks.models.map((item) => {
+          return { _id: item.get('_id'), name: item.get('title') }
+        })
+        setMentionedAction('artwork', denormalizedArtworks)
+      }
+    })
   }
 
   notFeaturedArray = () => {
@@ -111,15 +136,15 @@ export class MentionedList extends Component {
 }
 
 const mapStateToProps = (state) => ({
+  article: state.edit.article,
   featured: state.edit.featured,
   mentioned: state.edit.mentioned,
   user: state.app.user
 })
 
 const mapDispatchToProps = {
-  getMentionedArtistsAction: getMentionedArtists,
-  getMentionedArtworksAction: getMentionedArtworks,
-  onAddFeatureAction: onAddFeature
+  onAddFeatureAction: onAddFeature,
+  setMentionedAction: setMentioned
 }
 
 export default connect(
