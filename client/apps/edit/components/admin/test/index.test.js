@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash'
 import { shallow } from 'enzyme'
 import React from 'react'
 import { Fixtures } from '@artsy/reaction-force/dist/Components/Publishing'
@@ -13,7 +14,7 @@ describe('EditAdmin', () => {
 
   beforeEach(() => {
     props = {
-      article: new Article(Fixtures.StandardArticle),
+      article: cloneDeep(Fixtures.StandardArticle),
       channel: { type: 'editorial' },
       onChange: jest.fn()
     }

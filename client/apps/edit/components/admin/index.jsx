@@ -18,9 +18,9 @@ export class EditAdmin extends Component {
   }
 
   componentWillMount = () => {
-    const { article } = this.props
-    article.fetchFeatured()
-    article.fetchMentioned()
+    // const { article } = this.props
+    // article.fetchFeatured()
+    // article.fetchMentioned()
   }
 
   getSections = () => {
