@@ -123,6 +123,7 @@ export class ArticlePublishDate extends Component {
               onBlur={this.onChangeFocus}
             />
           </InputGroup>
+
           <ButtonMedium
             background={hasChanged ? colors.redMedium : undefined}
             onClick={this.onScheduleChange}
@@ -143,21 +144,23 @@ export const InputGroup = styled.div`
   display: flex;
   border: 2px solid ${props => props.focus ? colors.purpleRegular : colors.grayRegular};
   transition: border .3s;
+  margin-right: 20px;
   .bordered-input {
     border: none;
     margin-top: 0;
   }
 `
-const ButtonMedium = styled.button`
+
+export const ButtonMedium = styled.button`
   padding: 10px 20px;
   color: ${props => props.color ? props.color : 'white'};
+  cursor: pointer;
   background: ${props => props.background ? props.background : colors.grayMedium};
   ${Fonts.avantgarde('s11')}
   outline: none;
   border: none;
   width: -moz-available;
   width: -webkit-fill-available;
-  margin-left: 20px;
   transition: background .3s;
   &:hover {
     background: ${colors.purpleRegular};

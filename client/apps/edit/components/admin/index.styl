@@ -1,28 +1,5 @@
 @import '../stylus_lib'
 
-.edit-admin__fields
-  display flex
-  justify-content space-between
-  height 0
-  opacity 0
-  overflow hidden
-  transition all .65s
-  &.active
-    margin-top 30px
-    margin-bottom 120px
-    height initial
-    opacity 1
-    transition all .65s
-    overflow visible
-  input[disabled], textarea[disabled]
-    background-color gray-lightest-color
-    border-color gray-lighter-color
-    cursor no-drop
-  .tt-hint
-    visibility hidden
-  .autocomplete-select-input
-    margin-top 5px
-
 .edit-admin--appearances
   flex-direction column
   .autocomplete-select
@@ -30,7 +7,6 @@
 
 .EditAdmin
   margin 95px auto
-
   input[disabled], textarea[disabled]
     background-color gray-lightest-color
     border-color gray-lighter-color
