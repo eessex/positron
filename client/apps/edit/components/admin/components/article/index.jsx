@@ -12,7 +12,7 @@ import { onChangeArticle } from 'client/actions/editActions'
 import { AutocompleteList } from '/client/components/autocomplete2/list'
 import { ArticlePublishDate } from './article_publish_date'
 import { RelatedArticleQuery } from 'client/queries/related_articles'
-import AdminArticleAuthors from './article_authors'
+import ArticleAuthors from './article_authors'
 
 export class AdminArticle extends Component {
   static propTypes = {
@@ -62,7 +62,7 @@ export class AdminArticle extends Component {
 
     return (
       <div>
-        <AdminArticleAuthors />
+        <ArticleAuthors />
 
         <Row>
           <Col xs={6}>

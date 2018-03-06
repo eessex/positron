@@ -9,7 +9,7 @@ import { onChangeArticle } from 'client/actions/editActions'
 import { AutocompleteList } from '/client/components/autocomplete2/list'
 import { AuthorsQuery } from 'client/queries/authors'
 
-export class AdminArticleAuthors extends Component {
+export class ArticleAuthors extends Component {
   static propTypes = {
     article: PropTypes.object,
     apiURL: PropTypes.string,
@@ -115,4 +115,4 @@ const mapDispatchToProps = {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(AdminArticleAuthors)
+)(ArticleAuthors)

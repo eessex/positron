@@ -1,5 +1,5 @@
 import configureStore from 'redux-mock-store'
-import { clone } from 'lodash'
+import { cloneDeep } from 'lodash'
 import { mount } from 'enzyme'
 import React from 'react'
 import { Provider } from 'react-redux'
@@ -35,7 +35,8 @@ describe('AdminFeaturing', () => {
   }
 
   beforeEach(() => {
-    let article = clone(Fixtures.StandardArticle)
+    let article = cloneDeep(Fixtures.StandardArticle)
+
     props = {
       article,
       featured: {
