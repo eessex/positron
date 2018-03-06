@@ -1,8 +1,9 @@
+import configureStore from 'redux-mock-store'
 import { cloneDeep } from 'lodash'
-import { shallow } from 'enzyme'
+import { mount } from 'enzyme'
 import React from 'react'
+import { Provider } from 'react-redux'
 import { Fixtures } from '@artsy/reaction-force/dist/Components/Publishing'
-import Article from '../../../../../models/article.coffee'
 import { DropDownList } from 'client/components/drop_down/drop_down_list'
 import { AdminTags } from '../components/tags'
 import { AdminVerticalsTags } from '../components/verticals_tags'
@@ -12,23 +13,37 @@ require('typeahead.js')
 describe('EditAdmin', () => {
   let props
 
-  beforeEach(() => {
-    props = {
-      article: cloneDeep(Fixtures.StandardArticle),
-      channel: { type: 'editorial' },
-      onChange: jest.fn()
-    }
-  })
-
   const getWrapper = (props) => {
-    return shallow(
-      <EditAdmin {...props} />
+    const mockStore = configureStore([])
+    const { article, featured, mentioned } = props
+
+    const store = mockStore({
+      app: {
+        channel: { type: 'editorial' }
+      },
+      edit: {
+        article,
+        featured,
+        mentioned
+      }
+    })
+
+    return mount(
+      <Provider store={store}>
+        <EditAdmin {...props} />
+      </Provider>
     )
   }
 
+  beforeEach(() => {
+    props = {
+      article: cloneDeep(Fixtures.FeatureArticle),
+      channel: { type: 'editorial' }
+    }
+  })
+
   it('Renders dropdown', () => {
     const component = getWrapper(props)
-
     expect(component.find(DropDownList).exists()).toBe(true)
   })
 

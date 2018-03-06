@@ -2,11 +2,11 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { DropDownList } from 'client/components/drop_down/drop_down_list'
 
-import AdminFeaturing from './components/featuring'
-import AdminSuperArticle from './components/super_article'
-import AdminAppearances from './appearances/index.coffee'
+import { AdminAppearances } from './components/appearances'
+import { AdminFeaturing } from './components/featuring'
 import AdminArticle from './components/article'
 import AdminSponsor from './components/sponsor'
+import AdminSuperArticle from './components/super_article'
 import AdminTags from './components/tags'
 import AdminVerticalsTags from './components/verticals_tags'
 
@@ -15,12 +15,6 @@ export class EditAdmin extends Component {
     article: PropTypes.object,
     channel: PropTypes.object,
     onChange: PropTypes.func
-  }
-
-  componentWillMount = () => {
-    // const { article } = this.props
-    // article.fetchFeatured()
-    // article.fetchMentioned()
   }
 
   getSections = () => {
