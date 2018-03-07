@@ -15,17 +15,11 @@ describe('EditAdmin', () => {
 
   const getWrapper = (props) => {
     const mockStore = configureStore([])
-    const { article, featured, mentioned } = props
+    const { article, channel } = props
 
     const store = mockStore({
-      app: {
-        channel: { type: 'editorial' }
-      },
-      edit: {
-        article,
-        featured,
-        mentioned
-      }
+      app: { channel },
+      edit: { article }
     })
 
     return mount(
@@ -55,7 +49,7 @@ describe('EditAdmin', () => {
     expect(component.html()).toMatch('Sponsor')
   })
 
-  it('Renders correct sections for non-editorial articles', () => {
+  it('Renders correct sections for non-editorial channels', () => {
     props.channel.type = 'partner'
     const component = getWrapper(props)
 

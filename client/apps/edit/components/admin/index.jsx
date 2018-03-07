@@ -1,7 +1,7 @@
+import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { DropDownList } from 'client/components/drop_down/drop_down_list'
-
 import { AdminAppearances } from './components/appearances'
 import { AdminFeaturing } from './components/featuring'
 import AdminArticle from './components/article'
@@ -12,9 +12,7 @@ import AdminVerticalsTags from './components/verticals_tags'
 
 export class EditAdmin extends Component {
   static propTypes = {
-    article: PropTypes.object,
-    channel: PropTypes.object,
-    onChange: PropTypes.func
+    channel: PropTypes.object
   }
 
   getSections = () => {
@@ -57,7 +55,7 @@ export class EditAdmin extends Component {
 
           <AdminFeaturing />
 
-          <AdminAppearances {...this.props} />
+          <AdminAppearances />
 
           {isEditorial &&
             <AdminSuperArticle />
@@ -70,3 +68,11 @@ export class EditAdmin extends Component {
     )
   }
 }
+
+const mapStateToProps = (state) => ({
+  channel: state.app.channel
+})
+
+export default connect(
+  mapStateToProps
+)(EditAdmin)

@@ -195,6 +195,6 @@ describe('ArticlePublishDate', () => {
     component.find('button').at(0).simulate('click')
 
     expect(props.onChange.mock.calls[0][0]).toBe('scheduled_publish_at')
-    expect(props.onChange.mock.calls[0][1]).toMatch(moment(date).format('YYYY-MM-DD'))
+    expect(props.onChange.mock.calls[0][1]).toMatch(moment(date).format('YYYY-MM-'))
   })
 })
