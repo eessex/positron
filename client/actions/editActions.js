@@ -280,50 +280,12 @@ export const saveArticlePending = () => {
 
 export const onAddFeature = (model, item) => {
   return (dispatch, getState) => {
-    const { article, featured } = getState().edit
+    const { article } = getState().edit
     const key = model === 'artist' ? 'primary_featured_artist_ids' : 'featured_artwork_ids'
-    let newFeatured = cloneDeep(featured)
     let newFeaturedIds = cloneDeep(article)[key] || []
 
-    newFeatured[model].push(item)
     newFeaturedIds.push(item._id)
-
     dispatch(changeArticle(key, newFeaturedIds))
-    dispatch(changeFeatured(newFeatured))
-  }
-}
-
-export const onFetchFeatured = (model, items) => {
-  return (dispatch, getState) => {
-    const { featured } = getState().edit
-    let newFeatured = cloneDeep(featured)
-
-    newFeatured[model] = items
-    dispatch(changeFeatured(newFeatured))
-  }
-}
-
-export const onRemoveFeature = (model, item, index) => {
-  return (dispatch, getState) => {
-    const { article, featured } = getState().edit
-    const key = model === 'artist' ? 'primary_featured_artist_ids' : 'featured_artwork_ids'
-    let newFeatured = cloneDeep(featured)
-    let newFeaturedIds = cloneDeep(article)[key]
-
-    newFeatured[model] = newFeatured[model].splice(1, index)
-    newFeaturedIds = without(newFeaturedIds, item._id)
-
-    dispatch(changeArticle(key, newFeaturedIds))
-    dispatch(changeFeatured(newFeatured))
-  }
-}
-
-export const changeFeatured = (featured) => {
-  return {
-    type: actions.CHANGE_FEATURED,
-    payload: {
-      featured
-    }
   }
 }
 

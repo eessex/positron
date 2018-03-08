@@ -1,6 +1,6 @@
 import colors from '@artsy/reaction-force/dist/Assets/Colors'
 import styled from 'styled-components'
-import { clone } from 'lodash'
+import { clone, map, uniq } from 'lodash'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Fonts } from '@artsy/reaction-force/dist/Components/Publishing/Fonts'
@@ -44,11 +44,13 @@ export class AutocompleteList extends Component {
   }
 
   onRemoveItem = (item) => {
-    const { items, onSelect } = this.props
+    const { onSelect } = this.props
+    const { items } = this.state
     const newItems = clone(items)
 
     newItems.splice(item, 1)
-    onSelect(newItems)
+    const newItemsIds = uniq(map(newItems, '_id'))
+    onSelect(newItemsIds)
     this.setState({items: newItems})
   }
 
@@ -57,7 +59,7 @@ export class AutocompleteList extends Component {
     const { items } = this.state
 
     return (
-      <div className={`Autocomplete--list ${className || ''}`}>
+      <div className={`AutocompleteList ${className || ''}`}>
         {items.length > 0 &&
           <div className='Autocomplete__list'>
             {items.map((item, i) => {
