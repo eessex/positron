@@ -262,11 +262,12 @@ export const getSuperArticleCount = (id) => {
 export const backfill = (callback) => {
   // Modify the query to match the articles that need backfilling
   const query = {
-    published: true
+    layout: { $in: ['feature', 'standard'] }
   }
 
   db.articles
   .find(query)
+  .sort({published_at: 1})
   .toArray((err, articles) => {
     if (err) {
       return callback(err)
@@ -289,6 +290,20 @@ export const backfill = (callback) => {
         Write backfill logic here. Make sure to callback with cb()
         eg: distributeArticle(article,cb)
       */
+      let hasChanged = false
+      article.sections.map(section => {
+        const contentEnd = '<span class="content-end"> </span>'
+        if (section.type === 'text' && section.body.includes(contentEnd)) {
+          section.body = section.body.replace(contentEnd, '')
+          hasChanged = true
+          console.log('content changed')
+        }
+      })
+      if (hasChanged) {
+        db.articles.save(article, cb)
+      } else {
+        cb()
+      }
     }, (err, results) => {
       console.log(err)
       callback()

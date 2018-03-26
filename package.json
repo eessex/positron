@@ -8,6 +8,7 @@
   "scripts": {
     "start": "sh scripts/start.sh",
     "dev": "sh scripts/dev.sh",
+    "task": "node -r coffee-script/register -r babel-core/register -r dotenv/config",
     "test": "sh scripts/test.sh",
     "test:watch": "yarn jest -- --watch --runInBand",
     "assets": "sh scripts/assets.sh",
