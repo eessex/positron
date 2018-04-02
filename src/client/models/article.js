@@ -10,9 +10,11 @@ import {
   pluck
 } from 'underscore'
 
-export const getArticleByline = (article) => {
+export const getArticleByline = (article, authors) => {
   const { contributing_authors, author } = article
-
+  if (authors) {
+    return _s.toSentence(pluck(authors, 'name'))
+  }
   if (contributing_authors && contributing_authors.length) {
     return _s.toSentence(pluck(contributing_authors, 'name'))
   } else if (author.name) {
