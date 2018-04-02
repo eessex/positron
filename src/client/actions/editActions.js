@@ -151,7 +151,9 @@ export const onChangeArticle = (key, value) => {
     } = getState()
 
     dispatch(changeArticle(key, value))
-
+    if (key === 'author_ids') {
+      dispatch(onFetchArticleAuthors())
+    }
     debouncedUpdateDispatch(dispatch, { channel, article: article.id })
 
     if (!article.published) {
