@@ -19,6 +19,7 @@ export const setupArticle = () => {
 export const initialState = {
   activeView: 'content',
   article: setupArticle(),
+  authors: [],
   currentSession: sd.CURRENT_SESSION,
   error: null,
   isDeleting: false,
@@ -127,6 +128,13 @@ export function editReducer (state = initialState, action) {
     case actions.SAVE_ARTICLE: {
       return u({
         isSaving: true
+      }, state)
+    }
+
+    case actions.SET_ARTICLE_AUTHORS: {
+      const { authors } = action.payload
+      return u({
+        authors
       }, state)
     }
 

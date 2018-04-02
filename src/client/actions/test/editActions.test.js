@@ -1,10 +1,23 @@
 import * as editActions from '../editActions'
+import request from 'superagent'
 import { cloneDeep } from 'lodash'
 import Backbone from 'backbone'
 import { Fixtures } from '@artsy/reaction/dist/Components/Publishing'
 import Article from 'client/models/article.coffee'
 import $ from 'jquery'
 const { FeatureArticle } = Fixtures
+
+jest.mock('superagent', () => {
+  return {
+    get: jest.genMockFunction().mockReturnThis(),
+    set: jest.genMockFunction().mockReturnThis(),
+    query: jest.fn().mockReturnValue(
+      {
+        end: jest.fn()
+      }
+    )
+  }
+})
 
 describe('editActions', () => {
   let article
@@ -485,6 +498,59 @@ describe('editActions', () => {
       expect(dispatch.mock.calls[0][0].type).toBe('CHANGE_ARTICLE')
       expect(dispatch.mock.calls[0][0].payload.key).toBe('featured_artwork_ids')
       expect(dispatch.mock.calls[0][0].payload.value[0]).toBe('123')
+    })
+  })
+
+  describe('#onFetchArticleAuthors', () => {
+    let getState
+    let dispatch
+    let response
+
+    beforeEach(() => {
+      response = {
+        body: {
+          data: {
+            authors: [{
+              id: '123',
+              name: 'Casey Lesser'
+            }]
+          }
+        }
+      }
+
+      getState = jest.fn(() => ({
+        edit: { article },
+        app: {
+          apiUrl: 'http://stagingwriter.artsy.net/api',
+          user: { access_token: 'asdf' }
+        }
+      }))
+      dispatch = jest.fn()
+    })
+
+    it('Fetches article authors and calls #setArticleAuthors', () => {
+      request.query().end.mockImplementation(() => {
+        dispatch(editActions.setArticleAuthors(response.body.data.authors))
+      })
+      article.author_ids = ['123']
+      editActions.onFetchArticleAuthors()(dispatch, getState)
+
+      expect(dispatch.mock.calls[0][0].type).toBe('SET_ARTICLE_AUTHORS')
+      expect(dispatch.mock.calls[0][0].payload.authors[0].id).toBe('123')
+      expect(dispatch.mock.calls[0][0].payload.authors[0].name).toBe('Casey Lesser')
+    })
+  })
+
+  describe('#setArticleAuthors', () => {
+    it('Can set article authors', () => {
+      const authors = [{
+        id: '123',
+        name: 'Casey Lesser'
+      }]
+      const action = editActions.setArticleAuthors(authors)
+
+      expect(action.type).toBe('SET_ARTICLE_AUTHORS')
+      expect(action.payload.authors[0]).toBe(authors[0])
     })
   })
 

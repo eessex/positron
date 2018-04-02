@@ -23,6 +23,7 @@ export function init () {
   if (article.isNew()) {
     store.dispatch(editActions.saveArticle())
   }
+  store.dispatch(editActions.onFetchArticleAuthors())
 
   ReactDOM.render(
     <Provider store={store}>

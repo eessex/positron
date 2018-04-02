@@ -15,6 +15,7 @@ describe('editReducer', () => {
   })
 
   it('should return the initial state', () => {
+    expect(initialState.authors).toEqual([])
     expect(initialState.article).toEqual(FeatureArticle)
     expect(initialState.activeView).toBe('content')
     expect(initialState.error).toBe(null)

@@ -1,9 +1,10 @@
-
+import request from 'superagent'
 import { clone, cloneDeep, debounce } from 'lodash'
 import keyMirror from 'client/lib/keyMirror'
 import Article from 'client/models/article.coffee'
 import { emitAction } from 'client/apps/websocket/client'
 import { messageTypes } from 'client/apps/websocket/messageTypes'
+import { AuthorsQuery } from 'client/queries/authors'
 import $ from 'jquery'
 
 export const actions = keyMirror(
@@ -25,6 +26,7 @@ export const actions = keyMirror(
   'REMOVE_SECTION',
   'RESET_SECTIONS',
   'SAVE_ARTICLE',
+  'SET_ARTICLE_AUTHORS',
   'SET_MENTIONED_ITEMS',
   'SET_SECTION',
   'SET_SEO_KEYWORD',
@@ -299,6 +301,41 @@ export const onAddFeaturedItem = (model, item) => {
 
     newFeaturedIds.push(item._id)
     dispatch(changeArticle(key, newFeaturedIds))
+  }
+}
+
+export const onFetchArticleAuthors = () => {
+  return (dispatch, getState) => {
+    const {
+      edit: { article: { author_ids } },
+      app: { apiURL, user }
+    } = getState()
+
+    if (author_ids && author_ids.length) {
+      request
+        .get(`${apiURL}/graphql`)
+        .set({
+          'Accept': 'application/json',
+          'X-Access-Token': (user && user.access_token)
+        })
+        .query({ query: AuthorsQuery(author_ids) })
+        .end((err, res) => {
+          if (err) {
+            console.error(err)
+          }
+          const { authors } = res.body.data
+          dispatch(setArticleAuthors(authors || []))
+        })
+    }
+  }
+}
+
+export const setArticleAuthors = (authors) => {
+  return {
+    type: actions.SET_ARTICLE_AUTHORS,
+    payload: {
+      authors
+    }
   }
 }
 
