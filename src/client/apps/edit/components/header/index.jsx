@@ -1,21 +1,28 @@
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import * as Actions from 'client/actions/editActions'
+import {
+  deleteArticle,
+  publishArticle,
+  saveArticle
+} from 'client/actions/edit/articleActions'
+import { changeView } from 'client/actions/editActions'
 import Icon from '@artsy/reaction/dist/Components/Icon'
 import colors from '@artsy/reaction/dist/Assets/Colors'
 
 export class EditHeader extends Component {
   static propTypes = {
-    actions: PropTypes.any,
     article: PropTypes.object,
     beforeUnload: PropTypes.func,
+    changeViewAction: PropTypes.func,
     channel: PropTypes.object,
     edit: PropTypes.object,
     forceURL: PropTypes.string,
-    isAdmin: PropTypes.bool
+    isAdmin: PropTypes.bool,
+    deleteArticleAction: PropTypes.func,
+    publishArticleAction: PropTypes.func,
+    saveArticleAction: PropTypes.func
   }
 
   isPublishable = () => {
@@ -37,26 +44,26 @@ export class EditHeader extends Component {
   }
 
   onPublish = () => {
-    const { actions } = this.props
+    const { publishArticleAction } = this.props
 
     if (this.isPublishable()) {
-      actions.publishArticle()
+      publishArticleAction()
     }
   }
 
   onSave = () => {
-    const { actions } = this.props
+    const { saveArticleAction } = this.props
 
     this.removeUnsavedAlert()
-    actions.saveArticle()
+    saveArticleAction()
   }
 
   onDelete = () => {
-    const { actions } = this.props
+    const { deleteArticleAction } = this.props
 
     if (confirm('Are you sure?')) {
       this.removeUnsavedAlert()
-      actions.deleteArticle()
+      deleteArticleAction()
     }
   }
 
@@ -110,13 +117,12 @@ export class EditHeader extends Component {
   render () {
     const {
       article,
-      actions,
+      changeViewAction,
       channel,
       edit,
       forceURL,
       isAdmin
     } = this.props
-    const { changeView } = actions
     const { activeView, isDeleting } = edit
     const { grayMedium, greenRegular } = colors
 
@@ -127,7 +133,7 @@ export class EditHeader extends Component {
           <div className='EditHeader__tabs'>
             <button
               className='avant-garde-button check'
-              onClick={() => changeView('content')}
+              onClick={() => changeViewAction('content')}
               data-active={activeView === 'content'}
             >
               <span>Content</span>
@@ -140,7 +146,7 @@ export class EditHeader extends Component {
 
             <button
               className='avant-garde-button check'
-              onClick={() => changeView('display')}
+              onClick={() => changeViewAction('display')}
               data-active={activeView === 'display'}
             >
               <span>Display</span>
@@ -154,7 +160,7 @@ export class EditHeader extends Component {
             {isAdmin &&
               <button
                 className='avant-garde-button'
-                onClick={() => changeView('admin')}
+                onClick={() => changeViewAction('admin')}
                 data-active={activeView === 'admin'}
               >
                 Admin
@@ -220,9 +226,12 @@ const mapStateToProps = (state) => ({
   isAdmin: state.app.isAdmin
 })
 
-const mapDispatchToProps = (dispatch) => ({
-  actions: bindActionCreators(Actions, dispatch)
-})
+const mapDispatchToProps = {
+  changeViewAction: changeView,
+  deleteArticleAction: deleteArticle,
+  publishArticleAction: publishArticle,
+  saveArticleAction: saveArticle
+}
 
 export default connect(
   mapStateToProps,

@@ -58,7 +58,6 @@ describe('EditContainer', () => {
     props = {
       activeView: 'content',
       article: cloneDeep(Fixtures.StandardArticle),
-      changeSavedStatusAction: jest.fn(),
       channel: {},
       error: {},
       isSaved: false,

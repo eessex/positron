@@ -1,45 +1,31 @@
 
-import { clone, cloneDeep, debounce, set } from 'lodash'
+import { cloneDeep, extend } from 'lodash'
 import keyMirror from 'client/lib/keyMirror'
-import Article from 'client/models/article.coffee'
 import { emitAction } from 'client/apps/websocket/client'
 import { messageTypes } from 'client/apps/websocket/messageTypes'
 import $ from 'jquery'
 
-export const actions = keyMirror(
-  'CHANGE_SAVED_STATUS',
-  'CHANGE_VIEW',
-  'CHANGE_SECTION',
-  'CHANGE_ARTICLE',
-  'UPDATE_ARTICLE',
-  'START_EDITING_ARTICLE',
-  'STOP_EDITING_ARTICLE',
-  'DELETE_ARTICLE',
-  'ERROR',
-  'NEW_SECTION',
-  'ON_CHANGE_ARTICLE',
-  'ON_CHANGE_SECTION',
-  'ON_FIRST_SAVE',
-  'PUBLISH_ARTICLE',
-  'REDIRECT_TO_LIST',
-  'REMOVE_SECTION',
-  'RESET_SECTIONS',
-  'SAVE_ARTICLE',
-  'SET_MENTIONED_ITEMS',
-  'SET_SECTION',
-  'SET_SEO_KEYWORD',
-  'TOGGLE_SPINNER'
-)
+import {
+  actions as articleActions,
+  changeArticleData
+} from './edit/articleActions'
+import { actions as sectionActions } from './edit/sectionActions'
 
-export const changeSavedStatus = (article, isSaved) => {
-  return {
-    type: actions.CHANGE_SAVED_STATUS,
-    payload: {
-      article,
-      isSaved
-    }
-  }
-}
+export const actions = extend(
+  keyMirror(
+    'CHANGE_VIEW',
+    'UPDATE_ARTICLE',
+    'START_EDITING_ARTICLE',
+    'STOP_EDITING_ARTICLE',
+    'ERROR',
+    'REDIRECT_TO_LIST',
+    'RESET_SECTIONS',
+    'SET_MENTIONED_ITEMS',
+    'TOGGLE_SPINNER'
+  ),
+  articleActions,
+  sectionActions
+)
 
 export const changeView = (activeView) => ({
   // Content, Admin, Display
@@ -48,29 +34,6 @@ export const changeView = (activeView) => ({
     activeView
   }
 })
-
-export const deleteArticle = (key, value) => {
-  return (dispatch, getState) => {
-    const { edit: { article } } = getState()
-    const newArticle = new Article(article)
-
-    dispatch(deleteArticlePending())
-    newArticle.destroy({
-      success: () => {
-        dispatch(redirectToList(article.published))
-      }
-    })
-  }
-}
-
-export const deleteArticlePending = () => {
-  return {
-    type: actions.DELETE_ARTICLE,
-    payload: {
-      isDeleting: true
-    }
-  }
-}
 
 export const startEditingArticle = emitAction((data) => {
   return {
@@ -105,212 +68,11 @@ export const stopEditingArticle = emitAction((data) => {
   }
 })
 
-export const setSection = (sectionIndex) => ({
-  // Index of article section currently editing
-  type: actions.SET_SECTION,
-  payload: {
-    sectionIndex
-  }
-})
-
-export const newSection = (type, sectionIndex, attrs = {}) => {
-  const section = {...setupSection(type), ...attrs}
-
-  return {
-    type: actions.NEW_SECTION,
-    payload: {
-      section,
-      sectionIndex
-    }
-  }
-}
-
-export const newHeroSection = (type) => {
-  const section = setupSection(type)
-
-  return (dispatch, getState) => {
-    dispatch(changeArticleData('hero_section', section))
-  }
-}
-
-const debouncedSaveDispatch = debounce((dispatch) => {
-  dispatch(saveArticle())
-}, 500)
-
-const debouncedUpdateDispatch = debounce((dispatch, options) => {
-  dispatch(updateArticle(options))
-}, 500)
-
-export const onChangeArticle = (key, value) => {
-  return (dispatch, getState) => {
-    const {
-      app: { channel },
-      edit: { article }
-    } = getState()
-
-    dispatch(changeArticleData(key, value))
-
-    debouncedUpdateDispatch(dispatch, { channel, article: article.id })
-
-    if (!article.published) {
-      debouncedSaveDispatch(dispatch)
-    }
-  }
-}
-
-export const changeArticle = (data) => {
-  return {
-    type: actions.CHANGE_ARTICLE,
-    payload: {
-      data
-    }
-  }
-}
-
-export const changeArticleData = (key, value) => {
-  return (dispatch, getState) => {
-    const { edit: { article } } = getState()
-    let data = {}
-
-    if (typeof key === 'object') {
-      // extend article with an object of key
-      data = key
-    } else {
-      let nestedObject = key.split('.')
-
-      if (nestedObject.length > 1) {
-      // change a nested object value
-        const existingValue = clone(article[nestedObject[0]]) || {}
-        data = set(existingValue, key, value)
-      } else {
-      // change a single key's value
-        data[key] = value
-      }
-    }
-    dispatch(changeArticle(data))
-  }
-}
-
-export const onChangeHero = (key, value) => {
-  return (dispatch, getState) => {
-    const { edit: { article } } = getState()
-    const hero_section = clone(article.hero_section) || {}
-
-    hero_section[key] = value
-    dispatch(changeArticleData('hero_section', hero_section))
-
-    if (!article.published) {
-      debouncedSaveDispatch(dispatch)
-    }
-  }
-}
-
-export const onChangeSection = (key, value) => {
-  return (dispatch, getState) => {
-    const { edit: { article } } = getState()
-
-    dispatch(changeSection(key, value))
-
-    if (!article.published) {
-      debouncedSaveDispatch(dispatch)
-    }
-  }
-}
-
-export const changeSection = (key, value) => {
-  return {
-    type: actions.CHANGE_SECTION,
-    payload: {
-      key,
-      value
-    }
-  }
-}
-
-export const onFirstSave = (id) => {
-  window.location.assign(`/articles/${id}/edit`)
-
-  return {
-    type: actions.ON_FIRST_SAVE
-  }
-}
-
-export const publishArticle = () => {
-  return (dispatch, getState) => {
-    dispatch(publishArticlePending())
-    const { edit: { article } } = getState()
-    const published = !article.published
-    const newArticle = new Article(article)
-
-    newArticle.set({ published })
-    if (published) {
-      dispatch(setSeoKeyword(newArticle))
-    }
-    newArticle.save()
-
-    dispatch(redirectToList(published))
-  }
-}
-
-export const publishArticlePending = () => {
-  return {
-    type: actions.PUBLISH_ARTICLE,
-    payload: {
-      isPublishing: true
-    }
-  }
-}
-
 export const redirectToList = (published) => {
   window.location.assign(`/articles?published=${published}`)
 
   return {
     type: actions.REDIRECT_TO_LIST
-  }
-}
-
-export const removeSection = (sectionIndex) => {
-  return (dispatch, getState) => {
-    const { edit: { article } } = getState()
-    const newArticle = cloneDeep(article)
-
-    newArticle.sections.splice(sectionIndex, 1)
-    dispatch(onChangeArticle('sections', newArticle.sections))
-  }
-}
-
-export const saveArticle = () => {
-  return (dispatch, getState) => {
-    const { edit: { article } } = getState()
-    const newArticle = new Article(article)
-
-    dispatch(saveArticlePending())
-
-    newArticle.on('sync', () => {
-      dispatch(changeSavedStatus(article, true))
-    })
-
-    if (newArticle.isNew()) {
-      newArticle.once('sync', () => {
-        dispatch(onFirstSave(newArticle.id))
-      })
-    }
-
-    dispatch(setSeoKeyword(newArticle))
-    newArticle.save()
-
-    if (article.published) {
-      dispatch(redirectToList(true))
-    }
-  }
-}
-
-export const saveArticlePending = () => {
-  return {
-    type: actions.SAVE_ARTICLE,
-    payload: {
-      isSaving: true
-    }
   }
 }
 
@@ -361,57 +123,3 @@ export const resetError = () => ({
     error: null
   }
 })
-
-// ACTION UTILS
-export function setupSection (type) {
-  // set initial state of new section
-  switch (type) {
-    case 'video':
-      return {
-        type: 'video',
-        url: '',
-        layout: 'column_width'
-      }
-    case 'image_collection':
-      return {
-        type: 'image_collection',
-        layout: 'overflow_fillwidth',
-        images: []
-      }
-    case 'embed':
-      return {
-        type: 'embed',
-        url: '',
-        layout: 'column_width',
-        height: ''
-      }
-    case 'social_embed':
-      return {
-        type: 'social_embed',
-        url: '',
-        layout: 'column_width'
-      }
-    case 'text':
-      return {
-        type: 'text',
-        body: ''
-      }
-    case 'blockquote':
-      return {
-        type: 'text',
-        body: '',
-        layout: 'blockquote'
-      }
-  }
-}
-
-export const setSeoKeyword = (article) => {
-  if (article.get('published')) {
-    const seo_keyword = $('input#edit-seo__focus-keyword').val() || ''
-
-    article.set({ seo_keyword })
-  }
-  return {
-    type: actions.SET_SEO_KEYWORD
-  }
-}
