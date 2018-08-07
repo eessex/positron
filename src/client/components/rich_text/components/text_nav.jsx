@@ -10,6 +10,7 @@ import {
   IconOrderedList,
   IconUnorderedList
 } from '@artsy/reaction/dist/Components/Publishing'
+import { BackgroundOverlay } from './input_url'
 
 export class TextNav extends React.Component {
   onToggle = (e, action) => {
@@ -110,30 +111,36 @@ export class TextNav extends React.Component {
   }
 
   render () {
-    const { top, left } = this.props.position
+    const {
+      onClickOff,
+      position: { top, left }
+    } = this.props
     const buttons = this.getButtonArray()
 
     return (
-      <div
-        className='TextNav'
-        style={{
-          top: top,
-          marginLeft: left,
-          width: this.getNavWidth()
-        }}
-      >
-        {buttons.map((button, i) =>
-          <button
-            key={i}
-            className={button.name.toLowerCase()}
-            onMouseDown={(e) => this.onToggle(e, button.name)}
-          >
-            {button.label
-              ? button.label
-              : this.getIcon(button.name)
-            }
-          </button>
-        )}
+      <div>
+        <BackgroundOverlay onClick={onClickOff} />
+        <div
+          className='TextNav'
+          style={{
+            top: top,
+            marginLeft: left,
+            width: this.getNavWidth()
+          }}
+        >
+          {buttons.map((button, i) =>
+            <button
+              key={i}
+              className={button.name.toLowerCase()}
+              onMouseDown={(e) => this.onToggle(e, button.name)}
+            >
+              {button.label
+                ? button.label
+                : this.getIcon(button.name)
+              }
+            </button>
+          )}
+        </div>
       </div>
     )
   }
@@ -143,6 +150,7 @@ TextNav.propTypes = {
   blocks: PropTypes.array,
   hasFeatures: PropTypes.bool,
   makePlainText: PropTypes.func,
+  onClickOff: PropTypes.func,
   position: PropTypes.object,
   promptForLink: PropTypes.func,
   styles: PropTypes.array,

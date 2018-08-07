@@ -176,6 +176,7 @@ export class Paragraph extends Component {
       >
         {showNav &&
           <TextNav
+            onClickOff={() => this.setState({showNav: false})}
             position={selectionTarget}
             promptForLink={this.hasLinks ? this.promptForLink : undefined}
             styles={Config.inlineStyles(type)}
@@ -193,7 +194,6 @@ export class Paragraph extends Component {
         }
         <div
           onClick={this.focus}
-          onBlur={() => this.setState({showNav: false})}
           onMouseUp={this.checkSelection}
           onKeyUp={this.checkSelection}
         >
