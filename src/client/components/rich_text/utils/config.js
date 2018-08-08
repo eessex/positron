@@ -1,3 +1,4 @@
+import { CompositeDecorator } from 'draft-js'
 import Immutable from 'immutable'
 import { findLinkEntities, Link } from './decorators'
 
@@ -7,7 +8,7 @@ export const blockRenderMap = () => {
   })
 }
 
-export const inlineStyles = (type) => {
+export const inlineStyles = type => {
   // for menu display only
   let styles = []
   if (type !== 'postscript') {
@@ -19,7 +20,7 @@ export const inlineStyles = (type) => {
   return styles
 }
 
-export const decorators = (linked) => {
+export const decorators = linked => {
   let decorators = []
   if (linked) {
     decorators.push({
@@ -27,5 +28,5 @@ export const decorators = (linked) => {
       component: Link
     })
   }
-  return decorators
+  return new CompositeDecorator(decorators)
 }

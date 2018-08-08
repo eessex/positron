@@ -1,7 +1,8 @@
+import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import Paragraph from '../../../../../../components/rich_text/components/paragraph.coffee'
+import { Paragraph } from '../../../../../../components/rich_text/paragraph/paragraph'
 import { onChangeArticle } from 'client/actions/edit/articleActions'
 
 export class SectionFooter extends Component {
@@ -18,25 +19,31 @@ export class SectionFooter extends Component {
       <div className='SectionFooter'>
 
         {channel.type === 'editorial' &&
-          <div
+          <Postscript
             className='SectionFooter__postscript'
             data-layout='column_width'
           >
             <Paragraph
-              html={article.postscript || ''}
+              allowedStyles={['B']}
+              html={article.postscript}
               layout={article.layout}
               linked
               onChange={(html) => onChangeArticleAction('postscript', html)}
               placeholder='Postscript (optional)'
-              type='postscript'
             />
-          </div>
+          </Postscript>
         }
 
       </div>
     )
   }
 }
+
+const Postscript = styled.div`
+  .DraftEditor-root {
+    font-style: italic;
+  }
+`
 
 const mapStateToProps = (state) => ({
   article: state.edit.article,

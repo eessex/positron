@@ -18,12 +18,13 @@ export const standardizeSpacing = (html) => {
     .replace(/<p><\/p>/g, '<p><br></p>')
     .replace(/<p> <\/p>/g, '<p><br></p>')
     .replace(/<p><br><\/p><p><br><\/p>/g, '<p><br></p>')
+    .replace(/<p><br><\/p>/g, '')
     .replace(/  /g, ' &nbsp;')
 
   return newHtml
 }
 
-export const replaceUnicodeSpaces = (html) => {
+export const replaceUnicodeSpaces = html => {
   // Replace unicode linebreaks with html breaks
   const doc = document.createElement('div')
   doc.innerHTML = html
@@ -211,4 +212,8 @@ export const stripBlockquote = (html) => {
     .replace('<blockquote>', '<p>')
     .replace('</blockquote>', '</p>')
   return newHtml
+}
+
+export const stripParagraphLinebreaks = html => {
+  return html.replace(/<\/p><p>/g, '')
 }

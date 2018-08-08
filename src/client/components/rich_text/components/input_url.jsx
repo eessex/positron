@@ -6,6 +6,7 @@ import { RemoveButton, RemoveButtonContainer } from 'client/components/remove_bu
 
 export class TextInputUrl extends Component {
   static propTypes = {
+    backgroundColor: PropTypes.string,
     confirmLink: PropTypes.func,
     onClickOff: PropTypes.func,
     pluginType: PropTypes.string,
@@ -18,14 +19,11 @@ export class TextInputUrl extends Component {
     url: this.props.urlValue || ''
   }
 
-  confirmLink = (e) => {
+  confirmLink = e => {
     e.preventDefault()
+
     const { url } = this.state
-    const {
-      confirmLink,
-      pluginType,
-      removeLink
-    } = this.props
+    const { confirmLink, pluginType, removeLink } = this.props
 
     if (url.length) {
       confirmLink(url, pluginType)
@@ -35,24 +33,35 @@ export class TextInputUrl extends Component {
   }
 
   onKeyDown = e => {
+    switch (e.key) {
+      case 'Enter': {
+        return this.confirmLink(e)
+      }
+      case 'Escape':
+      case 'Tab': {
+        return this.onExitInput(e)
+      }
+    }
+  }
+
+  onExitInput = e => {
     const { onClickOff, removeLink, urlValue } = this.props
 
-    if (e.key === 'Tab') {
-      if (e.target.value.length > 0) {
-        this.confirmLink(e)
-      } else if (urlValue) {
-        // Link was deleted
-        removeLink()
-      } else {
-        // Close the menu
-        onClickOff()
-      }
+    if (e.target.value.length > 0) {
+      this.confirmLink(e)
+    } else if (urlValue) {
+      // Link was deleted
+      removeLink()
+    } else {
+      // Close the menu
+      onClickOff()
     }
   }
 
   render () {
     const { url } = this.state
     const {
+      backgroundColor,
       onClickOff,
       removeLink,
       selectionTarget: { top, left }
@@ -62,7 +71,11 @@ export class TextInputUrl extends Component {
       <div>
         <BackgroundOverlay onClick={onClickOff} />
 
-        <TextInputUrlContainer top={top} left={left}>
+        <TextInputUrlContainer
+          color={backgroundColor}
+          top={top}
+          left={left}
+        >
           <InputContainer>
             <Input
               autoFocus
@@ -70,11 +83,6 @@ export class TextInputUrl extends Component {
               value={url}
               onChange={e => this.setState({url: e.target.value})}
               placeholder='Paste or type a link'
-              onKeyUp={e => {
-                if (e.key === 'Enter') {
-                  this.confirmLink(e)
-                }
-              }}
               onKeyDown={this.onKeyDown}
             />
 
@@ -100,22 +108,30 @@ export class TextInputUrl extends Component {
 }
 
 const TextInputUrlContainer = styled.div`
-  top: ${props => `${props.top}px` || 0};
+  top: ${props => `${props.top + 5}px` || 0};
   left: ${props => `${props.left}px` || 0};
   position: absolute;
-  background-color: black;
+  background-color: ${props =>
+    props.color ? props.color : color('black100')
+  };
   height: 50px;
   width: 400px;
   padding: 10px;
   display: flex;
   z-index: 10;
 
-  ${RemoveButtonContainer} {
+  &::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-bottom: 7px solid ${props =>
+      props.color ? props.color : color('black100')
+    };
     position: absolute;
-    right: 10px;
-    width: 20px;
-    height: 20px;
-    top: 5px;
+    top: -7px;
+    left: 50%;
   }
 `
 
@@ -129,6 +145,14 @@ const Input = styled.input`
 
 const InputContainer = styled.div`
   position: relative;
+
+  ${RemoveButtonContainer} {
+    position: absolute;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    top: 5px;
+  }
 `
 
 export const BackgroundOverlay = styled.div`
@@ -151,17 +175,5 @@ const Button = Sans.extend`
 
   &:hover {
     color: ${color('purple100')};
-  }
-
-  &::after {
-    content: '';
-    width: 0;
-    height: 0;
-    border-left: 7px solid transparent;
-    border-right: 7px solid transparent;
-    border-bottom: 7px solid black;
-    position: absolute;
-    top: -7px;
-    left: 50%;
   }
 `

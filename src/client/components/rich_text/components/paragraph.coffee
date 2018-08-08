@@ -40,7 +40,7 @@ module.exports = React.createClass
 
   getInitialState: ->
     editorState: EditorState.createEmpty(
-      new CompositeDecorator Config.decorators(@hasLinks())
+      Config.decorators(@hasLinks())
     )
     focus: false
     showUrlInput: false
@@ -57,7 +57,7 @@ module.exports = React.createClass
         html: html
         editorState: EditorState.createWithContent(
           blocksFromHTML,
-          new CompositeDecorator Config.decorators(@hasLinks())
+          Config.decorators(@hasLinks())
         )
 
   componentDidUpdate: (prevProps) ->

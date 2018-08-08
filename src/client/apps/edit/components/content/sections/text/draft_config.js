@@ -8,7 +8,7 @@ import {
   setContentEnd
 } from 'client/components/rich_text/utils/decorators'
 
-export const inlineStyles = (layout) => {
+export const inlineStyles = layout => {
   // styles available on menu display
   const styles = [
     {label: 'B', name: 'BOLD'},
