@@ -164,7 +164,7 @@ export const BackgroundOverlay = styled.div`
   z-index: 7;
 `
 
-const Button = Sans.extend`
+export const Button = Sans.extend`
   width: 80px;
   display: flex;
   align-items: center;

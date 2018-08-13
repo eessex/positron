@@ -63,6 +63,19 @@ export const keyBindingFn = e => {
   }
 }
 
+export const htmlToBlock = (nodeName, node) => {
+  if (['body', 'ul', 'ol', 'tr'].includes(nodeName)) {
+    // Nested elements are empty, wrap their children instead
+    return {}
+  } else {
+    // Return all elements as default block
+    return {
+      type: 'unstyled',
+      element: 'div'
+    }
+  }
+}
+
 export const htmlToStyle = (nodeName, node, currentStyle, allowedStyles) => {
   const styleNodes = styleNodesFromMap(allowedStyles)
   const styleNames = styleNamesFromMap(allowedStyles)
@@ -119,11 +132,12 @@ export const handleReturn = (e, editorState) => {
     isFirstBlock
   } = getSelectionDetails(editorState)
 
-  // Don't split from the first block, to avoid creating empty blocks
-  // Don't split from the middle of a paragraph
+  // If first block, no chance of empty block before
+  // If anchor offset, block is not empty
   if (isFirstBlock || anchorOffset) {
     return 'not-handled'
   } else {
+    // Return handled to avoid creating empty blocks
     e.preventDefault()
     return 'handled'
   }

@@ -1,7 +1,7 @@
 import React from 'react'
 import { mount } from 'enzyme'
 import { RemoveButton } from 'client/components/remove_button'
-import { TextInputUrl } from '../../components/input_url.jsx'
+import { TextInputUrl, Button } from '../../components/input_url.jsx'
 
 describe('TextInputUrl', () => {
   let props
@@ -25,7 +25,7 @@ describe('TextInputUrl', () => {
   it('Renders input and appy button', () => {
     const component = getWrapper(props)
     const input = component.find('input').getElement()
-    const button = component.find('button').getElement()
+    const button = component.find(Button).getElement()
 
     expect(input.props.placeholder).toBe('Paste or type a link')
     expect(input.props.value).toBe('')
@@ -59,7 +59,7 @@ describe('TextInputUrl', () => {
   it('Can save a link', () => {
     const component = getWrapper(props)
     const url = 'http://link.com'
-    const button = component.find('button')
+    const button = component.find(Button)
     component.setState({ url })
     button.simulate('mouseDown')
 
@@ -70,7 +70,7 @@ describe('TextInputUrl', () => {
     props.pluginType = 'artist'
     const component = getWrapper(props)
     const url = 'http://link.com'
-    const button = component.find('button')
+    const button = component.find(Button)
     component.setState({ url })
     button.simulate('mouseDown')
 
@@ -81,7 +81,7 @@ describe('TextInputUrl', () => {
   it('Does not save empty links', () => {
     const component = getWrapper(props)
     const url = ''
-    const button = component.find('button')
+    const button = component.find(Button)
     component.setState({ url })
     button.simulate('mouseDown')
 

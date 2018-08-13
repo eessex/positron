@@ -27,6 +27,7 @@ import * as Config from '../utils/config'
 import {
   entityToHTML,
   handleReturn,
+  htmlToBlock,
   htmlToEntity,
   htmlToStyle,
   insertPastedState,
@@ -89,44 +90,55 @@ export class Paragraph extends Component {
     }
   }
 
-  editorStateToHtml = editorState => {
+  editorStateToHTML = editorState => {
+    const { stripLinebreaks } = this.props
     const styles = styleNamesFromMap(this.allowedStyles)
 
     const currentContent = editorState.getCurrentContent()
-    return convertToHTML({
+    const html = convertToHTML({
       entityToHTML,
       styleToHTML: style => styleToHTML(style, styles),
-      blockToHTML: {
-        unstyled: {
-          start: '<p>',
-          end: '</p>'
+      blockToHTML: ({ type }) => {
+        // TODO: Fix type switching from draft-convert to avoid weird if statement
+        if (type === 'ordered-list-item') {
+          return {
+            start: '<p>',
+            end: '</p>',
+            nestStart: '',
+            nestEnd: ''
+          }
+        }
+        if (type === 'unordered-list-item') {
+          return {
+            start: '<p>',
+            end: '</p>',
+            nestStart: '',
+            nestEnd: ''
+          }
+        } else {
+          return {
+            start: '<p>',
+            end: '</p>'
+          }
         }
       }
     })(currentContent)
+    if (stripLinebreaks) {
+      return stripParagraphLinebreaks(html)
+    } else {
+      return html
+    }
   }
 
   editorStateFromHTML = html => {
-    const { linked, stripLinebreaks } = this.props
+    const { linked } = this.props
     let cleanedHtml = stripGoogleStyles(html)
 
-    if (stripLinebreaks) {
-      cleanedHtml = stripParagraphLinebreaks(html)
-    }
     const contentBlocks = convertFromHTML({
-      htmlToEntity,
+      htmlToBlock,
+      htmlToEntity: linked ? htmlToEntity : undefined,
       htmlToStyle: (nodeName, node, currentStyle) => {
         return htmlToStyle(nodeName, node, currentStyle, this.allowedStyles)
-      },
-      htmlToBlock: (nodeName, node) => {
-        if (['body', 'div', 'p', 'h1', 'h2', 'ul', 'tt'].includes(nodeName)) {
-          // TODO: not still mashing into same line
-          return {
-            type: 'unstyled',
-            element: 'div'
-          }
-        } else {
-          return {}
-        }
       }
     })(cleanedHtml)
 
@@ -137,7 +149,7 @@ export class Paragraph extends Component {
   }
 
   onChange = editorState => {
-    const html = this.editorStateToHtml(editorState)
+    const html = this.editorStateToHTML(editorState)
 
     this.setState({ editorState, html })
     if (html !== this.props.html) {
@@ -184,6 +196,7 @@ export class Paragraph extends Component {
   }
 
   keyCommandInlineStyle = command => {
+    // Handle style changes from key command
     const { editorState } = this.state
     const styles = styleNamesFromMap(this.allowedStyles)
 
@@ -201,6 +214,7 @@ export class Paragraph extends Component {
   }
 
   toggleInlineStyle = command => {
+    // Handle style changes from menu click
     const { editorState } = this.state
     const styles = styleNamesFromMap(this.allowedStyles)
     let newEditorState
@@ -213,7 +227,7 @@ export class Paragraph extends Component {
     }
   }
 
-  onPaste = (text, html) => {
+  handlePastedText = (text, html) => {
     const { editorState } = this.state
 
     if (!html) {
@@ -223,10 +237,10 @@ export class Paragraph extends Component {
     const stateFromPastedFragment = this.editorStateFromHTML(html)
     const stateWithPastedText = insertPastedState(stateFromPastedFragment, editorState)
     // Convert back to HTML to clear disallowed styles/blocks
-    const allowedHtml = this.editorStateToHtml(stateWithPastedText)
-    const cleanedEditorState = this.editorStateFromHTML(allowedHtml)
+    // const allowedHtml = this.editorStateToHTML(stateWithPastedText)
+    // const cleanedEditorState = this.editorStateFromHTML(allowedHtml)
 
-    this.onChange(cleanedEditorState)
+    this.onChange(stateWithPastedText)
     return true
   }
 
@@ -348,7 +362,7 @@ export class Paragraph extends Component {
 /*
   blockRenderMap determines which kinds of HTML blocks are
   allowed by the editor. Below, blocks are limited to the
-  default 'unstyled', which @editorStateToHtml converts to <p>.
+  default 'unstyled', which @editorStateToHTML converts to <p>.
 
   Blocks are limited below to prevents users from pasting text
   with blocks that the editor's default key commands cannot handle.

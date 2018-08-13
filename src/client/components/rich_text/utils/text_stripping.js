@@ -215,5 +215,5 @@ export const stripBlockquote = (html) => {
 }
 
 export const stripParagraphLinebreaks = html => {
-  return html.replace(/<\/p><p>/g, '')
+  return html.replace(/<\/p><p>/g, ' ')
 }
