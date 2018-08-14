@@ -346,7 +346,7 @@ export class Paragraph extends Component {
             editorState={editorState}
             keyBindingFn={keyBindingFn}
             handleKeyCommand={this.handleKeyCommand}
-            handlePastedText={this.onPaste}
+            handlePastedText={this.handlePastedText}
             handleReturn={this.handleReturn}
             onChange={this.onChange}
             placeholder={placeholder || 'Start typing...'}

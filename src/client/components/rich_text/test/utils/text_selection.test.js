@@ -164,7 +164,7 @@ describe('Draft Utils: Text Selection', () => {
     const blocksFromHTML = convertFromRichHtml(Fixtures.StandardArticle.sections[0].body)
     const editorState = Draft.EditorState.createWithContent(
       blocksFromHTML,
-      new Draft.CompositeDecorator(decorators(true))
+      decorators(true)
     )
     const editorStateWithSelection = getSelection(editorState)
 

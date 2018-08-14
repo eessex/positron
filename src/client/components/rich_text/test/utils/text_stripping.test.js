@@ -15,7 +15,7 @@ describe('Draft Utils: Text Stripping', () => {
   describe('#standardizeSpacing', () => {
     it('Removes freestanding linebreaks', () => {
       const html = standardizeSpacing('<br><p><br></p><p></p><br>')
-      expect(html).toBe('<p><br></p>')
+      expect(html).toBe('')
     })
 
     it('Removes empty spans', () => {
@@ -23,9 +23,9 @@ describe('Draft Utils: Text Stripping', () => {
       expect(html).toBe('')
     })
 
-    it('Replaces consecutive empty paragraphs with one', () => {
+    it('Replaces consecutive empty paragraphs', () => {
       const html = standardizeSpacing('<p></p><p></p>')
-      expect(html).toBe('<p><br></p>')
+      expect(html).toBe('')
     })
 
     it('Converts empty headers into empty paragraphs', () => {
@@ -33,9 +33,9 @@ describe('Draft Utils: Text Stripping', () => {
       const h3 = standardizeSpacing('<h3></h3>')
       const html = standardizeSpacing('<h2></h2><h3></h3>')
 
-      expect(h2).toBe('<p><br></p>')
-      expect(h3).toBe('<p><br></p>')
-      expect(html).toBe('<p><br></p>')
+      expect(h2).toBe('')
+      expect(h3).toBe('')
+      expect(html).toBe('')
     })
 
     it('Converts consecutive spaces into nbsp', () => {
@@ -86,7 +86,7 @@ describe('Draft Utils: Text Stripping', () => {
 
     it('Can replace unicode spaces', () => {
       const html = stripGoogleStyles('<p>\u2028hello</p>')
-      expect(html).toBe('<p><br></p><p>hello</p>')
+      expect(html).toBe('<p>hello</p>')
     })
 
     it('Replaces italic spans with <em> tags', () => {
@@ -119,7 +119,7 @@ describe('Draft Utils: Text Stripping', () => {
 
     const editorState = Draft.EditorState.createWithContent(
       blocksFromHTML,
-      new Draft.CompositeDecorator(decorators(true))
+      decorators(true)
     )
     const cleanedState = removeDisallowedBlocks(editorState, blocksFromHTML.getBlocksAsArray(), allowedBlocks)
     const stateAsHtml = convertToRichHtml(cleanedState, 'classic')
@@ -132,7 +132,7 @@ describe('Draft Utils: Text Stripping', () => {
     const blocksFromHTML = convertFromRichHtml(html)
     const editorState = Draft.EditorState.createWithContent(
       blocksFromHTML,
-      new Draft.CompositeDecorator(decorators(true))
+      decorators(true)
     )
     const getSelection = (editorState) => {
       const startSelection = editorState.getSelection()
