@@ -1,4 +1,6 @@
+import styled from 'styled-components'
 import moment from 'moment'
+import { space } from '@artsy/palette'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -114,15 +116,17 @@ export class SectionHeader extends Component {
     const { article, onChange } = this.props
 
     return (
-      <Paragraph
-        html={article.lead_paragraph}
-        onChange={(input) => onChange('lead_paragraph', input)}
-        placeholder='Lead Paragraph (optional)'
-        type='lead_paragraph'
-        linked={false}
-        stripLinebreaks
-        layout={article.layout}
-      />
+      <LeadParagraph>
+        <Paragraph
+          html={article.lead_paragraph}
+          onChange={(input) => onChange('lead_paragraph', input)}
+          placeholder='Lead Paragraph (optional)'
+          type='lead_paragraph'
+          linked={false}
+          stripLinebreaks
+          layout={article.layout}
+        />
+      </LeadParagraph>
     )
   }
 
@@ -179,3 +183,10 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(SectionHeader)
+
+export const LeadParagraph = styled.div`
+  padding-bottom: ${space(3)}px;
+  max-width: 580px;
+  margin: 0 auto;
+  text-align: left;
+`
