@@ -1,7 +1,7 @@
 import React from 'react'
 import { mount } from 'enzyme'
 import { RemoveButton } from 'client/components/remove_button'
-import { TextInputUrl, Button } from '../../components/input_url.jsx'
+import { TextInputUrl, Button, BackgroundOverlay } from '../../components/input_url.jsx'
 
 describe('TextInputUrl', () => {
   let props
@@ -15,6 +15,7 @@ describe('TextInputUrl', () => {
   beforeEach(() => {
     props = {
       confirmLink: jest.fn(),
+      onClickOff: jest.fn(),
       pluginType: undefined,
       removeLink: jest.fn(),
       selectionTarget: {},
@@ -56,7 +57,7 @@ describe('TextInputUrl', () => {
     expect(component.state().url).toBe(value)
   })
 
-  it('Can save a link', () => {
+  it('Can save a link on click', () => {
     const component = getWrapper(props)
     const url = 'http://link.com'
     const button = component.find(Button)
@@ -95,5 +96,86 @@ describe('TextInputUrl', () => {
     component.find(RemoveButton).simulate('mouseDown')
 
     expect(props.removeLink.mock.calls.length).toBe(1)
+  })
+
+  it('Calls #onClickOff on background click', () => {
+    const component = getWrapper(props)
+    component.find(BackgroundOverlay).simulate('click')
+
+    expect(props.onClickOff).toBeCalled()
+  })
+
+  describe('#onKeyDown', () => {
+    it('Calls #confirmLink on enter', () => {
+      props.urlValue = 'http://artsy.net'
+      const e = {
+        key: 'Enter',
+        preventDefault: jest.fn(),
+        target: { value: 'http://artsy.net/articles' }
+      }
+      const component = getWrapper(props)
+      component.instance().onKeyDown(e)
+
+      expect(e.preventDefault).toBeCalled()
+      expect(props.confirmLink.mock.calls[0][0]).toBe('http://artsy.net/articles')
+    })
+
+    it('Calls #onClickOff on esc', () => {
+      const e = {key: 'Escape', preventDefault: jest.fn()}
+      const component = getWrapper(props)
+      component.instance().onKeyDown(e)
+
+      expect(props.onClickOff).toBeCalled()
+    })
+
+    it('Calls #onExitInput on tab', () => {
+      const e = {key: 'Tab', preventDefault: jest.fn()}
+      const component = getWrapper(props)
+      component.instance().onExitInput = jest.fn()
+      component.update()
+      component.instance().onKeyDown(e)
+
+      expect(component.instance().onExitInput).toBeCalledWith(e)
+    })
+  })
+
+  describe('#onExitInput', () => {
+    it('Calls #confirmLink if url is present', () => {
+      props.urlValue = 'http://artsy.net'
+      const e = {
+        key: 'Tab',
+        preventDefault: jest.fn(),
+        target: { value: 'http://artsy.net/articles' }
+      }
+      const component = getWrapper(props)
+      component.instance().onExitInput(e)
+
+      expect(props.confirmLink.mock.calls[0][0]).toBe('http://artsy.net/articles')
+    })
+
+    it('Calls #removeLink if url has been deleted', () => {
+      props.urlValue = 'http://artsy.net'
+      const e = {
+        key: 'Tab',
+        preventDefault: jest.fn(),
+        target: { value: '' }
+      }
+      const component = getWrapper(props)
+      component.instance().onExitInput(e)
+
+      expect(props.removeLink).toBeCalled()
+    })
+
+    it('Calls #onClickOff if url was not edited', () => {
+      const e = {
+        key: 'Tab',
+        preventDefault: jest.fn(),
+        target: { value: '' }
+      }
+      const component = getWrapper(props)
+      component.instance().onExitInput(e)
+
+      expect(props.onClickOff).toBeCalled()
+    })
   })
 })

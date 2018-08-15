@@ -364,9 +364,6 @@ export class Paragraph extends Component {
   allowed by the editor. Below, blocks are limited to the
   default 'unstyled', which @editorStateToHTML converts to <p>.
 
-  Blocks are limited below to prevents users from pasting text
-  with blocks that the editor's default key commands cannot handle.
-
   The element is 'div' because Draft.js nests additional
   <div> tags as children to each block, and <p> tags throw
   a console error if they have <div>'s as children.

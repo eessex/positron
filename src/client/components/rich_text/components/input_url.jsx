@@ -22,7 +22,7 @@ export class TextInputUrl extends Component {
   confirmLink = e => {
     e.preventDefault()
 
-    const { url } = this.state
+    const url = e.target.value || this.state.url
     const { confirmLink, pluginType, removeLink } = this.props
 
     if (url.length) {
@@ -33,11 +33,15 @@ export class TextInputUrl extends Component {
   }
 
   onKeyDown = e => {
+    const { onClickOff } = this.props
+
     switch (e.key) {
       case 'Enter': {
         return this.confirmLink(e)
       }
-      case 'Escape':
+      case 'Escape': {
+        return onClickOff()
+      }
       case 'Tab': {
         return this.onExitInput(e)
       }
