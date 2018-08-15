@@ -37,11 +37,6 @@ describe('Draft Utils: Text Stripping', () => {
       expect(h3).toBe('')
       expect(html).toBe('')
     })
-
-    it('Converts consecutive spaces into nbsp', () => {
-      const html = standardizeSpacing('<p>   </p>')
-      expect(html).toBe('<p> &nbsp; </p>')
-    })
   })
 
   describe('#replaceUnicodeSpaces', () => {
