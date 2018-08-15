@@ -4,7 +4,7 @@ import { EditorState } from 'draft-js'
 import { Paragraph } from '../paragraph'
 import { convertFromHTML } from 'draft-convert'
 import { entityToHTML } from '../utils'
-import { decorators } from '../../utils/config'
+import { decorators } from '../decorators'
 
 jest.mock('../../utils/text_selection', () => ({
   stickyControlsBox: (a, b, c) => ({
@@ -86,16 +86,6 @@ describe('Paragraph', () => {
     <i>Italic text</i>
     <strong>Bold text</strong>
     <b>Bold text</b></p>`
-
-    // it('focuses on click', () => {
-  //   const component = getWrapper(props)
-  //   const spy = jest.spyOn(component.instance(), 'focus')
-  //   component.update()
-  //   // FIXME TEST: Not sure why this has to be called twice
-  //   component.simulate('click')
-  //   component.simulate('click')
-  //   expect(spy).toHaveBeenCalled()
-  // })
 
   describe('#setEditorState', () => {
     describe('Create from empty', () => {
@@ -262,7 +252,6 @@ describe('Paragraph', () => {
       component.update()
       component.instance().onChange(editorState)
 
-      // Wait for debounced onChange
       setTimeout(() => {
         expect(component.instance().setState).toBeCalled()
         expect(component.instance().props.onChange).not.toHaveBeenCalled()
@@ -358,13 +347,10 @@ describe('Paragraph', () => {
       it('Does not apply bold styles if not allowed', done => {
         props.allowedStyles = ['i']
         const component = getWrapper(props)
-        // Set text selection
         component.instance().onChange(getSelection())
-        // Wait for debounced onChange
         setTimeout(() => {
           component.instance().keyCommandInlineStyle('bold')
           expect(component.state().html).toBe('<p>A piece of text</p>')
-          // Wait for second debounced onChange
           setTimeout(() => {
             expect(component.instance().props.onChange).not.toHaveBeenCalled()
             done()
@@ -375,13 +361,10 @@ describe('Paragraph', () => {
       it('Can remove existing bold styles', done => {
         props.html = '<p><b>A piece of text</b></p>'
         const component = getWrapper(props)
-        // Set text selection
         component.instance().onChange(getSelection())
-        // Wait for debounced onChange
         setTimeout(() => {
           component.instance().keyCommandInlineStyle('bold')
           expect(component.state().html).toBe('<p>A piece of text</p>')
-          // Wait for second debounced onChange
           setTimeout(() => {
             expect(component.instance().props.onChange).toHaveBeenCalled()
             done()
@@ -393,13 +376,10 @@ describe('Paragraph', () => {
     describe('Italic', () => {
       it('Applies italic styles if allowed', done => {
         const component = getWrapper(props)
-        // Set text selection
         component.instance().onChange(getSelection())
-        // Wait for debounced onChange
         setTimeout(() => {
           component.instance().keyCommandInlineStyle('italic')
           expect(component.state().html).toBe('<p><i>A piece of text</i></p>')
-          // Wait for second debounced onChange
           setTimeout(() => {
             expect(component.instance().props.onChange).toHaveBeenCalled()
             done()
@@ -410,13 +390,10 @@ describe('Paragraph', () => {
       it('Does not apply italic styles if not allowed', done => {
         props.allowedStyles = ['b']
         const component = getWrapper(props)
-        // Set text selection
         component.instance().onChange(getSelection())
-        // Wait for debounced onChange
         setTimeout(() => {
           component.instance().keyCommandInlineStyle('italic')
           expect(component.state().html).toBe('<p>A piece of text</p>')
-          // Wait for second debounced onChange
           setTimeout(() => {
             expect(component.instance().props.onChange).not.toHaveBeenCalled()
             done()
@@ -427,13 +404,10 @@ describe('Paragraph', () => {
       it('Can remove existing italic styles', done => {
         props.html = '<p><i>A piece of text</i></p>'
         const component = getWrapper(props)
-        // Set text selection
         component.instance().onChange(getSelection())
-        // Wait for debounced onChange
         setTimeout(() => {
           component.instance().keyCommandInlineStyle('italic')
           expect(component.state().html).toBe('<p>A piece of text</p>')
-          // Wait for second debounced onChange
           setTimeout(() => {
             expect(component.instance().props.onChange).toHaveBeenCalled()
             done()
@@ -447,14 +421,11 @@ describe('Paragraph', () => {
     describe('Bold', () => {
       it('Applies bold styles if allowed', done => {
         const component = getWrapper(props)
-        // Set text selection
         component.instance().onChange(getSelection())
-        // Wait for debounced onChange
         setTimeout(() => {
           component.instance().toggleInlineStyle('BOLD')
           expect(component.state().html).toBe('<p><b>A piece of text</b></p>')
           setTimeout(() => {
-            // Wait for second debounced onChange
             expect(component.instance().props.onChange).toHaveBeenCalled()
             done()
           }, 250)
@@ -464,14 +435,11 @@ describe('Paragraph', () => {
       it('Does not apply bold styles if not allowed', done => {
         props.allowedStyles = ['i']
         const component = getWrapper(props)
-        // Set text selection
         component.instance().onChange(getSelection())
-        // Wait for debounced onChange
         setTimeout(() => {
           component.instance().toggleInlineStyle('BOLD')
           expect(component.state().html).toBe('<p>A piece of text</p>')
           setTimeout(() => {
-            // Wait for second debounced onChange
             expect(component.instance().props.onChange).not.toHaveBeenCalled()
             done()
           }, 250)
@@ -481,14 +449,11 @@ describe('Paragraph', () => {
       it('Can remove existing bold styles', done => {
         props.html = '<p><b>A piece of text</b></p>'
         const component = getWrapper(props)
-        // Set text selection
         component.instance().onChange(getSelection())
-        // Wait for debounced onChange
         setTimeout(() => {
           component.instance().toggleInlineStyle('BOLD')
           expect(component.state().html).toBe('<p>A piece of text</p>')
           setTimeout(() => {
-            // Wait for second debounced onChange
             expect(component.instance().props.onChange).toHaveBeenCalled()
             done()
           }, 250)
@@ -499,14 +464,11 @@ describe('Paragraph', () => {
     describe('Italic', () => {
       it('Applies italic styles if allowed', done => {
         const component = getWrapper(props)
-        // Set text selection
         component.instance().onChange(getSelection())
-        // Wait for debounced onChange
         setTimeout(() => {
           component.instance().toggleInlineStyle('ITALIC')
           expect(component.state().html).toBe('<p><i>A piece of text</i></p>')
           setTimeout(() => {
-            // Wait for second debounced onChange
             expect(component.instance().props.onChange).toHaveBeenCalled()
             done()
           }, 250)
@@ -516,14 +478,11 @@ describe('Paragraph', () => {
       it('Does not apply italic styles if not allowed', done => {
         props.allowedStyles = ['b']
         const component = getWrapper(props)
-        // Set text selection
         component.instance().onChange(getSelection())
-        // Wait for debounced onChange
         setTimeout(() => {
           component.instance().toggleInlineStyle('ITALIC')
           expect(component.state().html).toBe('<p>A piece of text</p>')
           setTimeout(() => {
-            // Wait for second debounced onChange
             expect(component.instance().props.onChange).not.toHaveBeenCalled()
             done()
           }, 250)
@@ -533,14 +492,11 @@ describe('Paragraph', () => {
       it('Can remove existing italic styles', done => {
         props.html = '<p><i>A piece of text</i></p>'
         const component = getWrapper(props)
-        // Set text selection
         component.instance().onChange(getSelection())
-        // Wait for debounced onChange
         setTimeout(() => {
           component.instance().toggleInlineStyle('ITALIC')
           expect(component.state().html).toBe('<p>A piece of text</p>')
           setTimeout(() => {
-            // Wait for second debounced onChange
             expect(component.instance().props.onChange).toHaveBeenCalled()
             done()
           }, 250)
@@ -672,9 +628,7 @@ describe('Paragraph', () => {
       it('Sets urlValue with data', done => {
         props.html = '<p><a href="https://artsy.net">A link</a></p>'
         const component = getWrapper(props)
-        // Set text selection
         component.instance().onChange(getSelection())
-        // Wait for debounced onChange
         setTimeout(() => {
           component.instance().promptForLink()
           expect(component.state().urlValue).toBe('https://artsy.net/')
@@ -684,9 +638,7 @@ describe('Paragraph', () => {
 
       it('Sets urlValue without data', done => {
         const component = getWrapper(props)
-        // Set text selection
         component.instance().onChange(getSelection())
-        // Wait for debounced onChange
         setTimeout(() => {
           component.instance().promptForLink()
           expect(component.state().urlValue).toBe('')
@@ -696,11 +648,9 @@ describe('Paragraph', () => {
 
       it('Hides nav', done => {
         const component = getWrapper(props)
-        // Set text selection
         component.instance().onChange(getSelection())
         component.instance().checkSelection()
         expect(component.state().showNav).toBe(true)
-        // Wait for debounced onChange
         setTimeout(() => {
           component.instance().promptForLink()
           expect(component.state().showNav).toBe(false)
@@ -710,10 +660,7 @@ describe('Paragraph', () => {
 
       it('Shows url input', done => {
         const component = getWrapper(props)
-        // Set text selection
         component.instance().onChange(getSelection())
-
-        // Wait for debounced onChange
         setTimeout(() => {
           component.instance().promptForLink()
           expect(component.state().showUrlInput).toBe(true)

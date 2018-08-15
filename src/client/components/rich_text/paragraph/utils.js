@@ -5,23 +5,19 @@ import {
   KeyBindingUtil,
   Modifier
 } from 'draft-js'
-import React from 'react'
 import { getSelectionDetails } from '../utils/text_selection'
 
-export const paragraphStyles = [
+const paragraphStyleMap = [
+  // Default allowedStyles
   {label: 'B', name: 'BOLD'},
   {label: 'I', name: 'ITALIC'}
 ]
 
-export const draftDefaultStyles = [
-  'BOLD',
-  'CODE',
-  'ITALIC',
-  'STRIKETHROUGH',
-  'UNDERLINE'
-]
-
 export const styleMapFromNames = (allowedStyles = ['B', 'I']) => {
+  /**
+   * Returns styleMap from nodeNames
+   * Used to attach node-names to props.allowedStyles
+   */
   let styleMap = []
 
   allowedStyles.map(style => {
@@ -45,11 +41,19 @@ export const styleMapFromNames = (allowedStyles = ['B', 'I']) => {
   return styleMap
 }
 
-export const styleNamesFromMap = (styles = paragraphStyles) => {
+export const styleNamesFromMap = (styles = paragraphStyleMap) => {
+  /**
+   * Returns the names of allowed styles
+   * Used for key commands, TextNav, and draft-convert
+   */
   return map(styles, 'name')
 }
 
-export const styleNodesFromMap = (styles = paragraphStyles) => {
+export const styleNodesFromMap = (styles = paragraphStyleMap) => {
+  /**
+   * Returns the nodeNames for allowed styles
+   * Used for draft-convert
+   */
   return map(styles, 'label')
 }
 
@@ -63,56 +67,10 @@ export const keyBindingFn = e => {
   }
 }
 
-export const htmlToBlock = (nodeName, node) => {
-  if (['body', 'ul', 'ol', 'tr'].includes(nodeName)) {
-    // Nested elements are empty, wrap their children instead
-    return {}
-  } else {
-    // Return all elements as default block
-    return {
-      type: 'unstyled',
-      element: 'div'
-    }
-  }
-}
-
-export const htmlToStyle = (nodeName, node, currentStyle, allowedStyles) => {
-  const styleNodes = styleNodesFromMap(allowedStyles)
-  const styleNames = styleNamesFromMap(allowedStyles)
-  const isBlock = ['body', 'p', 'div'].includes(nodeName)
-  const isAllowedNode = styleNodes.includes(nodeName.toUpperCase())
-
-  if (isBlock || isAllowedNode) {
-    return currentStyle
-  } else {
-    // Remove draft default styles unless explicitly allowed
-    let style = currentStyle
-    draftDefaultStyles.map(draftStyle => {
-      const isAllowedStyle = styleNames.includes(draftStyle)
-      if (!isAllowedStyle) {
-        style = style.remove(draftStyle)
-      }
-    })
-    return style
-  }
-}
-
-export const styleToHTML = (style, allowedStyles) => {
-  const isAllowed = allowedStyles.includes(style)
-
-  switch (style) {
-    case 'BOLD':
-      return isAllowed ? <b /> : null
-    case 'ITALIC':
-      return isAllowed ? <i /> : null
-    default:
-      return null
-  }
-}
-
 export const insertPastedState = (pastedState, editorState) => {
+  // Merges a state created from pasted text with editorState
   const blockMap = pastedState.getCurrentContent().blockMap
-  // Merge a new blockmap into existing content
+  // Merge new blockmap into existing content
   const modifiedContent = Modifier.replaceWithFragment(
     editorState.getCurrentContent(),
     editorState.getSelection(),
@@ -126,7 +84,7 @@ export const insertPastedState = (pastedState, editorState) => {
 }
 
 export const handleReturn = (e, editorState) => {
-  // Dont allow consecutive empty paragraphs
+  // Prevents consecutive empty paragraphs
   const {
     anchorOffset,
     isFirstBlock
@@ -141,23 +99,4 @@ export const handleReturn = (e, editorState) => {
     e.preventDefault()
     return 'handled'
   }
-}
-
-export const htmlToEntity = (nodeName, node, createEntity) => {
-  if (nodeName === 'a') {
-    const data = { url: node.href }
-    return createEntity(
-      'LINK',
-      'MUTABLE',
-      data
-    )
-  }
-}
-
-export const entityToHTML = (entity, originalText) => {
-  if (entity.type === 'LINK') {
-    const innerText = originalText
-    return <a href={entity.data.url}>{innerText}</a>
-  }
-  return originalText
 }

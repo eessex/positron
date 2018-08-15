@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 import { debounce } from 'lodash'
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
-import { convertFromHTML, convertToHTML } from 'draft-convert'
 import {
   Editor,
   EditorState,
@@ -16,26 +15,17 @@ import {
   confirmLink,
   linkDataFromSelection,
   removeLink
-} from '../utils/links'
+} from './links'
+import { TextInputUrl } from '../components/input_url'
 import {
-  stripGoogleStyles,
-  stripParagraphLinebreaks
- } from '../utils/text_stripping'
-import { TextInputUrl } from '../components/input_url.jsx'
-import * as Config from '../utils/config'
-
-import {
-  entityToHTML,
   handleReturn,
-  htmlToBlock,
-  htmlToEntity,
-  htmlToStyle,
   insertPastedState,
   keyBindingFn,
-  styleToHTML,
   styleMapFromNames,
   styleNamesFromMap
 } from './utils'
+import { decorators } from './decorators'
+import { convertDraftToHtml, convertHtmlToDraft } from './convert'
 
 /*
   Supports HTML with bold and italic styles in <p> blocks.
@@ -80,71 +70,30 @@ export class Paragraph extends Component {
     if (html) {
       return this.editorStateFromHTML(html)
     } else {
-      if (linked) {
-        return EditorState.createEmpty(
-          Config.decorators(linked)
-        )
-      } else {
-        return EditorState.createEmpty()
-      }
+      return EditorState.createEmpty(
+        decorators(linked)
+      )
     }
   }
 
   editorStateToHTML = editorState => {
     const { stripLinebreaks } = this.props
-    const styles = styleNamesFromMap(this.allowedStyles)
-
     const currentContent = editorState.getCurrentContent()
-    const html = convertToHTML({
-      entityToHTML,
-      styleToHTML: style => styleToHTML(style, styles),
-      blockToHTML: ({ type }) => {
-        // TODO: Fix type switching from draft-convert to avoid weird if statement
-        if (type === 'ordered-list-item') {
-          return {
-            start: '<p>',
-            end: '</p>',
-            nestStart: '',
-            nestEnd: ''
-          }
-        }
-        if (type === 'unordered-list-item') {
-          return {
-            start: '<p>',
-            end: '</p>',
-            nestStart: '',
-            nestEnd: ''
-          }
-        } else {
-          return {
-            start: '<p>',
-            end: '</p>'
-          }
-        }
-      }
-    })(currentContent)
-    if (stripLinebreaks) {
-      return stripParagraphLinebreaks(html)
-    } else {
-      return html
-    }
+
+    return convertDraftToHtml(
+      currentContent,
+      this.allowedStyles,
+      stripLinebreaks
+    )
   }
 
   editorStateFromHTML = html => {
     const { linked } = this.props
-    let cleanedHtml = stripGoogleStyles(html)
-
-    const contentBlocks = convertFromHTML({
-      htmlToBlock,
-      htmlToEntity: linked ? htmlToEntity : undefined,
-      htmlToStyle: (nodeName, node, currentStyle) => {
-        return htmlToStyle(nodeName, node, currentStyle, this.allowedStyles)
-      }
-    })(cleanedHtml)
+    const contentBlocks = convertHtmlToDraft(html, linked, this.allowedStyles)
 
     return EditorState.createWithContent(
       contentBlocks,
-      Config.decorators(linked)
+      decorators(linked)
     )
   }
 
@@ -160,6 +109,7 @@ export class Paragraph extends Component {
 
   focus = () => {
     this.editor.focus()
+    this.checkSelection()
   }
 
   handleReturn = e => {
@@ -236,9 +186,6 @@ export class Paragraph extends Component {
     }
     const stateFromPastedFragment = this.editorStateFromHTML(html)
     const stateWithPastedText = insertPastedState(stateFromPastedFragment, editorState)
-    // Convert back to HTML to clear disallowed styles/blocks
-    // const allowedHtml = this.editorStateToHTML(stateWithPastedText)
-    // const cleanedEditorState = this.editorStateFromHTML(allowedHtml)
 
     this.onChange(stateWithPastedText)
     return true
@@ -249,6 +196,7 @@ export class Paragraph extends Component {
     const linkData = linkDataFromSelection(editorState)
     const urlValue = linkData ? linkData.url : ''
     const editorPosition = ReactDOM.findDOMNode(this.editor).getBoundingClientRect()
+    // TODO: move position calculation to input component
     const selectionTarget = stickyControlsBox(editorPosition, 25, 200)
 
     this.setState({
@@ -293,6 +241,7 @@ export class Paragraph extends Component {
     const hasSelection = !window.getSelection().isCollapsed
     const stylesLength = this.allowedStyles.length
     const buttonsLength = linked ? stylesLength + 1 : stylesLength
+    // TODO: move position calculation to input component
     const buttonWidth = 25
     const menuHeight = -45
     const selectionTargetLeft = buttonsLength * buttonWidth
@@ -300,6 +249,7 @@ export class Paragraph extends Component {
     if (hasSelection) {
       showNav = true
       const editorPosition = ReactDOM.findDOMNode(this.editor).getBoundingClientRect()
+      // TODO: Popup component should determine its own size
       selectionTarget = stickyControlsBox(editorPosition, menuHeight, selectionTargetLeft)
     }
     this.setState({ showNav, selectionTarget })
@@ -360,14 +310,13 @@ export class Paragraph extends Component {
 }
 
 /*
-  blockRenderMap determines which kinds of HTML blocks are
-  allowed by the editor. Below, blocks are limited to the
-  default 'unstyled', which @editorStateToHTML converts to <p>.
+  blockRenderMap determines how HTML blocks are rendered by
+  the Editor component. 'unstyled' is equivalent to <p>.
 
-  The element is 'div' because Draft.js nests additional
-  <div> tags as children to each block, and <p> tags throw
-  a console error if they have <div>'s as children.
+  Element is 'div' because draft nests <div> tags with text,
+  and <p> tags cannot have nested children.
 */
+
 const blockRenderMap = Immutable.Map({
   'unstyled': {
     element: 'div'
