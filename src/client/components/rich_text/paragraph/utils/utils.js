@@ -29,7 +29,7 @@ const paragraphStyleMap = [
   {label: 'I', name: 'ITALIC'}
 ]
 
-export const styleMapFromNames = (allowedStyles = ['B', 'I']) => {
+export const styleMapFromNodes = (allowedStyles = ['B', 'I']) => {
   /**
    * Returns styleMap from nodeNames
    * Used to attach node-names to props.allowedStyles
@@ -86,24 +86,6 @@ export const keyBindingFn = e => {
   }
 }
 
-export const insertPastedState = (pastedState, editorState) => {
-  /**
-   * Merges a state created from pasted text into editorState
-   */
-  const blockMap = pastedState.getCurrentContent().blockMap
-
-  // Merge blockMap from pasted text into existing content
-  const modifiedContent = Modifier.replaceWithFragment(
-    editorState.getCurrentContent(),
-    editorState.getSelection(),
-    blockMap
-  )
-  // Create a new editorState from merged content
-  return EditorState.push(
-    editorState, modifiedContent, 'insert-fragment'
-  )
-}
-
 export const handleReturn = (e, editorState) => {
   /**
    * Prevents consecutive empty paragraphs
@@ -124,4 +106,22 @@ export const handleReturn = (e, editorState) => {
     e.preventDefault()
     return 'handled'
   }
+}
+
+export const insertPastedState = (pastedState, editorState) => {
+  /**
+   * Merges a state created from pasted text into editorState
+   */
+  const blockMap = pastedState.getCurrentContent().blockMap
+
+  // Merge blockMap from pasted text into existing content
+  const modifiedContent = Modifier.replaceWithFragment(
+    editorState.getCurrentContent(),
+    editorState.getSelection(),
+    blockMap
+  )
+  // Create a new editorState from merged content
+  return EditorState.push(
+    editorState, modifiedContent, 'insert-fragment'
+  )
 }

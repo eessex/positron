@@ -11,7 +11,7 @@ import {
   handleReturn,
   insertPastedState,
   keyBindingFn,
-  styleMapFromNames,
+  styleMapFromNodes,
   styleNamesFromMap
 } from './utils/utils'
 import { confirmLink, linkDataFromSelection, removeLink } from './utils/links'
@@ -40,7 +40,7 @@ export class Paragraph extends Component {
 
   constructor (props) {
     super(props)
-    this.allowedStyles = styleMapFromNames(props.allowedStyles)
+    this.allowedStyles = styleMapFromNodes(props.allowedStyles)
 
     this.state = {
       editorState: this.setEditorState(),
