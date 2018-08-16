@@ -213,7 +213,7 @@ describe('Paragraph', () => {
       const html = component.instance().editorStateToHTML(editorState)
 
       expect(html).toBe(
-        '<p>Strikethrough text <u>Underline text</u> <i>Italic text</i> <i>Italic text</i> <b>Bold text</b> <b>Bold text</b></p>'
+        '<p>Strikethrough text Underline text <i>Italic text</i> <i>Italic text</i> <b>Bold text</b> <b>Bold text</b></p>'
       )
     })
   })

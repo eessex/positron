@@ -99,14 +99,15 @@ export const htmlToStyle = (nodeName, node, currentStyle, allowedStyles) => {
 
 export const styleToHTML = (style, allowedStyles) => {
   const isAllowed = allowedStyles.includes(style)
+  const plainText = {start: '', end: ''}
 
   switch (style) {
     case 'BOLD':
-      return isAllowed ? <b /> : null
+      return isAllowed ? <b /> : plainText
     case 'ITALIC':
-      return isAllowed ? <i /> : null
+      return isAllowed ? <i /> : plainText
     default:
-      return null
+      return plainText
   }
 }
 
