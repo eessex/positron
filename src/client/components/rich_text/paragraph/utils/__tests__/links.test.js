@@ -1,3 +1,5 @@
+import { convertFromHTML } from 'draft-convert'
+import { EditorState } from 'draft-js'
 import {
   confirmLink,
   linkDataFromSelection,
@@ -5,8 +7,6 @@ import {
 } from '../links'
 import { htmlToEntity } from '../convert'
 import { decorators } from '../decorators'
-import { convertFromHTML } from 'draft-convert'
-import { EditorState } from 'draft-js'
 
 describe('Links', () => {
   const htmlWithLink = '<p><a href="https://artsy.net">a link</a></p>'

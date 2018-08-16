@@ -2,21 +2,29 @@ import PropTypes from 'prop-types'
 import React from 'react'
 import { CompositeDecorator } from 'draft-js'
 
-export const decorators = linked => {
+export const decorators = hasLinks => {
   /**
    * Used when creating an editor, determines
    * which entities are allowed, and how find
    * and render them in the Editor component
    */
+  const decorators = getDecorators(hasLinks)
+  return new CompositeDecorator(decorators)
+}
+
+export const getDecorators = hasLinks => {
+  /**
+   * Separated from #decorators for test purposes
+   */
   let decorators = []
 
-  if (linked) {
+  if (hasLinks) {
     decorators.push({
       strategy: findLinkEntities,
       component: Link
     })
   }
-  return new CompositeDecorator(decorators)
+  return decorators
 }
 
 export const findLinkEntities = (contentBlock, callback, contentState) => {
@@ -35,7 +43,7 @@ export const findLinkEntities = (contentBlock, callback, contentState) => {
   )
 }
 
-const Link = props => {
+export const Link = props => {
   /**
    * Used by decorator to render links in draft's Editor component
    */
