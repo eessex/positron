@@ -1,31 +1,23 @@
-import Immutable from 'immutable'
-import PropTypes from 'prop-types'
 import { debounce } from 'lodash'
+import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
-import {
-  Editor,
-  EditorState,
-  RichUtils
-} from 'draft-js'
+import { Editor, EditorState, RichUtils } from 'draft-js'
 import { Text } from '@artsy/reaction/dist/Components/Publishing'
 import { TextNav } from '../components/text_nav'
-import { stickyControlsBox } from '../utils/text_selection'
-import {
-  confirmLink,
-  linkDataFromSelection,
-  removeLink
-} from './links'
 import { TextInputUrl } from '../components/input_url'
 import {
+  blockRenderMap,
   handleReturn,
   insertPastedState,
   keyBindingFn,
   styleMapFromNames,
   styleNamesFromMap
-} from './utils'
-import { decorators } from './decorators'
-import { convertDraftToHtml, convertHtmlToDraft } from './convert'
+} from './utils/utils'
+import { confirmLink, linkDataFromSelection, removeLink } from './utils/links'
+import { decorators } from './utils/decorators'
+import { convertDraftToHtml, convertHtmlToDraft } from './utils/convert'
+import { stickyControlsBox } from 'client/components/rich_text/utils/text_selection'
 
 /*
   Supports HTML with bold and italic styles in <p> blocks.
@@ -192,6 +184,7 @@ export class Paragraph extends Component {
   }
 
   promptForLink = () => {
+    // Opens a popup link input populated with selection data if link is selected
     const { editorState } = this.state
     const linkData = linkDataFromSelection(editorState)
     const urlValue = linkData ? linkData.url : ''
@@ -308,17 +301,3 @@ export class Paragraph extends Component {
     )
   }
 }
-
-/*
-  blockRenderMap determines how HTML blocks are rendered by
-  the Editor component. 'unstyled' is equivalent to <p>.
-
-  Element is 'div' because draft nests <div> tags with text,
-  and <p> tags cannot have nested children.
-*/
-
-const blockRenderMap = Immutable.Map({
-  'unstyled': {
-    element: 'div'
-  }
-})

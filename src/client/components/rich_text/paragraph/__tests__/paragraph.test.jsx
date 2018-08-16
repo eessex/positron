@@ -1,10 +1,10 @@
 import { mount } from 'enzyme'
 import React from 'react'
 import { EditorState } from 'draft-js'
-import { Paragraph } from '../paragraph'
 import { convertFromHTML } from 'draft-convert'
-import { entityToHTML } from '../utils'
-import { decorators } from '../decorators'
+import { entityToHTML } from '../utils/utils'
+import { decorators } from '../utils/decorators'
+import { Paragraph } from '../paragraph'
 
 jest.mock('../../utils/text_selection', () => ({
   stickyControlsBox: (a, b, c) => ({

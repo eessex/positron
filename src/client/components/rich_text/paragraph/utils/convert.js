@@ -1,7 +1,7 @@
 import React from 'react'
 import { convertFromHTML, convertToHTML } from 'draft-convert'
 import { styleNamesFromMap, styleNodesFromMap } from './utils'
-import { stripGoogleStyles, stripParagraphLinebreaks } from '../utils/text_stripping'
+import { stripGoogleStyles } from 'client/components/rich_text/utils/text_stripping'
 
 export const draftDefaultStyles = [
   'BOLD',
@@ -11,22 +11,43 @@ export const draftDefaultStyles = [
   'UNDERLINE'
 ]
 
-/**
- * Convert HTML to Draft Content State
- */
-
-export const convertHtmlToDraft = (html, linked, allowedStyles) => {
+export const convertHtmlToDraft = (html, hasLinks, allowedStyles) => {
+  /**
+   * Convert HTML to Draft ContentState
+   */
   let cleanedHtml = stripGoogleStyles(html)
 
   return convertFromHTML({
     htmlToBlock,
-    htmlToEntity: linked ? htmlToEntity : undefined,
+    htmlToEntity: hasLinks ? htmlToEntity : undefined,
     htmlToStyle: (nodeName, node, currentStyle) => {
       return htmlToStyle(nodeName, node, currentStyle, allowedStyles)
     }
   })(cleanedHtml)
 }
 
+export const convertDraftToHtml = (currentContent, allowedStyles, stripLinebreaks) => {
+  /**
+   * Convert Draft ContentState to HTML
+   */
+  const styles = styleNamesFromMap(allowedStyles)
+
+  const html = convertToHTML({
+    entityToHTML,
+    styleToHTML: style => styleToHTML(style, styles),
+    blockToHTML
+  })(currentContent)
+
+  if (stripLinebreaks) {
+    return stripParagraphLinebreaks(html)
+  } else {
+    return html
+  }
+}
+
+/**
+ * convertHtmlToDraft helpers
+ */
 export const htmlToBlock = (nodeName, node) => {
   if (['body', 'ul', 'ol', 'tr'].includes(nodeName)) {
     // Nested elements are empty, wrap their children instead
@@ -73,24 +94,8 @@ export const htmlToStyle = (nodeName, node, currentStyle, allowedStyles) => {
 }
 
 /**
- * Convert Draft Content State to HTML
+ * convertDraftToHtml helpers
  */
-
-export const convertDraftToHtml = (currentContent, allowedStyles, stripLinebreaks) => {
-  const styles = styleNamesFromMap(allowedStyles)
-
-  const html = convertToHTML({
-    entityToHTML,
-    styleToHTML: style => styleToHTML(style, styles),
-    blockToHTML
-  })(currentContent)
-
-  if (stripLinebreaks) {
-    return stripParagraphLinebreaks(html)
-  } else {
-    return html
-  }
-}
 
 export const styleToHTML = (style, allowedStyles) => {
   const isAllowed = allowedStyles.includes(style)
@@ -105,12 +110,11 @@ export const styleToHTML = (style, allowedStyles) => {
   }
 }
 
-export const entityToHTML = (entity, originalText) => {
+export const entityToHTML = (entity, text) => {
   if (entity.type === 'LINK') {
-    const innerText = originalText
-    return <a href={entity.data.url}>{innerText}</a>
+    return <a href={entity.data.url}>{text}</a>
   }
-  return originalText
+  return text
 }
 
 export const blockToHTML = block => {
@@ -136,4 +140,8 @@ export const blockToHTML = block => {
       end: '</p>'
     }
   }
+}
+
+export const stripParagraphLinebreaks = html => {
+  return html.replace(/<\/p><p>/g, ' ')
 }

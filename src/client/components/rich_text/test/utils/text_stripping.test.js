@@ -28,7 +28,7 @@ describe('Draft Utils: Text Stripping', () => {
       expect(html).toBe('')
     })
 
-    it('Converts empty headers into empty paragraphs', () => {
+    it('Removes empty headers', () => {
       const h2 = standardizeSpacing('<h2></h2>')
       const h3 = standardizeSpacing('<h3></h3>')
       const html = standardizeSpacing('<h2></h2><h3></h3>')
