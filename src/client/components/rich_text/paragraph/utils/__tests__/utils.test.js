@@ -1,10 +1,16 @@
-const Draft = require('draft-js')
+import Draft from 'draft-js'
+import { convertToHTML } from 'draft-convert'
 import {
+  handleReturn,
+  insertPastedState,
   keyBindingFn,
   styleMapFromNodes,
   styleNamesFromMap,
   styleNodesFromMap
 } from '../utils'
+const SelectionUtils = require('../../../utils/text_selection')
+
+jest.mock('../../../utils/text_selection')
 
 describe('Paragraph utils', () => {
   describe('#styleMapFromNodes', () => {
@@ -79,12 +85,62 @@ describe('Paragraph utils', () => {
   })
 
   describe('#handleReturn', () => {
-    it('Returns not-handled if focus is in first block', () => {})
-    it('Returns not-handled if focus has anchor offset', () => {})
-    it('Returns handled and prevents default if creating an empty block', () => {})
+    let e
+    beforeEach(() => {
+      e = { preventDefault: jest.fn() }
+    })
+
+    it('Returns not-handled if focus is in first block', () => {
+      SelectionUtils.getSelectionDetails.mockReturnValueOnce({
+        isFirstBlock: true
+      })
+      const returnHandler = handleReturn(e)
+
+      expect(returnHandler).toBe('not-handled')
+      expect(e.preventDefault).not.toBeCalled()
+    })
+
+    it('Returns not-handled if focus has anchor offset', () => {
+      SelectionUtils.getSelectionDetails.mockReturnValueOnce({
+        anchorOffset: 2
+      })
+      const returnHandler = handleReturn(e)
+
+      expect(returnHandler).toBe('not-handled')
+      expect(e.preventDefault).not.toBeCalled()
+    })
+
+    it('Returns handled and prevents default if creating an empty block', () => {
+      SelectionUtils.getSelectionDetails.mockReturnValueOnce({
+        anchorOffset: 0
+      })
+      const returnHandler = handleReturn(e)
+
+      expect(returnHandler).toBe('handled')
+      expect(e.preventDefault).toBeCalled()
+    })
   })
 
   describe('#insertPastedState', () => {
-    it('Merges two states at selection', () => {})
+    const getEditorState = html => {
+      const blocks = Draft.convertFromHTML(html)
+      const content = Draft.ContentState.createFromBlockArray(
+        blocks.contentBlocks,
+        blocks.entityMap
+      )
+
+      return Draft.EditorState.createWithContent(content)
+    }
+
+    it('Merges two states at selection', () => {
+      const originalState = getEditorState('<p>Original block</p>')
+      const pastedState = getEditorState('<p>Pasted block</p>')
+      const newState = insertPastedState(pastedState, originalState)
+      const newHtml = convertToHTML({})(newState.getCurrentContent())
+
+      expect(newHtml).toBe(
+        '<p>Pasted blockOriginal block</p>'
+      )
+    })
   })
 })
