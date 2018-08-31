@@ -1,3 +1,4 @@
+import node from '@artsy/reaction/dist/__generated__/ArtistToolTip_artist.graphql'
 import { convertFromHTML, convertToHTML } from 'draft-convert'
 import {
   ContentState,
@@ -47,8 +48,7 @@ export const convertHtmlToDraft = (
  */
 export const convertDraftToHtml = (
   currentContent: ContentState,
-  allowedStyles: StyleMap,
-  stripLinebreaks: boolean
+  allowedStyles: StyleMap
 ) => {
   const styles = styleNamesFromMap(allowedStyles)
 
@@ -58,11 +58,7 @@ export const convertDraftToHtml = (
     blockToHTML,
   })(currentContent)
 
-  if (stripLinebreaks) {
-    return stripParagraphLinebreaks(html)
-  } else {
-    return html
-  }
+  return html
 }
 
 /**
@@ -73,10 +69,31 @@ export const htmlToBlock = (nodeName: string, _: HTMLElement) => {
     // Nested elements are empty, wrap their children instead
     return {}
   } else {
-    // Return all elements as default block
-    return {
-      type: 'unstyled',
-      element: 'div',
+    switch (nodeName) {
+      case 'blockquote': {
+        return {
+          type: 'blockquote',
+          element: 'blockquote',
+        }
+      }
+      case 'h2': {
+        return {
+          type: 'header-two',
+          element: 'h2',
+        }
+      }
+      case 'h3': {
+        return {
+          type: 'header-three',
+          element: 'h3',
+        }
+      }
+      default: {
+        return {
+          type: 'unstyled',
+          element: 'div',
+        }
+      }
     }
   }
 }
@@ -86,7 +103,7 @@ export const htmlToBlock = (nodeName: string, _: HTMLElement) => {
  */
 export const htmlToEntity = (
   nodeName: string,
-  node: HTMLLinkElement,
+  _: HTMLLinkElement,
   createEntity: (
     blockType: string,
     isMutable: DraftEntityMutability,
@@ -94,7 +111,11 @@ export const htmlToEntity = (
   ) => void
 ) => {
   if (nodeName === 'a') {
-    const data = { url: node.href }
+    const data = {
+      url: node.href,
+      className: node.classList ? node.classList.toString() : '',
+    }
+
     return createEntity('LINK', 'MUTABLE', data)
   }
 }
@@ -139,6 +160,10 @@ export const styleToHTML = (style: StyleName, allowedStyles: StyleMapNames) => {
       return isAllowed ? <b /> : plainText
     case 'ITALIC':
       return isAllowed ? <i /> : plainText
+    case 'UNDERLINE':
+      return isAllowed ? <u /> : plainText
+    case 'STRIKETHROUGH':
+      return isAllowed ? <s /> : plainText
     default:
       return plainText
   }
@@ -148,6 +173,7 @@ export const styleToHTML = (style: StyleName, allowedStyles: StyleMapNames) => {
  * convert Draft entities to Html links
  */
 export const entityToHTML = (entity: RawDraftEntity, text: string) => {
+  // TODO: add follow button
   if (entity.type === 'LINK') {
     return <a href={entity.data.url}>{text}</a>
   }
@@ -158,33 +184,45 @@ export const entityToHTML = (entity: RawDraftEntity, text: string) => {
  * convert Draft blocks to Html elements
  */
 export const blockToHTML = (block: RawDraftContentBlock) => {
+  if (block.type === 'blockquote') {
+    return {
+      start: '<blockquote>',
+      end: '</blockquote>',
+    }
+  }
+  if (block.type === 'header-two') {
+    return {
+      start: '<h2>',
+      end: '</h2>',
+    }
+  }
+  if (block.type === 'header-three') {
+    return {
+      start: '<h3>',
+      end: '</h3>',
+    }
+  }
   // TODO: Fix type switching from draft-convert to avoid weird if statement
   if (block.type === 'ordered-list-item') {
     return {
-      start: '<p>',
-      end: '</p>',
-      nestStart: '',
-      nestEnd: '',
+      start: '<li>',
+      end: '</li>',
+      nestStart: '<ol>',
+      nestEnd: '</ol>',
     }
   }
   if (block.type === 'unordered-list-item') {
     return {
-      start: '<p>',
-      end: '</p>',
-      nestStart: '',
-      nestEnd: '',
+      start: '<li>',
+      end: '</li>',
+      nestStart: '<ul>',
+      nestEnd: '</ul>',
     }
   } else {
+    // TODO: add all block types and limit by allowed styles
     return {
       start: '<p>',
       end: '</p>',
     }
   }
-}
-
-/**
- * convert multiple paragraphs into one
- */
-export const stripParagraphLinebreaks = (html: string) => {
-  return html.replace(/<\/p><p>/g, ' ')
 }
