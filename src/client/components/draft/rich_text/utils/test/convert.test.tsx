@@ -4,11 +4,11 @@ import {
   convertHtmlToDraft,
   htmlToEntity,
 } from '../convert'
-import { paragraphStyleMap } from '../utils'
+import { richTextStyleMap } from '../utils'
 
 describe('#convertHtmlToDraft', () => {
   const getContentState = (html, hasLinks = false) => {
-    return convertHtmlToDraft(html, hasLinks, paragraphStyleMap)
+    return convertHtmlToDraft(html, hasLinks, richTextStyleMap)
   }
 
   describe('Links', () => {
@@ -29,6 +29,32 @@ describe('#convertHtmlToDraft', () => {
       expect(hasLinks).toBeCalled()
       expect(block.getType()).toBe('unstyled')
       expect(block.getText()).toBe('a link')
+    })
+
+    it('Converts artist follow links to entities if allowed', () => {
+      const html = `
+        <span>
+          <a href="https://www.artsy.net/artist/claes-oldenburg" class="is-follow-link">
+            Claes Oldenburg
+          </a>
+          <a data-id="claes-oldenburg" class="entity-follow artist-follow" />
+        </span>
+      `
+      const contentState = getContentState(html, true)
+      const block = contentState.getFirstBlock()
+      const hasLinks = jest.fn()
+
+      block.findEntityRanges(character => {
+        const entityKey = character.getEntity()
+        return (
+          entityKey !== null &&
+          contentState.getEntity(entityKey).getType() === 'LINK'
+        )
+      }, hasLinks)
+
+      expect(hasLinks).toBeCalled()
+      expect(block.getType()).toBe('unstyled')
+      expect(block.getText()).toMatch('Claes Oldenburg')
     })
 
     it('Returns links as plaintext if not allowed', () => {
@@ -282,13 +308,17 @@ describe('#convertHtmlToDraft', () => {
 })
 
 describe('#convertDraftToHtml', () => {
-  const getHtmlFromContentState = (html, hasLinks = false) => {
+  const getHtmlFromContentState = (
+    html,
+    hasLinks = false,
+    hasFollowButton = false
+  ) => {
     // Get unstripped content state
     const currentContent = convertFromHTML({
       htmlToEntity: hasLinks ? htmlToEntity : undefined,
     })(html)
     // Convert contentState back to html
-    return convertDraftToHtml(currentContent, paragraphStyleMap)
+    return convertDraftToHtml(currentContent, richTextStyleMap, hasFollowButton)
   }
 
   describe('Links', () => {
@@ -302,12 +332,38 @@ describe('#convertDraftToHtml', () => {
       )
     })
 
+    it('Converts artist-follow entities to links if allowed', () => {
+      const html = `
+        <span>
+          <a href="https://www.artsy.net/artist/claes-oldenburg" class="is-follow-link">Claes Oldenburg</a>
+          <a data-id="claes-oldenburg" class="entity-follow artist-follow" />
+        </span>
+      `
+      const convertedHtml = getHtmlFromContentState(html, true, true)
+
+      expect(convertedHtml).toBe(
+        '<p><span><a href="https://www.artsy.net/artist/claes-oldenburg" class="is-follow-link">Claes Oldenburg</a><a data-id="claes-oldenburg" class="entity-follow artist-follow"></a></span></p>'
+      )
+    })
+
     it('Strips links to plaintext if not allowed', () => {
       const html =
         '<p><a href="https://artsy.net" target="_blank">a link</a></p>'
       const convertedHtml = getHtmlFromContentState(html)
 
       expect(convertedHtml).toBe('<p>a link</p>')
+    })
+
+    it('Strips artist follow links to plaintext if not allowed', () => {
+      const html = `
+        <span>
+          <a href="https://www.artsy.net/artist/claes-oldenburg" class="is-follow-link">Claes Oldenburg</a>
+          <a data-id="claes-oldenburg" class="entity-follow artist-follow" />
+        </span>
+      `
+      const convertedHtml = getHtmlFromContentState(html)
+
+      expect(convertedHtml).toBe('<p>Claes Oldenburg</p>')
     })
   })
 

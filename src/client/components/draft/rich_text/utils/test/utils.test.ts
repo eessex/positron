@@ -28,6 +28,8 @@ describe('Paragraph utils', () => {
 
       expect(styleMap[0]).toEqual({ label: 'B', name: 'BOLD' })
       expect(styleMap[1]).toEqual({ label: 'I', name: 'ITALIC' })
+      expect(styleMap[2]).toEqual({ label: 'U', name: 'UNDERLINE' })
+      expect(styleMap[3]).toEqual({ label: 'S', name: 'STRIKETHROUGH' })
     })
   })
 
@@ -44,9 +46,11 @@ describe('Paragraph utils', () => {
       const styleMap = styleMapFromNodes()
       const styleNames = styleNamesFromMap(styleMap)
 
-      expect(styleNames.length).toBe(2)
+      expect(styleNames.length).toBe(4)
       expect(styleNames[0]).toBe('BOLD')
       expect(styleNames[1]).toBe('ITALIC')
+      expect(styleNames[2]).toBe('UNDERLINE')
+      expect(styleNames[3]).toBe('STRIKETHROUGH')
     })
   })
 
@@ -63,9 +67,11 @@ describe('Paragraph utils', () => {
       const styleMap = styleMapFromNodes()
       const styleNodes = styleNodesFromMap(styleMap)
 
-      expect(styleNodes.length).toBe(2)
+      expect(styleNodes.length).toBe(4)
       expect(styleNodes[0]).toBe('B')
       expect(styleNodes[1]).toBe('I')
+      expect(styleNodes[2]).toBe('U')
+      expect(styleNodes[3]).toBe('S')
     })
   })
 

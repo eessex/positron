@@ -20,7 +20,8 @@ import {
 } from './utils/utils'
 
 /**
- * Supports HTML with bold and italic styles in <p> blocks.
+ * TODO: new description
+ * Supports HTML with bold, italic styles in <p> blocks.
  * Allowed styles can be limited by passing allowedStyles.
  * Optionally supports links, and linebreak stripping.
  */

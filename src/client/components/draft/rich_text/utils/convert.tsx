@@ -1,4 +1,3 @@
-import node from '@artsy/reaction/dist/__generated__/ArtistToolTip_artist.graphql'
 import { convertFromHTML, convertToHTML } from 'draft-convert'
 import {
   ContentState,
@@ -7,6 +6,7 @@ import {
   RawDraftEntity,
 } from 'draft-js'
 import React from 'react'
+import { unescapeHTML } from 'underscore.string'
 import { stripGoogleStyles } from '../../../rich_text/utils/text_stripping'
 import { StyleMap, StyleMapNames, StyleName } from './typings'
 import { styleNamesFromMap, styleNodesFromMap } from './utils'
@@ -48,12 +48,14 @@ export const convertHtmlToDraft = (
  */
 export const convertDraftToHtml = (
   currentContent: ContentState,
-  allowedStyles: StyleMap
+  allowedStyles: StyleMap,
+  hasFollowButton: boolean = false
 ) => {
   const styles = styleNamesFromMap(allowedStyles)
 
   const html = convertToHTML({
-    entityToHTML,
+    entityToHTML: (entity, originalText) =>
+      entityToHTML(entity, originalText, hasFollowButton),
     styleToHTML: style => styleToHTML(style, styles),
     blockToHTML,
   })(currentContent)
@@ -103,7 +105,7 @@ export const htmlToBlock = (nodeName: string, _: HTMLElement) => {
  */
 export const htmlToEntity = (
   nodeName: string,
-  _: HTMLLinkElement,
+  node: HTMLLinkElement,
   createEntity: (
     blockType: string,
     isMutable: DraftEntityMutability,
@@ -172,10 +174,29 @@ export const styleToHTML = (style: StyleName, allowedStyles: StyleMapNames) => {
 /**
  * convert Draft entities to Html links
  */
-export const entityToHTML = (entity: RawDraftEntity, text: string) => {
-  // TODO: add follow button
+export const entityToHTML = (
+  entity: RawDraftEntity,
+  text: string,
+  hasFollowButton: boolean
+) => {
   if (entity.type === 'LINK') {
-    return <a href={entity.data.url}>{text}</a>
+    const { className, url } = entity.data
+    const innerText = unescapeHTML(text)
+    const isFollowLink = className && className.includes('is-follow-link')
+
+    if (hasFollowButton && isFollowLink) {
+      const artist = url.split('/artist/')[1]
+      return (
+        <span>
+          <a href={url} className={className}>
+            {innerText}
+          </a>
+          <a data-id={artist} className="entity-follow artist-follow" />
+        </span>
+      )
+    } else {
+      return <a href={entity.data.url}>{innerText}</a>
+    }
   }
   return text
 }

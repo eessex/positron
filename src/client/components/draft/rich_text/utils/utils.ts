@@ -17,9 +17,6 @@ import { AllowedStyles, StyleMap } from './typings'
 /**
  * blockRenderMap determines how HTML blocks are rendered in
  * draft's Editor component. 'unstyled' is equivalent to <p>.
- *
- * Element is 'div' because draft nests <div> tags with text,
- * and <p> tags cannot have nested children.
  */
 export const blockRenderMap = Immutable.Map({
   'header-two': {
@@ -45,7 +42,7 @@ export const blockRenderMap = Immutable.Map({
 /**
  * Default allowedStyles for Paragraph component
  */
-export const paragraphStyleMap: StyleMap = [
+export const richTextStyleMap: StyleMap = [
   { label: 'B', name: 'BOLD' },
   { label: 'I', name: 'ITALIC' },
   { label: 'U', name: 'UNDERLINE' },
@@ -92,7 +89,7 @@ export const styleMapFromNodes = (
  * Returns the names of allowed styles
  * Used for key commands, TextNav, and draft-convert
  */
-export const styleNamesFromMap = (styles: StyleMap = paragraphStyleMap) => {
+export const styleNamesFromMap = (styles: StyleMap = richTextStyleMap) => {
   return map(styles, 'name')
 }
 
@@ -100,12 +97,12 @@ export const styleNamesFromMap = (styles: StyleMap = paragraphStyleMap) => {
  * Returns the nodeNames for allowed styles
  * Used for draft-convert
  */
-export const styleNodesFromMap = (styles: StyleMap = paragraphStyleMap) => {
+export const styleNodesFromMap = (styles: StyleMap = richTextStyleMap) => {
   return map(styles, 'label')
 }
 
 /**
- * Extend keybindings to open link input
+ * Extend keybindings
  */
 export const keyBindingFn = (e: React.KeyboardEvent<{}>) => {
   // Custom key commands for full editor
@@ -140,6 +137,8 @@ export const keyBindingFn = (e: React.KeyboardEvent<{}>) => {
         if (e.shiftKey) {
           return 'strikethrough'
         }
+      default:
+        return getDefaultKeyBinding(e)
     }
   }
   return getDefaultKeyBinding(e)
