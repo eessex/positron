@@ -1,9 +1,12 @@
 import { convertToHTML } from 'draft-convert'
 import Draft from 'draft-js'
 import {
+  blockElementsFromMap,
+  blockNamesFromMap,
   handleReturn,
   insertPastedState,
   keyBindingFn,
+  richTextBlockRenderMap, // TODO: maybe remove
   styleMapFromNodes,
   styleNamesFromMap,
   styleNodesFromMap,
@@ -12,7 +15,7 @@ const SelectionUtils = require('../../../../rich_text/utils/text_selection')
 
 jest.mock('../../../../rich_text/utils/text_selection')
 
-describe('Paragraph utils', () => {
+describe('RichText utils', () => {
   const e: React.KeyboardEvent<{}> = {} as React.KeyboardEvent<{}>
 
   describe('#styleMapFromNodes', () => {
@@ -30,6 +33,41 @@ describe('Paragraph utils', () => {
       expect(styleMap[1]).toEqual({ label: 'I', name: 'ITALIC' })
       expect(styleMap[2]).toEqual({ label: 'U', name: 'UNDERLINE' })
       expect(styleMap[3]).toEqual({ label: 'S', name: 'STRIKETHROUGH' })
+    })
+  })
+
+  describe('#blockNamesFromMap', () => {
+    // it('Converts a blockRenderMap to an array of block names', () => {
+    //   const blocks = blockNamesFromMap(richTextBlockRenderMap)
+    // })
+
+    it('Returns default blocks if no args', () => {
+      const blocks = blockNamesFromMap(richTextBlockRenderMap)
+
+      expect(blocks.length).toBe(6)
+      expect(blocks[0]).toBe('header-two')
+      expect(blocks[1]).toBe('header-three')
+      expect(blocks[2]).toBe('blockquote')
+      expect(blocks[3]).toBe('unordered-list-item')
+      expect(blocks[4]).toBe('ordered-list-item')
+      expect(blocks[5]).toBe('unstyled')
+    })
+  })
+
+  describe('#blockElementsFromMap', () => {
+    // it('Converts a blockRenderMap to an array of elements', () => {
+    //   const blocks = blockNamesFromMap(richTextBlockRenderMap)
+    // })
+
+    it('Returns default elements if no args', () => {
+      const blocks = blockElementsFromMap(richTextBlockRenderMap)
+
+      expect(blocks.length).toBe(5)
+      expect(blocks[0]).toBe('h2')
+      expect(blocks[1]).toBe('h3')
+      expect(blocks[2]).toBe('blockquote')
+      expect(blocks[3]).toBe('li')
+      expect(blocks[4]).toBe('div')
     })
   })
 

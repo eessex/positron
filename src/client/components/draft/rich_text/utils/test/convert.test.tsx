@@ -4,11 +4,19 @@ import {
   convertHtmlToDraft,
   htmlToEntity,
 } from '../convert'
-import { richTextStyleMap } from '../utils'
+import {
+  blockMapFromNodes,
+  richTextBlockRenderMap,
+  richTextStyleMap,
+} from '../utils'
 
 describe('#convertHtmlToDraft', () => {
-  const getContentState = (html, hasLinks = false) => {
-    return convertHtmlToDraft(html, hasLinks, richTextStyleMap)
+  const getContentState = (
+    html,
+    hasLinks,
+    blockMap = richTextBlockRenderMap
+  ) => {
+    return convertHtmlToDraft(html, hasLinks, blockMap, richTextStyleMap)
   }
 
   describe('Links', () => {
@@ -59,7 +67,7 @@ describe('#convertHtmlToDraft', () => {
 
     it('Returns links as plaintext if not allowed', () => {
       const html = '<p><a href="https://artsy.net">a link</a></p>'
-      const contentState = getContentState(html)
+      const contentState = getContentState(html, false)
       const block = contentState.getFirstBlock()
       const hasLinks = jest.fn()
 
@@ -80,7 +88,7 @@ describe('#convertHtmlToDraft', () => {
   describe('Style handling', () => {
     it('Preserves italic styles', () => {
       const html = '<p><em>italic</em></p>'
-      const contentState = getContentState(html)
+      const contentState = getContentState(html, false)
       const block = contentState.getFirstBlock()
       const hasStyle = jest.fn()
 
@@ -94,7 +102,7 @@ describe('#convertHtmlToDraft', () => {
 
     it('Preserves bold styles', () => {
       const html = '<p><strong>bold</strong></p>'
-      const contentState = getContentState(html)
+      const contentState = getContentState(html, false)
       const block = contentState.getFirstBlock()
       const hasStyle = jest.fn()
 
@@ -108,7 +116,7 @@ describe('#convertHtmlToDraft', () => {
 
     it('Preserves strikethrough styles', () => {
       const html = '<p><s>strikethrough</s></p>'
-      const contentState = getContentState(html)
+      const contentState = getContentState(html, false)
       const block = contentState.getFirstBlock()
       const hasStyle = jest.fn()
 
@@ -122,7 +130,7 @@ describe('#convertHtmlToDraft', () => {
 
     it('Preserves underline styles', () => {
       const html = '<p><u>underline</u></p>'
-      const contentState = getContentState(html)
+      const contentState = getContentState(html, false)
       const block = contentState.getFirstBlock()
       const hasStyle = jest.fn()
 
@@ -137,7 +145,7 @@ describe('#convertHtmlToDraft', () => {
     describe('Disallowed style handling', () => {
       it('Removes code styles', () => {
         const html = '<p><code>code</code></p>'
-        const contentState = getContentState(html)
+        const contentState = getContentState(html, false)
         const block = contentState.getFirstBlock()
         const hasStyle = jest.fn()
 
@@ -154,7 +162,7 @@ describe('#convertHtmlToDraft', () => {
   describe('Block handling', () => {
     it('Returns unstyled paragraphs', () => {
       const html = '<p>a paragraph</p>'
-      const contentState = getContentState(html)
+      const contentState = getContentState(html, false)
       const block = contentState.getFirstBlock()
 
       expect(block.getType()).toBe('unstyled')
@@ -163,7 +171,7 @@ describe('#convertHtmlToDraft', () => {
 
     it('Converts h2 blocks', () => {
       const html = '<h2>an h2</h2>'
-      const contentState = getContentState(html)
+      const contentState = getContentState(html, false)
       const block = contentState.getFirstBlock()
 
       expect(block.getType()).toBe('header-two')
@@ -172,7 +180,7 @@ describe('#convertHtmlToDraft', () => {
 
     it('Converts h3 blocks', () => {
       const html = '<h3>an h3</h3>'
-      const contentState = getContentState(html)
+      const contentState = getContentState(html, false)
       const block = contentState.getFirstBlock()
 
       expect(block.getType()).toBe('header-three')
@@ -181,7 +189,7 @@ describe('#convertHtmlToDraft', () => {
 
     it('Converts blockquote blocks', () => {
       const html = '<blockquote>a blockquote</blockquote>'
-      const contentState = getContentState(html)
+      const contentState = getContentState(html, false)
       const block = contentState.getFirstBlock()
 
       expect(block.getType()).toBe('blockquote')
@@ -195,13 +203,13 @@ describe('#convertHtmlToDraft', () => {
         <li>second list item</li>
         </ul>
       `
-      const contentState = getContentState(html)
+      const contentState = getContentState(html, false)
       const firstBlock = contentState.getFirstBlock()
       const secondBlock = contentState.getLastBlock()
 
-      expect(firstBlock.getType()).toBe('unstyled')
+      expect(firstBlock.getType()).toBe('unordered-list-item')
       expect(firstBlock.getText()).toBe('first list item')
-      expect(secondBlock.getType()).toBe('unstyled')
+      expect(secondBlock.getType()).toBe('unordered-list-item')
       expect(secondBlock.getText()).toBe('second list item')
     })
 
@@ -212,20 +220,30 @@ describe('#convertHtmlToDraft', () => {
         <li>second list item</li>
         </ol>
       `
-      const contentState = getContentState(html)
+      const contentState = getContentState(html, false)
       const firstBlock = contentState.getFirstBlock()
       const secondBlock = contentState.getLastBlock()
 
-      expect(firstBlock.getType()).toBe('unstyled')
+      expect(firstBlock.getType()).toBe('ordered-list-item')
       expect(firstBlock.getText()).toBe('first list item')
-      expect(secondBlock.getType()).toBe('unstyled')
+      expect(secondBlock.getType()).toBe('ordered-list-item')
       expect(secondBlock.getText()).toBe('second list item')
+    })
+
+    it('Converts h1 blocks if allowed', () => {
+      const html = '<h1>an h1</h1>'
+      const allowedBlocks = blockMapFromNodes(['h1'])
+      const contentState = getContentState(html, false, allowedBlocks)
+      const block = contentState.getFirstBlock()
+
+      expect(block.getType()).toBe('header-one')
+      expect(block.getText()).toBe('an h1')
     })
 
     describe('Disallowed blocks', () => {
       it('Converts h1 blocks', () => {
         const html = '<h1>an h1</h1>'
-        const contentState = getContentState(html)
+        const contentState = getContentState(html, false)
         const block = contentState.getFirstBlock()
 
         expect(block.getType()).toBe('unstyled')
@@ -234,7 +252,7 @@ describe('#convertHtmlToDraft', () => {
 
       it('Converts h4 blocks', () => {
         const html = '<h4>an h4</h4>'
-        const contentState = getContentState(html)
+        const contentState = getContentState(html, false)
         const block = contentState.getFirstBlock()
 
         expect(block.getType()).toBe('unstyled')
@@ -243,7 +261,7 @@ describe('#convertHtmlToDraft', () => {
 
       it('Converts h5 blocks', () => {
         const html = '<h5>an h5</h5>'
-        const contentState = getContentState(html)
+        const contentState = getContentState(html, false)
         const block = contentState.getFirstBlock()
 
         expect(block.getType()).toBe('unstyled')
@@ -252,7 +270,7 @@ describe('#convertHtmlToDraft', () => {
 
       it('Converts h6 blocks', () => {
         const html = '<h6>an h6</h6>'
-        const contentState = getContentState(html)
+        const contentState = getContentState(html, false)
         const block = contentState.getFirstBlock()
 
         expect(block.getType()).toBe('unstyled')
@@ -261,7 +279,7 @@ describe('#convertHtmlToDraft', () => {
 
       it('Converts div blocks', () => {
         const html = '<div>a div</div>'
-        const contentState = getContentState(html)
+        const contentState = getContentState(html, false)
         const block = contentState.getFirstBlock()
 
         expect(block.getType()).toBe('unstyled')
@@ -270,7 +288,7 @@ describe('#convertHtmlToDraft', () => {
 
       it('Converts table blocks', () => {
         const html = '<tr><th>table header</th><td>table cell</td></tr>'
-        const contentState = getContentState(html)
+        const contentState = getContentState(html, false)
         const block = contentState.getFirstBlock()
 
         expect(block.getType()).toBe('unstyled')
@@ -279,7 +297,7 @@ describe('#convertHtmlToDraft', () => {
 
       it('Removes body blocks', () => {
         const html = '<body><p>a nested paragraph</p></body>'
-        const contentState = getContentState(html)
+        const contentState = getContentState(html, false)
         const block = contentState.getFirstBlock()
 
         expect(block.getType()).toBe('unstyled')
@@ -288,7 +306,7 @@ describe('#convertHtmlToDraft', () => {
 
       it('Removes meta tags', () => {
         const html = '<meta><title>Page Title</title></meta><p>a paragraph</p>'
-        const contentState = getContentState(html)
+        const contentState = getContentState(html, false)
         const block = contentState.getFirstBlock()
 
         expect(block.getType()).toBe('unstyled')
@@ -297,7 +315,7 @@ describe('#convertHtmlToDraft', () => {
 
       it('Removes script tags', () => {
         const html = '<script>do a bad thing</script><p>a paragraph</p>'
-        const contentState = getContentState(html)
+        const contentState = getContentState(html, false)
         const block = contentState.getFirstBlock()
 
         expect(block.getType()).toBe('unstyled')
@@ -318,7 +336,12 @@ describe('#convertDraftToHtml', () => {
       htmlToEntity: hasLinks ? htmlToEntity : undefined,
     })(html)
     // Convert contentState back to html
-    return convertDraftToHtml(currentContent, richTextStyleMap, hasFollowButton)
+    return convertDraftToHtml(
+      currentContent,
+      richTextBlockRenderMap,
+      richTextStyleMap,
+      hasFollowButton
+    )
   }
 
   describe('Links', () => {
@@ -415,6 +438,27 @@ describe('#convertDraftToHtml', () => {
       expect(convertedHtml).toBe('<p>a paragraph</p>')
     })
 
+    it('Converts h2 blocks', () => {
+      const html = '<h2>header two</h2>'
+      const convertedHtml = getHtmlFromContentState(html)
+
+      expect(convertedHtml).toBe('<h2>header two</h2>')
+    })
+
+    it('Converts h3 blocks', () => {
+      const html = '<h3>header three</h3>'
+      const convertedHtml = getHtmlFromContentState(html)
+
+      expect(convertedHtml).toBe('<h3>header three</h3>')
+    })
+
+    it('Converts blockquote blocks', () => {
+      const html = '<blockquote>a blockquote</blockquote>'
+      const convertedHtml = getHtmlFromContentState(html)
+
+      expect(convertedHtml).toBe('<blockquote>a blockquote</blockquote>')
+    })
+
     it('Converts ul blocks', () => {
       const html = `
         <ul>
@@ -441,20 +485,6 @@ describe('#convertDraftToHtml', () => {
       expect(convertedHtml).toBe(
         '<ol><li>first list item</li><li>second list item</li></ol>'
       )
-    })
-
-    it('Converts h2 blocks', () => {
-      const html = '<h2>an h2</h2>'
-      const convertedHtml = getHtmlFromContentState(html)
-
-      expect(convertedHtml).toBe('<h2>an h2</h2>')
-    })
-
-    it('Converts h3 blocks', () => {
-      const html = '<h3>an h3</h3>'
-      const convertedHtml = getHtmlFromContentState(html)
-
-      expect(convertedHtml).toBe('<h3>an h3</h3>')
     })
 
     describe('Disallowed blocks', () => {

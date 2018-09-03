@@ -9,7 +9,12 @@ import React from 'react'
 import { unescapeHTML } from 'underscore.string'
 import { stripGoogleStyles } from '../../../rich_text/utils/text_stripping'
 import { StyleMap, StyleMapNames, StyleName } from './typings'
-import { styleNamesFromMap, styleNodesFromMap } from './utils'
+import {
+  blockElementsFromMap,
+  blockNamesFromMap,
+  styleNamesFromMap,
+  styleNodesFromMap,
+} from './utils'
 
 /**
  * Helpers for draft-js Paragraph component data conversion
@@ -29,12 +34,15 @@ export const draftDefaultStyles = [
 export const convertHtmlToDraft = (
   html: string,
   hasLinks: boolean,
+  allowedBlocks: any,
   allowedStyles: StyleMap
 ) => {
   const cleanedHtml = stripGoogleStyles(html)
-
+  // TODO: REMOVE ILLEGAL LINEBREAKS
   return convertFromHTML({
-    htmlToBlock,
+    htmlToBlock: (nodeName: string, node: HTMLElement) => {
+      return htmlToBlock(nodeName, node, allowedBlocks)
+    },
     htmlToEntity: hasLinks ? htmlToEntity : undefined,
     // TODO: type currentStyle OrderedSet
     htmlToStyle: (nodeName: string, _: HTMLElement, currentStyle: any) => {
@@ -48,16 +56,18 @@ export const convertHtmlToDraft = (
  */
 export const convertDraftToHtml = (
   currentContent: ContentState,
+  allowedBlocks: any,
   allowedStyles: StyleMap,
   hasFollowButton: boolean = false
 ) => {
   const styles = styleNamesFromMap(allowedStyles)
+  const blocks = blockNamesFromMap(allowedBlocks)
 
   const html = convertToHTML({
     entityToHTML: (entity, originalText) =>
       entityToHTML(entity, originalText, hasFollowButton),
     styleToHTML: style => styleToHTML(style, styles),
-    blockToHTML,
+    blockToHTML: block => blockToHTML(block, blocks),
   })(currentContent)
 
   return html
@@ -66,16 +76,34 @@ export const convertDraftToHtml = (
 /**
  * convert Html elements to Draft blocks
  */
-export const htmlToBlock = (nodeName: string, _: HTMLElement) => {
+export const htmlToBlock = (
+  nodeName: string,
+  node: HTMLElement,
+  allowedBlocks: any
+) => {
+  const blocks = blockElementsFromMap(allowedBlocks)
+  const isAllowedBlock = blocks.includes(nodeName)
+
   if (['body', 'ul', 'ol', 'tr'].includes(nodeName)) {
     // Nested elements are empty, wrap their children instead
     return {}
+  } else if (!isAllowedBlock) {
+    return {
+      type: 'unstyled',
+      element: 'div',
+    }
   } else {
     switch (nodeName) {
       case 'blockquote': {
         return {
           type: 'blockquote',
           element: 'blockquote',
+        }
+      }
+      case 'h1': {
+        return {
+          type: 'header-one',
+          element: 'h1',
         }
       }
       case 'h2': {
@@ -88,6 +116,20 @@ export const htmlToBlock = (nodeName: string, _: HTMLElement) => {
         return {
           type: 'header-three',
           element: 'h3',
+        }
+      }
+      case 'li': {
+        const parent = node.parentElement
+        if (parent && parent.nodeName === 'OL') {
+          return {
+            type: 'ordered-list-item',
+            element: 'li',
+          }
+        } else {
+          return {
+            type: 'unordered-list-item',
+            element: 'li',
+          }
         }
       }
       default: {
@@ -204,27 +246,33 @@ export const entityToHTML = (
 /**
  * convert Draft blocks to Html elements
  */
-export const blockToHTML = (block: RawDraftContentBlock) => {
-  if (block.type === 'blockquote') {
+export const blockToHTML = (
+  block: RawDraftContentBlock,
+  allowedBlocks: any
+) => {
+  const { type } = block
+  const isAllowed = allowedBlocks.includes(type)
+
+  if (type === 'blockquote' && isAllowed) {
     return {
       start: '<blockquote>',
       end: '</blockquote>',
     }
   }
-  if (block.type === 'header-two') {
+  if (type === 'header-two' && isAllowed) {
     return {
       start: '<h2>',
       end: '</h2>',
     }
   }
-  if (block.type === 'header-three') {
+  if (type === 'header-three' && isAllowed) {
     return {
       start: '<h3>',
       end: '</h3>',
     }
   }
   // TODO: Fix type switching from draft-convert to avoid weird if statement
-  if (block.type === 'ordered-list-item') {
+  if (type === 'ordered-list-item' && isAllowed) {
     return {
       start: '<li>',
       end: '</li>',
@@ -232,7 +280,7 @@ export const blockToHTML = (block: RawDraftContentBlock) => {
       nestEnd: '</ol>',
     }
   }
-  if (block.type === 'unordered-list-item') {
+  if (type === 'unordered-list-item' && isAllowed) {
     return {
       start: '<li>',
       end: '</li>',

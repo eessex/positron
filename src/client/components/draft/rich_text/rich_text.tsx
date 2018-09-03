@@ -11,10 +11,11 @@ import { decorators } from './utils/decorators'
 import { confirmLink, linkDataFromSelection, removeLink } from './utils/links'
 import { AllowedStyles, StyleMap } from './utils/typings'
 import {
-  blockRenderMap,
+  blockMapFromNodes,
   handleReturn,
   insertPastedState,
   keyBindingFn,
+  richTextBlockRenderMap,
   styleMapFromNodes,
   styleNamesFromMap,
 } from './utils/utils'
@@ -49,8 +50,10 @@ interface State {
 
 export class RichText extends Component<Props, State> {
   private editor
+  private allowedBlocks: any
   private allowedStyles: StyleMap
   private debouncedOnChange
+
   static defaultProps = {
     hasFollowButton: false,
     hasLinks: false,
@@ -59,6 +62,7 @@ export class RichText extends Component<Props, State> {
   constructor(props: Props) {
     super(props)
     this.allowedStyles = styleMapFromNodes(props.allowedStyles)
+    this.allowedBlocks = blockMapFromNodes(props.allowedBlocks)
 
     this.state = {
       editorState: this.setEditorState(),
@@ -86,14 +90,25 @@ export class RichText extends Component<Props, State> {
   }
 
   editorStateToHTML = editorState => {
+    const { hasFollowButton } = this.props
     const currentContent = editorState.getCurrentContent()
 
-    return convertDraftToHtml(currentContent, this.allowedStyles)
+    return convertDraftToHtml(
+      currentContent,
+      this.allowedBlocks,
+      this.allowedStyles,
+      hasFollowButton
+    )
   }
 
   editorStateFromHTML = html => {
     const { hasLinks } = this.props
-    const contentBlocks = convertHtmlToDraft(html, hasLinks, this.allowedStyles)
+    const contentBlocks = convertHtmlToDraft(
+      html,
+      hasLinks,
+      this.allowedBlocks,
+      this.allowedStyles
+    )
 
     return EditorState.createWithContent(contentBlocks, decorators(hasLinks))
   }
@@ -303,7 +318,7 @@ export class RichText extends Component<Props, State> {
           onKeyUp={this.checkSelection}
         >
           <Editor
-            blockRenderMap={blockRenderMap as any}
+            blockRenderMap={richTextBlockRenderMap as any}
             editorState={editorState}
             keyBindingFn={keyBindingFn}
             handleKeyCommand={this.handleKeyCommand as any}

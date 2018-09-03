@@ -5,20 +5,19 @@ import {
   Modifier,
 } from 'draft-js'
 import Immutable from 'immutable'
-import { map } from 'lodash'
+import { map, uniq } from 'lodash'
 import React from 'react'
 import { getSelectionDetails } from '../../../rich_text/utils/text_selection'
-import { AllowedStyles, StyleMap } from './typings'
+import { AllowedBlocks, AllowedStyles, StyleMap } from './typings'
 
 /**
  * Helpers for draft-js Paragraph component setup
  */
 
 /**
- * blockRenderMap determines how HTML blocks are rendered in
- * draft's Editor component. 'unstyled' is equivalent to <p>.
+ * Default allowedBlocks for RichText component
  */
-export const blockRenderMap = Immutable.Map({
+export const richTextBlockRenderMap = Immutable.Map({
   'header-two': {
     element: 'h2',
   },
@@ -40,7 +39,74 @@ export const blockRenderMap = Immutable.Map({
 })
 
 /**
- * Default allowedStyles for Paragraph component
+ * Returns blockMap from element names
+ * Used to generate blockMap from props.allowedBlocks
+ */
+export const blockMapFromNodes = (
+  allowedBlocks: AllowedBlocks = ['h2', 'h3', 'blockquote', 'ul', 'ol', 'p']
+) => {
+  const blockMap: any = []
+
+  allowedBlocks.map(block => {
+    switch (block) {
+      case 'h1': {
+        blockMap.push({ name: 'header-one', element: 'h1' })
+        break
+      }
+      case 'h2': {
+        blockMap.push({ name: 'header-two', element: 'h2' })
+        break
+      }
+      case 'h3': {
+        blockMap.push({ name: 'header-three', element: 'h3' })
+        break
+      }
+      case 'blockquote': {
+        blockMap.push({ name: 'blockquote', element: 'blockquote' })
+        break
+      }
+      case 'ul': {
+        blockMap.push({ name: 'unordered-list-item', element: 'li' })
+        break
+      }
+      case 'ol': {
+        blockMap.push({ name: 'ordered-list-item', element: 'li' })
+        break
+      }
+      case 'p': {
+        blockMap.push({ name: 'unstyled', element: 'div' })
+        break
+      }
+    }
+  })
+
+  const blocksToImmutableMap = blockMap.reduce((obj, block) => {
+    return obj.set(block.name, {
+      element: block.element,
+    })
+  }, Immutable.Map())
+
+  return blocksToImmutableMap
+}
+
+/**
+ * Returns the names of allowed blocks
+ * Used for key commands, TextNav, and draft-convert
+ */
+export const blockNamesFromMap = (blocks: any = richTextBlockRenderMap) => {
+  return Array.from(blocks.keys())
+}
+
+/**
+ * Returns the element type for allowed blocks
+ * Used for draft-convert
+ */
+export const blockElementsFromMap = (blocks: any = richTextBlockRenderMap) => {
+  return uniq(map(Array.from(blocks.values()), 'element'))
+}
+
+/**
+ * Default allowedStyles for RichText component
  */
 export const richTextStyleMap: StyleMap = [
   { label: 'B', name: 'BOLD' },

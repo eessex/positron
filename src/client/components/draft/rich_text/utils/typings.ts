@@ -1,5 +1,18 @@
 import { ContentBlock, ContentState } from 'draft-js'
 
+export type BlockElement = 'h1' | 'h2' | 'h3' | 'blockquote' | 'ul' | 'ol' | 'p'
+
+export type BlockName =
+  | 'header-one'
+  | 'header-two'
+  | 'header-three'
+  | 'blockquote'
+  | 'unordered-list-item'
+  | 'ordered-list-item'
+  | 'unstyled'
+
+export type AllowedBlocks = BlockElement[]
+
 export type StyleNode = 'B' | 'I' | 'U' | 'S'
 
 export type StyleName = 'BOLD' | 'ITALIC' | 'UNDERLINE' | 'STRIKETHROUGH'
@@ -10,6 +23,7 @@ export interface StyleMapStyle {
 }
 
 export type StyleMap = StyleMapStyle[]
+
 export type StyleMapNames = StyleName[]
 
 export type AllowedStyles = StyleNode[]
