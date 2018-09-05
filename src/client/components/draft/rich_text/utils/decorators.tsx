@@ -49,15 +49,27 @@ export const findLinkEntities = (
  */
 export const Link = (props: LinkProps) => {
   const { children, contentState, entityKey } = props
-  const { url } = contentState.getEntity(entityKey).getData()
+  const { url, className } = contentState.getEntity(entityKey).getData()
   // Don't allow links to click through from editor
   const onClick = e => e.preventDefault()
+  const artist = url.split('/artist/')[1]
 
-  return (
-    <a href={url} onClick={onClick}>
-      {children}
-    </a>
-  )
+  if (className === 'is-follow-link') {
+    return (
+      <span>
+        <a href={url} className={className}>
+          {children}
+        </a>
+        <a data-id={artist} className="entity-follow artist-follow" />
+      </span>
+    )
+  } else {
+    return (
+      <a href={url} onClick={onClick}>
+        {children}
+      </a>
+    )
+  }
 }
 
 export interface LinkProps {
