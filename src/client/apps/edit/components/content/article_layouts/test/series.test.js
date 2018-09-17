@@ -1,14 +1,14 @@
 import React from 'react'
 import { cloneDeep } from 'lodash'
 import { mount } from 'enzyme'
-import { Fixtures } from '@artsy/reaction/dist/Components/Publishing'
+import { SeriesArticle } from '@artsy/reaction/dist/Components/Publishing/Fixtures/Articles'
 import { FixedBackground } from '@artsy/reaction/dist/Components/Publishing/Series/FixedBackground'
 import { SeriesAbout } from '@artsy/reaction/dist/Components/Publishing/Series/SeriesAbout'
 import { SeriesTitle } from '@artsy/reaction/dist/Components/Publishing/Series/SeriesTitle'
-import FileInput from '/client/components/file_input/index.jsx'
-import Paragraph from '/client/components/rich_text/components/paragraph.coffee'
-import { PlainText } from '/client/components/draft/plain_text/plain_text'
-import { RelatedArticles } from '/client/apps/edit/components/content/sections/related_articles'
+import FileInput from 'client/components/file_input'
+import { Paragraph } from 'client/components/draft/paragraph/paragraph'
+import { PlainText } from 'client/components/draft/plain_text/plain_text'
+import { RelatedArticles } from 'client/apps/edit/components/content/sections/related_articles'
 import { EditSeries } from '../series'
 require('typeahead.js')
 
@@ -22,7 +22,7 @@ describe('EditSeries', () => {
   let props
   beforeEach(() => {
     props = {
-      article: cloneDeep(Fixtures.SeriesArticle),
+      article: cloneDeep(SeriesArticle),
       onChangeArticleAction: jest.fn()
     }
   })
@@ -45,7 +45,7 @@ describe('EditSeries', () => {
   })
 
   it('Renders editable series subTitle', () => {
-    props.article.series = {sub_title: 'This Feature'}
+    props.article.series = { sub_title: 'This Feature' }
     const component = getWrapper(props)
 
     expect(component.find(PlainText).at(1).props().name).toBe('series.sub_title')
@@ -70,7 +70,7 @@ describe('EditSeries', () => {
   })
 
   it('Renders a background image if url', () => {
-    props.article.hero_section = {url: 'http://image.jpg'}
+    props.article.hero_section = { url: 'http://image.jpg' }
     const component = getWrapper(props)
     expect(component.find(FixedBackground).length).toBe(1)
     expect(component.find(FixedBackground).props().backgroundUrl).toBe('http://image.jpg')

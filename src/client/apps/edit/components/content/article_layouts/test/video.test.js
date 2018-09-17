@@ -1,11 +1,11 @@
 import React from 'react'
 import { cloneDeep } from 'lodash'
 import { mount } from 'enzyme'
-import { Fixtures } from '@artsy/reaction/dist/Components/Publishing'
+import { VideoArticle } from '@artsy/reaction/dist/Components/Publishing/Fixtures/Articles'
 import { VideoAbout } from '@artsy/reaction/dist/Components/Publishing/Video/VideoAbout'
 import { VideoCover } from '@artsy/reaction/dist/Components/Publishing/Video/VideoCover'
 import FileInput from 'client/components/file_input'
-import Paragraph from 'client/components/rich_text/components/paragraph.coffee'
+import { Paragraph } from 'client/components/draft/paragraph/paragraph'
 import { PlainText } from 'client/components/draft/plain_text/plain_text'
 import { EditVideo, EditVideoPublished } from '../video'
 require('typeahead.js')
@@ -20,7 +20,7 @@ describe('EditVideo', () => {
   let props
   beforeEach(() => {
     props = {
-      article: cloneDeep(Fixtures.VideoArticle),
+      article: cloneDeep(VideoArticle),
       onChangeArticleAction: jest.fn()
     }
   })
