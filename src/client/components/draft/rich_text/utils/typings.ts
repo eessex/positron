@@ -18,7 +18,7 @@ export type StyleNode = 'B' | 'I' | 'U' | 'S'
 export type StyleName = 'BOLD' | 'ITALIC' | 'UNDERLINE' | 'STRIKETHROUGH'
 
 export interface StyleMapStyle {
-  label: StyleNode
+  element: StyleNode
   name: StyleName
 }
 

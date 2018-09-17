@@ -109,10 +109,10 @@ export const blockElementsFromMap = (blocks: any = richTextBlockRenderMap) => {
  * Default allowedStyles for RichText component
  */
 export const richTextStyleMap: StyleMap = [
-  { label: 'B', name: 'BOLD' },
-  { label: 'I', name: 'ITALIC' },
-  { label: 'U', name: 'UNDERLINE' },
-  { label: 'S', name: 'STRIKETHROUGH' },
+  { element: 'B', name: 'BOLD' },
+  { element: 'I', name: 'ITALIC' },
+  { element: 'U', name: 'UNDERLINE' },
+  { element: 'S', name: 'STRIKETHROUGH' },
 ]
 
 /**
@@ -128,22 +128,22 @@ export const styleMapFromNodes = (
     switch (style.toUpperCase()) {
       case 'B':
       case 'BOLD': {
-        styleMap.push({ label: 'B', name: 'BOLD' })
+        styleMap.push({ element: 'B', name: 'BOLD' })
         break
       }
       case 'I':
       case 'ITALIC': {
-        styleMap.push({ label: 'I', name: 'ITALIC' })
+        styleMap.push({ element: 'I', name: 'ITALIC' })
         break
       }
       case 'U':
       case 'UNDERLINE': {
-        styleMap.push({ label: 'U', name: 'UNDERLINE' })
+        styleMap.push({ element: 'U', name: 'UNDERLINE' })
         break
       }
       case 'S':
       case 'STRIKETHROUGH': {
-        styleMap.push({ label: 'S', name: 'STRIKETHROUGH' })
+        styleMap.push({ element: 'S', name: 'STRIKETHROUGH' })
         break
       }
     }

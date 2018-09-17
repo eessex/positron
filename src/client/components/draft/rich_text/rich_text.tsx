@@ -4,14 +4,15 @@ import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
 import { TextInputUrl } from '../../rich_text/components/input_url'
-import { TextNav } from '../../rich_text/components/text_nav'
 import { stickyControlsBox } from '../../rich_text/utils/text_selection'
+import { TextNav } from '../components/text_nav'
 import { convertDraftToHtml, convertHtmlToDraft } from './utils/convert'
 import { decorators } from './utils/decorators'
 import { confirmLink, linkDataFromSelection, removeLink } from './utils/links'
 import { AllowedStyles, StyleMap } from './utils/typings'
 import {
   blockMapFromNodes,
+  blockNamesFromMap,
   handleReturn,
   insertPastedState,
   keyBindingFn,
@@ -146,6 +147,11 @@ export class RichText extends Component<Props, State> {
         }
         break
       }
+      case 'header-one':
+      case 'header-two':
+      case 'header-three': {
+        return this.keyCommandBlockType(command)
+      }
       case 'bold':
       case 'italic':
       case 'underline':
@@ -155,6 +161,38 @@ export class RichText extends Component<Props, State> {
     }
     // let draft defaults or browser handle
     return 'not-handled'
+  }
+
+  keyCommandBlockType = command => {
+    // Handle block changes from key command
+    const { editorState } = this.state
+    const blocks = blockNamesFromMap(this.allowedBlocks)
+
+    if (blocks.includes(command)) {
+      const newState = RichUtils.toggleBlockType(editorState, command)
+
+      // If an updated state is returned, command is handled
+      if (newState) {
+        this.onChange(newState)
+        return 'handled'
+      }
+    } else {
+      return 'not-handled'
+    }
+  }
+
+  toggleBlockType = command => {
+    // Handle block type changes from menu click
+    const { editorState } = this.state
+    const blocks = blockNamesFromMap(this.allowedBlocks)
+    let newState
+
+    if (blocks.includes(command)) {
+      newState = RichUtils.toggleBlockType(editorState, command)
+    }
+    if (newState) {
+      this.onChange(newState)
+    }
   }
 
   keyCommandInlineStyle = command => {
@@ -179,13 +217,13 @@ export class RichText extends Component<Props, State> {
     // Handle style changes from menu click
     const { editorState } = this.state
     const styles = styleNamesFromMap(this.allowedStyles)
-    let newEditorState
+    let newState
 
     if (styles.includes(command)) {
-      newEditorState = RichUtils.toggleInlineStyle(editorState, command)
+      newState = RichUtils.toggleInlineStyle(editorState, command)
     }
-    if (newEditorState) {
-      this.onChange(newEditorState)
+    if (newState) {
+      this.onChange(newState)
     }
   }
 
@@ -299,7 +337,9 @@ export class RichText extends Component<Props, State> {
             position={selectionTarget}
             promptForLink={promptForLink}
             styles={this.allowedStyles}
+            blocks={this.allowedBlocks}
             toggleStyle={this.toggleInlineStyle}
+            toggleBlock={this.toggleBlockType}
           />
         )}
         {showUrlInput && (
