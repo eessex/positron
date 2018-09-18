@@ -19,6 +19,7 @@ export const SectionText = (props: any) => {
     // maybe hide tooltips?
     <Text layout={article.layout}>
       <RichText
+        allowedBlocks={getBlockMap(article.layout, isInternalChannel)}
         hasLinks
         hasFollowButton={isInternalChannel}
         html={section.body || ''}
@@ -27,4 +28,21 @@ export const SectionText = (props: any) => {
       />
     </Text>
   )
+}
+
+export const getBlockMap = (layout, isInternalChannel) => {
+  switch (layout) {
+    case 'feature': {
+      return ['h1', 'h2', 'h3', 'blockquote', 'ol', 'ul', 'p']
+    }
+    case 'classic': {
+      if (isInternalChannel) {
+        return ['h2', 'h3', 'blockquote', 'ol', 'ul', 'p']
+      } else {
+        return ['h2', 'h3', 'ol', 'ul', 'p']
+      }
+    }
+    default:
+      return null
+  }
 }

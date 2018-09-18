@@ -43,7 +43,7 @@ export const richTextBlockRenderMap = Immutable.Map({
  * Used to generate blockMap from props.allowedBlocks
  */
 export const blockMapFromNodes = (
-  allowedBlocks: AllowedBlocks = ['h2', 'h3', 'blockquote', 'ul', 'ol', 'p']
+  allowedBlocks: AllowedBlocks = ['h2', 'h3', 'ul', 'ol', 'p']
 ) => {
   const blockMap: any = []
 

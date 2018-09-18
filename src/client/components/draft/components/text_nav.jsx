@@ -42,6 +42,46 @@ export class TextNav extends React.Component {
     }
   }
 
+  getButtonsFromBlockMap = () => {
+    const { blocks } = this.props
+    const buttons = []
+
+    if (blocks.get('header-one')) {
+      buttons.push({
+        element: 'h1',
+        name: 'header-one'
+      })
+    }
+    if (blocks.get('header-two')) {
+      buttons.push({
+        element: 'h2',
+        name: 'header-two'
+      })
+    }
+    if (blocks.get('header-three')) {
+      buttons.push({
+        element: 'h3',
+        name: 'header-three'
+      })
+    }
+    if (blocks.get('blockquote')) {
+      buttons.push({
+        name: 'blockquote'
+      })
+    }
+    if (blocks.get('ordered-list-item')) {
+      buttons.push({
+        name: 'ordered-list-item'
+      })
+    }
+    if (blocks.get('unordered-list-item')) {
+      buttons.push({
+        name: 'unordered-list-item'
+      })
+    }
+    return buttons
+  }
+
   getButtonArray() {
     const {
       blocks,
@@ -56,8 +96,7 @@ export class TextNav extends React.Component {
       buttons.push(styles)
     }
     if (blocks) {
-      debugger
-      // buttons.push(blocks)
+      buttons.push(this.getButtonsFromBlockMap())
     }
     if (promptForLink) {
       buttons.push({ name: 'link' })
@@ -99,13 +138,7 @@ export class TextNav extends React.Component {
 
   getNavWidth = () => {
     const buttons = this.getButtonArray()
-    if (buttons.length === 8) {
-      return '200px'
-    } else if (buttons.length > 8) {
-      return '250px'
-    } else {
-      return (buttons.length * 50) + 'px'
-    }
+    return (buttons.length * 50) + 'px'
   }
 
   render() {
