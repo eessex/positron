@@ -16,16 +16,13 @@ import {
   handleReturn,
   insertPastedState,
   keyBindingFn,
-  richTextBlockRenderMap,
+  makePlainText,
   styleMapFromNodes,
   styleNamesFromMap,
 } from './utils/utils'
 
 /**
  * TODO: new description
- * Supports HTML with bold, italic styles in <p> blocks.
- * Allowed styles can be limited by passing allowedStyles.
- * Optionally supports links, and linebreak stripping.
  */
 
 interface Props {
@@ -131,8 +128,7 @@ export class RichText extends Component<Props, State> {
 
   handleReturn = e => {
     const { editorState } = this.state
-
-    // Maybe split-block, but don't create empty paragraphs
+    // Maybe split-block, and don't create consecutive empty paragraphs
     return handleReturn(e, editorState)
   }
 
@@ -154,9 +150,21 @@ export class RichText extends Component<Props, State> {
       }
       case 'bold':
       case 'italic':
-      case 'underline':
-      case 'strikethrough': {
+      case 'underline': {
         return this.keyCommandInlineStyle(command)
+      }
+      case 'strikethrough': {
+        // Not handled by draft's handleKeyCommand, use toggleBlockType instead
+        this.toggleInlineStyle(command.toUpperCase())
+        return 'handled'
+      }
+      case 'blockquote': {
+        this.toggleBlockQuote()
+        return 'handled'
+      }
+      case 'plain-text': {
+        this.togglePlainText()
+        return 'handled'
       }
     }
     // let draft defaults or browser handle
@@ -168,7 +176,9 @@ export class RichText extends Component<Props, State> {
     const { editorState } = this.state
     const blocks = blockNamesFromMap(this.allowedBlocks)
 
-    if (blocks.includes(command)) {
+    if (command === 'blockquote') {
+      this.toggleBlockQuote()
+    } else if (blocks.includes(command)) {
       const newState = RichUtils.toggleBlockType(editorState, command)
 
       // If an updated state is returned, command is handled
@@ -187,11 +197,29 @@ export class RichText extends Component<Props, State> {
     const blocks = blockNamesFromMap(this.allowedBlocks)
     let newState
 
-    if (blocks.includes(command)) {
+    if (command === 'blockquote') {
+      this.toggleBlockQuote()
+    } else if (blocks.includes(command)) {
       newState = RichUtils.toggleBlockType(editorState, command)
     }
     if (newState) {
       this.onChange(newState)
+    }
+  }
+
+  toggleBlockQuote = () => {
+    if (this.allowedBlocks.get('blockquote')) {
+      const hasBlockquote = this.state.html.includes('<blockquote>')
+      // ACTUALLY MUCH BETTER FOR THIS TO LIVE IN SECTION TEXT
+      if (hasBlockquote) {
+        // TODO: Remove a blockquote:
+        // Convert text to P and remove layout from section
+      } else {
+        // TODO: Add a blockquote:
+        // Convert text to blockquote
+        // Slice blockquote from existing text
+        // Create a new section for blockquote text
+      }
     }
   }
 
@@ -227,12 +255,19 @@ export class RichText extends Component<Props, State> {
     }
   }
 
+  togglePlainText = () => {
+    const { editorState } = this.state
+    const newState = makePlainText(editorState)
+    this.onChange(newState)
+    // TODO: unstyle blocks
+  }
+
   handlePastedText = (text, html) => {
     const { editorState } = this.state
 
     if (!html) {
       // Wrap pasted plain text in html
-      html = '<p>' + text + '</p>'
+      html = '<div>' + text + '</div>'
     }
     const stateFromPastedFragment = this.editorStateFromHTML(html)
     const stateWithPastedText = insertPastedState(
@@ -333,13 +368,14 @@ export class RichText extends Component<Props, State> {
       <RichTextContainer>
         {showNav && (
           <TextNav
+            allowedBlocks={this.allowedBlocks}
+            allowedStyles={this.allowedStyles}
             onClickOff={() => this.setState({ showNav: false })}
             position={selectionTarget}
             promptForLink={promptForLink}
-            styles={this.allowedStyles}
-            blocks={this.allowedBlocks}
-            toggleStyle={this.toggleInlineStyle}
             toggleBlock={this.toggleBlockType}
+            togglePlainText={this.togglePlainText}
+            toggleStyle={this.toggleInlineStyle}
           />
         )}
         {showUrlInput && (
@@ -358,7 +394,7 @@ export class RichText extends Component<Props, State> {
           onKeyUp={this.checkSelection}
         >
           <Editor
-            blockRenderMap={richTextBlockRenderMap as any}
+            blockRenderMap={this.allowedBlocks as any}
             editorState={editorState}
             keyBindingFn={keyBindingFn}
             handleKeyCommand={this.handleKeyCommand as any}

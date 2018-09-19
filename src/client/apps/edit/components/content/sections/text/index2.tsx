@@ -20,6 +20,7 @@ export const SectionText = (props: any) => {
     <Text layout={article.layout}>
       <RichText
         allowedBlocks={getBlockMap(article.layout, isInternalChannel)}
+        allowedStyles={['B', 'I', 'S']}
         hasLinks
         hasFollowButton={isInternalChannel}
         html={section.body || ''}

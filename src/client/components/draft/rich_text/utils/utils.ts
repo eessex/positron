@@ -1,4 +1,5 @@
 import {
+  ContentState,
   EditorState,
   getDefaultKeyBinding,
   KeyBindingUtil,
@@ -164,7 +165,7 @@ export const styleNamesFromMap = (styles: StyleMap = richTextStyleMap) => {
  * Used for draft-convert
  */
 export const styleNodesFromMap = (styles: StyleMap = richTextStyleMap) => {
-  return map(styles, 'label')
+  return map(styles, 'element')
 }
 
 /**
@@ -185,7 +186,7 @@ export const keyBindingFn = (e: React.KeyboardEvent<{}>) => {
         return 'header-three'
       case 191:
         // command + /
-        return 'custom-clear'
+        return 'plain-text'
       case 55:
         // command + 7
         return 'ordered-list-item'
@@ -247,4 +248,21 @@ export const insertPastedState = (
   )
   // Create a new editorState from merged content
   return EditorState.push(editorState, modifiedContent, 'insert-fragment')
+}
+
+export const makePlainText = (editorState: EditorState) => {
+  const selection = editorState.getSelection()
+  const contentState = editorState.getCurrentContent()
+  const styles = editorState.getCurrentInlineStyle()
+
+  const strippedSelection = styles.reduce(
+    (state: ContentState, style: string) => {
+      return Modifier.removeInlineStyle(state, selection, style)
+    },
+    contentState
+  )
+
+  // const removeBlock = Modifier.setBlockType(removeStyles, selection, 'unstyled')
+
+  return EditorState.push(editorState, strippedSelection, 'change-inline-style')
 }

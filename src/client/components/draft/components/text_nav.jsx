@@ -14,18 +14,18 @@ export class TextNav extends React.Component {
     e.preventDefault()
 
     const {
-      blocks,
-      makePlainText,
+      allowedBlocks,
+      allowedStyles,
       promptForLink,
-      styles,
       toggleBlock,
+      togglePlainText,
       toggleStyle
     } = this.props
 
-    if (Array.from(blocks.keys()).includes(action)) {
+    if (Array.from(allowedBlocks.keys()).includes(action)) {
       return toggleBlock(action)
     }
-    if (map(styles, 'name').includes(action)) {
+    if (map(allowedStyles, 'name').includes(action)) {
       return toggleStyle(action)
     }
 
@@ -37,44 +37,44 @@ export class TextNav extends React.Component {
         return promptForLink()
       }
       case 'clear-formatting': {
-        return makePlainText()
+        return togglePlainText()
       }
     }
   }
 
   getButtonsFromBlockMap = () => {
-    const { blocks } = this.props
+    const { allowedBlocks } = this.props
     const buttons = []
 
-    if (blocks.get('header-one')) {
+    if (allowedBlocks.get('header-one')) {
       buttons.push({
         element: 'h1',
         name: 'header-one'
       })
     }
-    if (blocks.get('header-two')) {
+    if (allowedBlocks.get('header-two')) {
       buttons.push({
         element: 'h2',
         name: 'header-two'
       })
     }
-    if (blocks.get('header-three')) {
+    if (allowedBlocks.get('header-three')) {
       buttons.push({
         element: 'h3',
         name: 'header-three'
       })
     }
-    if (blocks.get('blockquote')) {
+    if (allowedBlocks.get('blockquote')) {
       buttons.push({
         name: 'blockquote'
       })
     }
-    if (blocks.get('ordered-list-item')) {
+    if (allowedBlocks.get('ordered-list-item')) {
       buttons.push({
         name: 'ordered-list-item'
       })
     }
-    if (blocks.get('unordered-list-item')) {
+    if (allowedBlocks.get('unordered-list-item')) {
       buttons.push({
         name: 'unordered-list-item'
       })
@@ -84,18 +84,18 @@ export class TextNav extends React.Component {
 
   getButtonArray() {
     const {
-      blocks,
+      allowedBlocks,
+      allowedStyles,
       hasFeatures,
-      makePlainText,
       promptForLink,
-      styles
+      togglePlainText
     } = this.props
     const buttons = []
 
-    if (styles) {
-      buttons.push(styles)
+    if (allowedStyles) {
+      buttons.push(allowedStyles)
     }
-    if (blocks) {
+    if (allowedBlocks) {
       buttons.push(this.getButtonsFromBlockMap())
     }
     if (promptForLink) {
@@ -104,7 +104,7 @@ export class TextNav extends React.Component {
     if (hasFeatures && promptForLink) {
       buttons.push({ name: 'artist' })
     }
-    if (makePlainText) {
+    if (togglePlainText) {
       buttons.push({ name: 'clear-formatting' })
     }
 
@@ -172,12 +172,12 @@ export class TextNav extends React.Component {
 }
 
 TextNav.propTypes = {
-  blocks: PropTypes.array,
+  allowedBlocks: PropTypes.object,
+  allowedStyles: PropTypes.array,
   hasFeatures: PropTypes.bool,
-  makePlainText: PropTypes.func,
   position: PropTypes.object,
   promptForLink: PropTypes.func,
-  styles: PropTypes.array,
   toggleBlock: PropTypes.func,
+  togglePlainText: PropTypes.func,
   toggleStyle: PropTypes.func.isRequired
 }
