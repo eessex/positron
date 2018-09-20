@@ -1,9 +1,10 @@
 import {
-  ContentState,
+  // ContentState,
   EditorState,
   getDefaultKeyBinding,
   KeyBindingUtil,
   Modifier,
+  RichUtils,
 } from 'draft-js'
 import Immutable from 'immutable'
 import { map, uniq } from 'lodash'
@@ -251,18 +252,50 @@ export const insertPastedState = (
 }
 
 export const makePlainText = (editorState: EditorState) => {
-  const selection = editorState.getSelection()
-  const contentState = editorState.getCurrentContent()
-  const styles = editorState.getCurrentInlineStyle()
-
-  const strippedSelection = styles.reduce(
-    (state: ContentState, style: string) => {
-      return Modifier.removeInlineStyle(state, selection, style)
-    },
-    contentState
+  // Remove links
+  const editorStateWithoutLinks = removeLinks(editorState)
+  // Remove inline styles
+  const editorStateWithoutStyles = removeInlineStyles(editorStateWithoutLinks)
+  // Remove blocks from selection
+  const contentStateWithoutBlocks = removeBlocks(editorStateWithoutStyles)
+  // Merge existing and stripped states
+  return EditorState.push(
+    editorState,
+    contentStateWithoutBlocks,
+    'change-inline-style'
   )
+}
 
-  // const removeBlock = Modifier.setBlockType(removeStyles, selection, 'unstyled')
+/**
+ * Strips all inline styles from selected text
+ */
+export const removeInlineStyles = (editorState: EditorState) => {
+  let contentState = editorState.getCurrentContent()
 
-  return EditorState.push(editorState, strippedSelection, 'change-inline-style')
+  styleNamesFromMap().forEach((style: string) => {
+    contentState = Modifier.removeInlineStyle(
+      contentState,
+      editorState.getSelection(),
+      style
+    )
+  })
+  return EditorState.push(editorState, contentState, 'change-inline-style')
+}
+
+/**
+ * Strips link entities from selected text
+ */
+export const removeLinks = (editorState: EditorState) => {
+  return RichUtils.toggleLink(editorState, editorState.getSelection(), null)
+}
+
+/**
+ * Strips blocks from selected text
+ */
+export const removeBlocks = (editorState: EditorState) => {
+  return Modifier.setBlockType(
+    editorState.getCurrentContent(),
+    editorState.getSelection(),
+    'unstyled'
+  )
 }

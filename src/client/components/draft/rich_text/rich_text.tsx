@@ -163,7 +163,7 @@ export class RichText extends Component<Props, State> {
         return 'handled'
       }
       case 'plain-text': {
-        this.togglePlainText()
+        this.makePlainText()
         return 'handled'
       }
     }
@@ -255,11 +255,10 @@ export class RichText extends Component<Props, State> {
     }
   }
 
-  togglePlainText = () => {
+  makePlainText = () => {
     const { editorState } = this.state
     const newState = makePlainText(editorState)
     this.onChange(newState)
-    // TODO: unstyle blocks
   }
 
   handlePastedText = (text, html) => {
@@ -374,7 +373,7 @@ export class RichText extends Component<Props, State> {
             position={selectionTarget}
             promptForLink={promptForLink}
             toggleBlock={this.toggleBlockType}
-            togglePlainText={this.togglePlainText}
+            togglePlainText={this.makePlainText}
             toggleStyle={this.toggleInlineStyle}
           />
         )}
