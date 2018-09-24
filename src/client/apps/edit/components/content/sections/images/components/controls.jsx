@@ -72,7 +72,7 @@ export class ImagesControls extends Component {
       const artwork = await new Artwork({ id }).fetch()
       return new Artwork(artwork).denormalized()
     } catch (err) {
-      logErrorAction({message: 'Artwork not found.'})
+      logErrorAction({ message: 'Artwork not found.' })
       return err
     }
   }
@@ -140,7 +140,7 @@ export class ImagesControls extends Component {
     logErrorAction({ message })
   }
 
-  render () {
+  render() {
     const {
       article,
       isHero,
@@ -154,43 +154,44 @@ export class ImagesControls extends Component {
     const isNews = article.layout === 'news'
 
     return (
-        <SectionControls
-          showLayouts={!isHero && !isNews}
-          isHero={isHero}
-          disabledAlert={this.fillWidthAlert}
-        >
-          <div onClick={inputsAreDisabled ? this.fillWidthAlert : undefined}>
-            <FileInput
-              disabled={inputsAreDisabled}
-              onProgress={setProgress}
-              onUpload={this.onUpload}
-            />
-          </div>
+      <SectionControls
+        section={section}
+        showLayouts={!isHero && !isNews}
+        isHero={isHero}
+        disabledAlert={this.fillWidthAlert}
+      >
+        <div onClick={inputsAreDisabled ? this.fillWidthAlert : undefined}>
+          <FileInput
+            disabled={inputsAreDisabled}
+            onProgress={setProgress}
+            onUpload={this.onUpload}
+          />
+        </div>
 
-          {!isHero &&
-            <Row
-              className='edit-controls__artwork-inputs'
-              onClick={inputsAreDisabled ? this.fillWidthAlert : undefined}
-            >
-              <Col xs={6}>
-                <Autocomplete
-                  disabled={inputsAreDisabled}
-                  filter={this.filterAutocomplete}
-                  formatSelected={(item) => this.fetchDenormalizedArtwork(item._id)}
-                  items={section.images || []}
-                  onSelect={this.onSelectArtwork}
-                  placeholder='Search artworks by title...'
-                  url={`${sd.ARTSY_URL}/api/search?q=%QUERY`}
-                />
-              </Col>
-              <Col xs={6}>
-                <InputArtworkUrl
-                  addArtwork={this.onNewImage}
-                  fetchArtwork={this.fetchDenormalizedArtwork}
-                />
-              </Col>
-            </Row>
-          }
+        {!isHero &&
+          <Row
+            className='edit-controls__artwork-inputs'
+            onClick={inputsAreDisabled ? this.fillWidthAlert : undefined}
+          >
+            <Col xs={6}>
+              <Autocomplete
+                disabled={inputsAreDisabled}
+                filter={this.filterAutocomplete}
+                formatSelected={(item) => this.fetchDenormalizedArtwork(item._id)}
+                items={section.images || []}
+                onSelect={this.onSelectArtwork}
+                placeholder='Search artworks by title...'
+                url={`${sd.ARTSY_URL}/api/search?q=%QUERY`}
+              />
+            </Col>
+            <Col xs={6}>
+              <InputArtworkUrl
+                addArtwork={this.onNewImage}
+                fetchArtwork={this.fetchDenormalizedArtwork}
+              />
+            </Col>
+          </Row>
+        }
 
         {!isHero && section.type === 'image_set' &&
           <Row className='edit-controls__image-set-inputs'>

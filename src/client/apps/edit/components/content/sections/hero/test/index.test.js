@@ -4,7 +4,7 @@ import { Provider } from 'react-redux'
 import { clone } from 'lodash'
 import { mount } from 'enzyme'
 import { RemoveButton } from 'client/components/remove_button'
-import { SectionContainer } from '../../../section_container'
+import { EditSectionContainer } from '../../../section_container'
 import { SectionTool } from '../../../section_tool'
 import { SectionHero } from '../index'
 import { ClassicArticle } from '@artsy/reaction/dist/Components/Publishing/Fixtures/Articles'
@@ -42,7 +42,7 @@ describe('SectionHero', () => {
     const component = getWrapper(props)
 
     expect(component.find(SectionTool).exists()).toBe(true)
-    expect(component.find(SectionContainer).exists()).toBe(false)
+    expect(component.find(EditSectionContainer).exists()).toBe(false)
   })
 
   it('Displays a sectionContainer with video section', () => {
@@ -54,7 +54,7 @@ describe('SectionHero', () => {
     const component = getWrapper(props)
 
     expect(component.find(SectionTool).exists()).toBe(false)
-    expect(component.find(SectionContainer).exists()).toBe(true)
+    expect(component.find(EditSectionContainer).exists()).toBe(true)
   })
 
   it('Displays a sectionContainer with image section', () => {
@@ -66,7 +66,7 @@ describe('SectionHero', () => {
     const component = getWrapper(props)
 
     expect(component.find(SectionTool).exists()).toBe(false)
-    expect(component.find(SectionContainer).exists()).toBe(true)
+    expect(component.find(EditSectionContainer).exists()).toBe(true)
   })
 
   it('Can remove a hero if empty', () => {

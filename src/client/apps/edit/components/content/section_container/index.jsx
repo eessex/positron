@@ -14,7 +14,7 @@ import { ErrorBoundary } from 'client/components/error/error_boundary'
 import { SectionEmbed } from '../sections/embed'
 import { SectionSocialEmbed } from '../sections/social_embed'
 
-export class SectionContainer extends Component {
+export class EditSectionContainer extends Component {
   static propTypes = {
     article: PropTypes.object.isRequired,
     editing: PropTypes.bool,
@@ -119,7 +119,7 @@ export class SectionContainer extends Component {
       <ErrorBoundary>
         <div className='SectionContainer'
           data-editing={this.isEditing()}
-          data-layout={layout || 'column_width'}
+          // data-layout={layout || 'column_width'}
           data-type={type}
         >
           <div
@@ -162,4 +162,4 @@ const mapDispatchToProps = {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(SectionContainer)
+)(EditSectionContainer)

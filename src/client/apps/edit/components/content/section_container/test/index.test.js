@@ -11,10 +11,10 @@ import { SectionText } from '../../sections/text/index.jsx'
 import { SectionEmbed } from '../../sections/embed'
 import { SectionImages } from '../../sections/images'
 import { SectionVideo } from '../../sections/video'
-import { SectionContainer } from '../index'
+import { EditSectionContainer } from '../index'
 require('typeahead.js')
 
-describe('SectionContainer', () => {
+describe('EditSectionContainer', () => {
   let props
   window.scrollTo = jest.fn()
 
@@ -34,7 +34,7 @@ describe('SectionContainer', () => {
 
     return mount(
       <Provider store={store}>
-        <SectionContainer {...props} />
+        <EditSectionContainer {...props} />
       </Provider>
     )
   }

@@ -5,9 +5,10 @@ import { connect } from 'react-redux'
 import { logError } from 'client/actions/edit/errorActions'
 import { onChangeArticle } from 'client/actions/edit/articleActions'
 import { setSection } from 'client/actions/edit/sectionActions'
-import SectionContainer from '../section_container'
+import EditSectionContainer from '../section_container'
 import SectionTool from '../section_tool'
 import DragContainer from 'client/components/drag_drop/index.coffee'
+import { SectionContainer } from '@artsy/reaction/dist/Components/Publishing/Sections/SectionContainer'
 
 export class SectionList extends Component {
   static propTypes = {
@@ -53,30 +54,32 @@ export class SectionList extends Component {
         const editing = sectionIndex === index
 
         if (section.type !== 'callout') {
-          return [
-            <SectionContainer
-              key={`${index}-container`}
-              sections={article.sections}
-              section={editing ? editSection : section}
-              index={index}
-              isDraggable
-              editing={editing}
-              onSetEditing={(i) => setSectionAction(i)}
-            />,
-            <SectionTool
-              key={`${index}-tool`}
-              sections={article.sections}
-              index={index}
-              editing={sectionIndex !== 0}
-              isDraggable={false}
-            />
-          ]
+          return (
+            <SectionContainer section={section} articleLayout={article.layout}>
+              <EditSectionContainer
+                key={`${index}-container`}
+                sections={article.sections}
+                section={editing ? editSection : section}
+                index={index}
+                isDraggable
+                editing={editing}
+                onSetEditing={(i) => setSectionAction(i)}
+              />
+              <SectionTool
+                key={`${index}-tool`}
+                sections={article.sections}
+                index={index}
+                editing={sectionIndex !== 0}
+                isDraggable={false}
+              />
+            </SectionContainer>
+          )
         }
       })
     }
   }
 
-  render () {
+  render() {
     const {
       sectionIndex,
       article
@@ -93,16 +96,16 @@ export class SectionList extends Component {
         />
         {article.sections && article.sections.length > 1
           ? <DragContainer
-              items={article.sections}
-              onDragEnd={this.onDragEnd}
-              isDraggable={sectionIndex === null}
-              layout='vertical'
-            >
-              {this.renderSectionList()}
-            </DragContainer>
+            items={article.sections}
+            onDragEnd={this.onDragEnd}
+            isDraggable={sectionIndex === null}
+            layout='vertical'
+          >
+            {this.renderSectionList()}
+          </DragContainer>
           : <div>
-              {this.renderSectionList()}
-            </div>
+            {this.renderSectionList()}
+          </div>
         }
       </div>
     )

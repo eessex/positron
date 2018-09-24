@@ -8,13 +8,16 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import LayoutControls from './layout'
+import { getSectionWidth } from '@artsy/reaction/dist/Components/Publishing/Sections/SectionContainer'
 
 export class SectionControls extends Component {
   static propTypes = {
+    article: PropTypes.object,
     channel: PropTypes.object,
     children: PropTypes.any,
     disabledAlert: PropTypes.func,
     isHero: PropTypes.bool,
+    section: PropTypes.object,
     showLayouts: PropTypes.bool
   }
 
@@ -117,15 +120,17 @@ export class SectionControls extends Component {
     }
   }
 
-  render () {
+  render() {
     const {
+      article: { layout },
       children,
       disabledAlert,
       isHero,
+      section,
       showLayouts
     } = this.props
     const { insideComponent } = this.state
-
+    const width = getSectionWidth(section, layout)
     const outsidePosition = isHero ? 'relative' : 'absolute'
     const position = insideComponent ? 'fixed' : outsidePosition
     const bottom = this.getPositionBottom()
@@ -136,6 +141,7 @@ export class SectionControls extends Component {
         className={'SectionControls edit-controls'}
         position={position}
         bottom={bottom}
+        width={width}
       >
 
         {showLayouts &&
@@ -153,6 +159,7 @@ export class SectionControls extends Component {
   }
 }
 const mapStateToProps = (state) => ({
+  article: state.edit.article,
   channel: state.app.channel
 })
 
@@ -163,4 +170,5 @@ export default connect(
 const SectionControlsContainer = styled.div`
   bottom: ${props => props.bottom};
   position: ${props => props.position};
+  width: ${props => props.width};
 `
