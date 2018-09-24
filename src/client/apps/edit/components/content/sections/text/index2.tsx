@@ -1,5 +1,6 @@
 import { Text } from '@artsy/reaction/dist/Components/Publishing/Sections/Text'
 import { RichText } from 'client/components/draft/rich_text/rich_text'
+import { richTextBlockNodes } from 'client/components/draft/rich_text/utils/utils'
 import React from 'react'
 
 // allowedBlocks?: any
@@ -36,14 +37,20 @@ export const getBlockMap = (layout, isInternalChannel) => {
     case 'feature': {
       return ['h1', 'h2', 'h3', 'blockquote', 'ol', 'ul', 'p']
     }
+    case 'standard': {
+      return ['h2', 'h3', 'blockquote', 'ol', 'ul', 'p']
+    }
+    case 'news': {
+      return ['h3', 'blockquote', 'ol', 'ul', 'p']
+    }
     case 'classic': {
       if (isInternalChannel) {
         return ['h2', 'h3', 'blockquote', 'ol', 'ul', 'p']
       } else {
-        return ['h2', 'h3', 'ol', 'ul', 'p']
+        return richTextBlockNodes
       }
     }
     default:
-      return null
+      return richTextBlockNodes
   }
 }
