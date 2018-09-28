@@ -8,7 +8,7 @@ import { removeSection } from 'client/actions/edit/sectionActions'
 
 import SectionImages from '../sections/images'
 import SectionSlideshow from '../sections/slideshow'
-import { SectionText } from '../sections/text/index2'
+import SectionText from '../sections/text/index2'
 import SectionVideo from '../sections/video'
 import { ErrorBoundary } from 'client/components/error/error_boundary'
 import { SectionEmbed } from '../sections/embed'
@@ -20,7 +20,6 @@ export class SectionContainer extends Component {
     editing: PropTypes.bool,
     index: PropTypes.number,
     isHero: PropTypes.bool,
-    isInternalChannel: PropTypes.bool,
     onRemoveHero: PropTypes.func,
     onSetEditing: PropTypes.func,
     removeSectionAction: PropTypes.func,
@@ -74,7 +73,7 @@ export class SectionContainer extends Component {
   }
 
   getSectionComponent = () => {
-    const { section, isInternalChannel } = this.props
+    const { section } = this.props
 
     switch (section.type) {
       case 'embed': {
@@ -92,7 +91,6 @@ export class SectionContainer extends Component {
       case 'text': {
         return (
           <SectionText
-            isInternalChannel={isInternalChannel}
             {...this.props}
           />
         )
@@ -151,7 +149,6 @@ export class SectionContainer extends Component {
 
 const mapStateToProps = state => ({
   article: state.edit.article,
-  isInternalChannel: state.app.channel.type !== 'partner',
   sectionIndex: state.edit.sectionIndex
 })
 

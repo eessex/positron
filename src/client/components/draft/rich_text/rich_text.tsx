@@ -3,8 +3,7 @@ import { debounce } from 'lodash'
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
-import { TextInputUrl } from '../../rich_text/components/input_url'
-import { stickyControlsBox } from '../../rich_text/utils/text_selection'
+import { TextInputUrl } from '../components/text_input_url'
 import { TextNav } from '../components/text_nav'
 import { convertDraftToHtml, convertHtmlToDraft } from './utils/convert'
 import { decorators } from './utils/decorators'
@@ -31,6 +30,8 @@ interface Props {
   html?: string
   hasLinks: boolean
   hasFollowButton: boolean
+  handleBlockquote?: (html: string) => void
+  handleReturn?: (editorState: EditorState, html: string) => void
   onChange: (html: string) => void
   placeholder?: string
   isDark?: boolean
@@ -39,7 +40,7 @@ interface Props {
 interface State {
   editorState: EditorState
   html: string
-  selectionTarget: any
+  editorPosition: any
   showNav: boolean
   showUrlInput: boolean
   urlValue: string
@@ -64,8 +65,8 @@ export class RichText extends Component<Props, State> {
 
     this.state = {
       editorState: this.setEditorState(),
+      editorPosition: null,
       html: props.html || '',
-      selectionTarget: null,
       showNav: false,
       showUrlInput: false,
       urlValue: '',
@@ -129,7 +130,7 @@ export class RichText extends Component<Props, State> {
   handleReturn = e => {
     const { editorState } = this.state
     // Maybe split-block, and don't create consecutive empty paragraphs
-    return handleReturn(e, editorState)
+    return handleReturn(e, editorState, this.props.handleReturn)
   }
 
   handleKeyCommand = command => {
@@ -143,6 +144,7 @@ export class RichText extends Component<Props, State> {
         }
         break
       }
+      case 'blockquote':
       case 'header-one':
       case 'header-two':
       case 'header-three': {
@@ -158,10 +160,6 @@ export class RichText extends Component<Props, State> {
         this.toggleInlineStyle(command.toUpperCase())
         return 'handled'
       }
-      case 'blockquote': {
-        this.toggleBlockQuote()
-        return 'handled'
-      }
       case 'plain-text': {
         this.makePlainText()
         return 'handled'
@@ -173,17 +171,21 @@ export class RichText extends Component<Props, State> {
 
   keyCommandBlockType = command => {
     // Handle block changes from key command
+    // const { handleBlockquote } = this.props
     const { editorState } = this.state
     const blocks = blockNamesFromMap(this.allowedBlocks)
 
-    if (command === 'blockquote') {
-      this.toggleBlockQuote()
-    } else if (blocks.includes(command)) {
+    if (blocks.includes(command)) {
       const newState = RichUtils.toggleBlockType(editorState, command)
 
       // If an updated state is returned, command is handled
       if (newState) {
         this.onChange(newState)
+
+        if (command === 'blockquote') {
+          // handleBlockquote()
+          // maybe call this from parent after change?
+        }
         return 'handled'
       }
     } else {
@@ -197,28 +199,14 @@ export class RichText extends Component<Props, State> {
     const blocks = blockNamesFromMap(this.allowedBlocks)
     let newState
 
-    if (command === 'blockquote') {
-      this.toggleBlockQuote()
-    } else if (blocks.includes(command)) {
+    if (blocks.includes(command)) {
       newState = RichUtils.toggleBlockType(editorState, command)
     }
     if (newState) {
       this.onChange(newState)
-    }
-  }
-
-  toggleBlockQuote = () => {
-    if (this.allowedBlocks.get('blockquote')) {
-      const hasBlockquote = this.state.html.includes('<blockquote>')
-      // ACTUALLY MUCH BETTER FOR THIS TO LIVE IN SECTION TEXT
-      if (hasBlockquote) {
-        // TODO: Remove a blockquote:
-        // Convert text to P and remove layout from section
-      } else {
-        // TODO: Add a blockquote:
-        // Convert text to blockquote
-        // Slice blockquote from existing text
-        // Create a new section for blockquote text
+      if (command === 'blockquote') {
+        // handleBlockquote()
+        // maybe call this from parent after change?
       }
     }
   }
@@ -286,11 +274,9 @@ export class RichText extends Component<Props, State> {
     const editorPosition = ReactDOM.findDOMNode(
       this.editor
     ).getBoundingClientRect()
-    // TODO: move position calculation to input component
-    const selectionTarget = stickyControlsBox(editorPosition, 25, 200)
 
     this.setState({
-      selectionTarget,
+      editorPosition,
       showUrlInput: true,
       showNav: false,
       urlValue,
@@ -304,7 +290,6 @@ export class RichText extends Component<Props, State> {
     const newEditorState = confirmLink(url, editorState, hasFollowButton)
 
     this.setState({
-      selectionTarget: null,
       showNav: false,
       showUrlInput: false,
       urlValue: '',
@@ -325,38 +310,22 @@ export class RichText extends Component<Props, State> {
   }
 
   checkSelection = () => {
-    const { hasLinks } = this.props
-    let selectionTarget: any = null
+    let editorPosition: any = null
     let showNav = false
-
     const hasSelection = !window.getSelection().isCollapsed
-    const stylesLength = this.allowedStyles.length
-    const buttonsLength = hasLinks ? stylesLength + 1 : stylesLength
-    // TODO: move position calculation to input component
-    const buttonWidth = 25
-    const menuHeight = -45
-    const selectionTargetLeft = buttonsLength * buttonWidth
 
     if (hasSelection) {
       showNav = true
-      const editorPosition = ReactDOM.findDOMNode(
-        this.editor
-      ).getBoundingClientRect()
-      // TODO: Popup component should determine its own size
-      selectionTarget = stickyControlsBox(
-        editorPosition,
-        menuHeight,
-        selectionTargetLeft
-      )
+      editorPosition = ReactDOM.findDOMNode(this.editor).getBoundingClientRect()
     }
-    this.setState({ showNav, selectionTarget })
+    this.setState({ editorPosition, showNav })
   }
 
   render() {
     const { hasLinks, isDark, placeholder } = this.props
     const {
       editorState,
-      selectionTarget,
+      editorPosition,
       showNav,
       showUrlInput,
       urlValue,
@@ -369,8 +338,8 @@ export class RichText extends Component<Props, State> {
           <TextNav
             allowedBlocks={this.allowedBlocks}
             allowedStyles={this.allowedStyles}
+            editorPosition={editorPosition}
             onClickOff={() => this.setState({ showNav: false })}
-            position={selectionTarget}
             promptForLink={promptForLink}
             toggleBlock={this.toggleBlockType}
             togglePlainText={this.makePlainText}
@@ -381,9 +350,9 @@ export class RichText extends Component<Props, State> {
           <TextInputUrl
             backgroundColor={isDark ? 'white' : undefined}
             confirmLink={this.confirmLink}
+            editorPosition={editorPosition}
             onClickOff={() => this.setState({ showUrlInput: false })}
             removeLink={this.removeLink}
-            selectionTarget={selectionTarget}
             urlValue={urlValue}
           />
         )}

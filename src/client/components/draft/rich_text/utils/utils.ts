@@ -221,9 +221,12 @@ export const keyBindingFn = (e: React.KeyboardEvent<{}>) => {
  */
 export const handleReturn = (
   e: React.KeyboardEvent<{}>,
-  editorState: EditorState
+  editorState: EditorState,
+  callback?: (editorState: EditorState, anchorKey: string) => void
 ) => {
-  const { anchorOffset, isFirstBlock } = getSelectionDetails(editorState)
+  const { anchorKey, anchorOffset, isFirstBlock } = getSelectionDetails(
+    editorState
+  )
 
   if (isFirstBlock || anchorOffset) {
     // If first block, no chance of empty block before
@@ -232,9 +235,45 @@ export const handleReturn = (
   } else {
     // Return handled to avoid creating empty blocks
     e.preventDefault()
+
+    if (callback) {
+      // Potentially call props.handleReturn
+      // to let parent handle possible section splitting
+      callback(editorState, anchorKey)
+    }
     return 'handled'
   }
 }
+
+// export const divideEditorState = (editorState, anchorKey, layout) => {
+// const blockArray = editorState.getCurrentContent().getBlocksAsArray()
+// let beforeBlocks
+// let afterBlocks
+
+// blockArray.map((block, index) => {
+//   if (block.getKey() === anchorKey) {
+//     // split blocks at end of selected block
+//     beforeBlocks = blockArray.splice(0, index)
+//     afterBlocks = clone(blockArray)
+//   }
+// })
+// if (beforeBlocks) {
+//   const beforeContent = ContentState.createFromBlockArray(beforeBlocks)
+//   const currentSectionState = EditorState.push(
+//     editorState, beforeContent, 'remove-range'
+//   )
+//   const afterContent = ContentState.createFromBlockArray(afterBlocks)
+//   const afterState = EditorState.push(
+//     editorState, afterContent, null
+//   )
+//   const newSection = convertToRichHtml(afterState, layout)
+
+//   return {
+//     currentSectionState,
+//     newSection
+//   }
+// }
+// }
 
 /**
  * Merges a state created from pasted text into editorState
