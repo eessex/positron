@@ -16,6 +16,7 @@
   "rules": {
     "camelcase": 0,
     "comma-dangle": ["error", "never"],
+    "indent": ["error", 2],
     "jsx-quotes": "prefer-double",
     "no-mixed-operators": 0,
     "no-new": 0,
