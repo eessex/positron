@@ -1,3 +1,8 @@
+import {
+  StyleMap,
+  StyleMapNames,
+  StyleNamesParagraph,
+} from "client/components/draft/typings"
 import { convertFromHTML, convertToHTML } from "draft-convert"
 import {
   ContentState,
@@ -7,7 +12,6 @@ import {
 } from "draft-js"
 import React from "react"
 import { stripGoogleStyles } from "../../../rich_text/utils/text_stripping"
-import { StyleMap, StyleMapNames, StyleName } from "./typings"
 import { styleNamesFromMap, styleNodesFromMap } from "./utils"
 
 /**
@@ -133,7 +137,10 @@ export const htmlToStyle = (
 /**
  * convert Draft styles to Html tags
  */
-export const styleToHTML = (style: StyleName, allowedStyles: StyleMapNames) => {
+export const styleToHTML = (
+  style: StyleNamesParagraph,
+  allowedStyles: StyleMapNames
+) => {
   const isAllowed = allowedStyles.includes(style)
   const plainText = { start: "", end: "" }
 

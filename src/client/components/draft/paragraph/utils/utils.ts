@@ -1,4 +1,8 @@
 import {
+  AllowedStylesParagraph,
+  StyleMap,
+} from "client/components/draft/typings"
+import {
   EditorState,
   getDefaultKeyBinding,
   KeyBindingUtil,
@@ -8,7 +12,6 @@ import Immutable from "immutable"
 import { map } from "lodash"
 import React from "react"
 import { getSelectionDetails } from "../../../rich_text/utils/text_selection"
-import { AllowedStyles, StyleMap } from "./typings"
 
 /**
  * Helpers for draft-js Paragraph component setup
@@ -31,8 +34,8 @@ export const blockRenderMap = Immutable.Map({
  * Default allowedStyles for Paragraph component
  */
 export const paragraphStyleMap: StyleMap = [
-  { label: "B", name: "BOLD" },
-  { label: "I", name: "ITALIC" },
+  { element: "B", name: "BOLD" },
+  { element: "I", name: "ITALIC" },
 ]
 
 /**
@@ -40,7 +43,7 @@ export const paragraphStyleMap: StyleMap = [
  * Used to attach node-names to props.allowedStyles
  */
 export const styleMapFromNodes = (
-  allowedStyles: AllowedStyles = ["B", "I"]
+  allowedStyles: AllowedStylesParagraph = ["B", "I"]
 ) => {
   const styleMap: StyleMap = []
 
@@ -48,12 +51,12 @@ export const styleMapFromNodes = (
     switch (style.toUpperCase()) {
       case "B":
       case "BOLD": {
-        styleMap.push({ label: "B", name: "BOLD" })
+        styleMap.push({ element: "B", name: "BOLD" })
         break
       }
       case "I":
       case "ITALIC": {
-        styleMap.push({ label: "I", name: "ITALIC" })
+        styleMap.push({ element: "I", name: "ITALIC" })
         break
       }
     }
@@ -74,7 +77,7 @@ export const styleNamesFromMap = (styles: StyleMap = paragraphStyleMap) => {
  * Used for draft-convert
  */
 export const styleNodesFromMap = (styles: StyleMap = paragraphStyleMap) => {
-  return map(styles, "label")
+  return map(styles, "element")
 }
 
 /**

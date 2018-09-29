@@ -1,3 +1,7 @@
+import {
+  AllowedStylesParagraph,
+  StyleMap,
+} from "client/components/draft/typings"
 import { Editor, EditorState, RichUtils } from "draft-js"
 import { debounce } from "lodash"
 import React, { Component } from "react"
@@ -9,7 +13,6 @@ import { stickyControlsBox } from "../../rich_text/utils/text_selection"
 import { convertDraftToHtml, convertHtmlToDraft } from "./utils/convert"
 import { decorators } from "./utils/decorators"
 import { confirmLink, linkDataFromSelection, removeLink } from "./utils/links"
-import { AllowedStyles, StyleMap } from "./utils/typings"
 import {
   blockRenderMap,
   handleReturn,
@@ -20,7 +23,7 @@ import {
 } from "./utils/utils"
 
 interface Props {
-  allowedStyles?: AllowedStyles
+  allowedStyles?: AllowedStylesParagraph
   html?: string
   hasLinks: boolean
   onChange: (html: string) => void
