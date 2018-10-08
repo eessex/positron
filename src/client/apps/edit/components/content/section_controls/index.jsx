@@ -136,7 +136,7 @@ export class SectionControls extends Component {
         isFillwidth={isFillwidth}
         isHero={isHero}
         width={sectionWidth}
-        type={!isHero && section.type}
+        type={!isHero ? section.type : undefined}
       >
         {showLayouts && <LayoutControls disabledAlert={disabledAlert} />}
 

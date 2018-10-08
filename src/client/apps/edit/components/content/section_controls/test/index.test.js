@@ -134,7 +134,7 @@ describe("Section Controls", () => {
 
       component.setState({ insideComponent: false })
       const bottom = component.getPositionBottom()
-      expect(bottom).toBe("100%")
+      expect(bottom).toBe("calc(100% + 20px)")
     })
   })
 })

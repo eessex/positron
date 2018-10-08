@@ -5,16 +5,7 @@ import { convertFromHTML } from "draft-convert"
 import { decorators } from "../utils/decorators"
 import { Paragraph } from "../paragraph"
 
-// jest.mock(getVisibleSelectionRect, () => ({
-//   top: 100,
-//   left: 200,
-// }))
-
 jest.mock("../../../rich_text/utils/text_selection", () => ({
-  stickyControlsBox: (a, b, c) => ({
-    top: 100,
-    left: 200,
-  }),
   getSelectionDetails: jest.fn().mockReturnValue({
     anchorOffset: 0,
     isFirstBlock: true,
@@ -581,11 +572,15 @@ describe("Paragraph", () => {
       it("Sets editorPosition if has selection", () => {
         const component = getWrapper(props)
         component.instance().checkSelection()
-        // console.log(component.state())
-        // expect(component.state().editorPosition).toEqual({
-        //   left: 200,
-        //   top: 100,
-        // })
+
+        expect(component.state().editorPosition).toEqual({
+          bottom: 0,
+          height: 0,
+          left: 0,
+          right: 0,
+          top: 0,
+          width: 0
+        })
       })
 
       it("Shows nav if has selection", () => {
@@ -596,7 +591,7 @@ describe("Paragraph", () => {
       })
     })
 
-    xdescribe("No selection", () => {
+    describe("No selection", () => {
       beforeEach(() => {
         window.getSelection = jest.fn().mockReturnValue({
           isCollapsed: true,
@@ -634,14 +629,18 @@ describe("Paragraph", () => {
       })
     })
 
-    xdescribe("#promptForLink", () => {
-      it("Sets a selectionTarget", () => {
+    describe("#promptForLink", () => {
+      it("Sets editorPosition", () => {
         const component = getWrapper(props)
         component.instance().promptForLink()
 
-        expect(component.state().selectionTarget).toEqual({
-          left: 200,
-          top: 100,
+        expect(component.state().editorPosition).toEqual({
+          bottom: 0,
+          height: 0,
+          left: 0,
+          right: 0,
+          top: 0,
+          width: 0
         })
       })
 
@@ -689,7 +688,7 @@ describe("Paragraph", () => {
       })
     })
 
-    xdescribe("#confirmLink", () => {
+    describe("#confirmLink", () => {
       it("Sets editorPosition to null", done => {
         const component = getWrapper(props)
         component.instance().onChange(getSelection())

@@ -243,13 +243,11 @@ export class Paragraph extends Component<Props, State> {
   checkSelection = () => {
     let showNav = false
     const hasSelection = !window.getSelection().isCollapsed
-
-    const editorPosition: ClientRect = ReactDOM.findDOMNode(
-      this.editor
-    ).getBoundingClientRect()
+    let editorPosition = null
 
     if (hasSelection) {
       showNav = true
+      editorPosition = ReactDOM.findDOMNode(this.editor).getBoundingClientRect()
     }
     this.setState({ showNav, editorPosition })
   }
