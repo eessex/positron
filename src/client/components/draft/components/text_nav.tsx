@@ -5,6 +5,7 @@ import { IconClearFormatting } from "@artsy/reaction/dist/Components/Publishing/
 import { IconLink } from "@artsy/reaction/dist/Components/Publishing/Icon/IconLink"
 import { IconOrderedList } from "@artsy/reaction/dist/Components/Publishing/Icon/IconOrderedList"
 import { IconUnorderedList } from "@artsy/reaction/dist/Components/Publishing/Icon/IconUnorderedList"
+import { getVisibleSelectionRect } from "draft-js"
 import { flatten, map } from "lodash"
 import React from "react"
 import styled from "styled-components"
@@ -18,7 +19,7 @@ interface ButtonType {
 }
 
 interface State {
-  selectionPosition?: any
+  selectionPosition?: ClientRect
 }
 
 interface Props {
@@ -28,13 +29,16 @@ interface Props {
   hasFollowButton?: boolean
   onClickOff: () => void
   promptForLink?: (pluginType?: string) => void
-  selectionPosition: any // TODO: type getVisibleSelectionRect
   toggleBlock?: (command: string) => void
   togglePlainText?: () => void
   toggleStyle: (command: string) => void
 }
 
 export class TextNav extends React.Component<Props, State> {
+  state = {
+    selectionPosition: getVisibleSelectionRect(window),
+  }
+
   onToggle = action => {
     const {
       allowedBlocks,
@@ -162,7 +166,8 @@ export class TextNav extends React.Component<Props, State> {
   }
 
   stickyControlsBox = () => {
-    const { editorPosition, selectionPosition } = this.props
+    const { editorPosition } = this.props
+    const { selectionPosition } = this.state
     const navDimensions = this.getNavDimensions()
     let top
     let left
@@ -196,21 +201,25 @@ export class TextNav extends React.Component<Props, State> {
   }
 
   render() {
+    const { onClickOff } = this.props
     const { top, left } = this.stickyControlsBox()
     const buttons = this.getButtonArray()
 
     return (
-      <TextNavContainer top={top} left={left}>
-        {buttons.map((button, i) => (
-          <StyleButton
-            key={i}
-            onMouseDown={(_e: any) => this.onToggle(button.name)}
-            styleType={button.name}
-          >
-            {button.element ? button.element : this.getIcon(button.name)}
-          </StyleButton>
-        ))}
-      </TextNavContainer>
+      <>
+        <BackgroundOverlay onClick={onClickOff} />
+        <TextNavContainer top={top} left={left}>
+          {buttons.map((button, i) => (
+            <StyleButton
+              key={i}
+              onMouseDown={(_e: any) => this.onToggle(button.name)}
+              styleType={button.name}
+            >
+              {button.element ? button.element : this.getIcon(button.name)}
+            </StyleButton>
+          ))}
+        </TextNavContainer>
+      </>
     )
   }
 }
@@ -280,4 +289,13 @@ const StyleButton = styled.div.attrs<{ styleType: string }>({})`
     `
     text-decoration: underline;
   `}
+`
+
+export const BackgroundOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 7;
 `

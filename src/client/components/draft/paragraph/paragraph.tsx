@@ -2,12 +2,7 @@ import {
   AllowedStylesParagraph,
   StyleMap,
 } from "client/components/draft/typings"
-import {
-  Editor,
-  EditorState,
-  getVisibleSelectionRect,
-  RichUtils,
-} from "draft-js"
+import { Editor, EditorState, RichUtils } from "draft-js"
 import { debounce } from "lodash"
 import React, { Component } from "react"
 import ReactDOM from "react-dom"
@@ -41,7 +36,6 @@ interface State {
   editorState: EditorState
   editorPosition: ClientRect | null
   html: string
-  selectionPosition: any
   showNav: boolean
   showUrlInput: boolean
   urlValue: string
@@ -69,7 +63,6 @@ export class Paragraph extends Component<Props, State> {
       editorState: this.setEditorState(),
       editorPosition: null,
       html: props.html || "",
-      selectionPosition: null,
       showNav: false,
       showUrlInput: false,
       urlValue: "",
@@ -254,12 +247,11 @@ export class Paragraph extends Component<Props, State> {
     const editorPosition: ClientRect = ReactDOM.findDOMNode(
       this.editor
     ).getBoundingClientRect()
-    const selectionPosition = getVisibleSelectionRect(window)
 
     if (hasSelection) {
       showNav = true
     }
-    this.setState({ showNav, editorPosition, selectionPosition })
+    this.setState({ showNav, editorPosition })
   }
 
   render() {
@@ -267,7 +259,6 @@ export class Paragraph extends Component<Props, State> {
     const {
       editorState,
       editorPosition,
-      selectionPosition,
       showNav,
       showUrlInput,
       urlValue,
@@ -282,7 +273,6 @@ export class Paragraph extends Component<Props, State> {
             allowedStyles={this.allowedStyles}
             onClickOff={() => this.setState({ showNav: false })}
             editorPosition={editorPosition}
-            selectionPosition={selectionPosition}
             promptForLink={promptForLink}
             toggleStyle={this.toggleInlineStyle}
           />
@@ -294,7 +284,6 @@ export class Paragraph extends Component<Props, State> {
             onClickOff={() => this.setState({ showUrlInput: false })}
             removeLink={this.removeLink}
             editorPosition={editorPosition}
-            selectionPosition={selectionPosition}
             urlValue={urlValue}
           />
         )}

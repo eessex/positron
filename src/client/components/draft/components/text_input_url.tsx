@@ -1,4 +1,5 @@
-import { color } from "@artsy/palette"
+import { Button, color, space } from "@artsy/palette"
+import { getVisibleSelectionRect } from "draft-js"
 import React, { Component } from "react"
 import styled from "styled-components"
 import { RemoveButton, RemoveButtonContainer } from "../../remove_button"
@@ -10,17 +11,22 @@ interface Props {
   onClickOff: () => void
   pluginType?: "artist"
   removeLink: () => void
-  selectionPosition: any
   urlValue: string
 }
 
 interface State {
   url: string
+  selectionPosition?: ClientRect
 }
 
 export class TextInputUrl extends Component<Props, State> {
-  state = {
-    url: this.props.urlValue || "",
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      url: this.props.urlValue || "",
+      selectionPosition: getVisibleSelectionRect(window),
+    }
   }
 
   confirmLink = e => {
@@ -65,14 +71,15 @@ export class TextInputUrl extends Component<Props, State> {
   }
 
   stickyControlsBox = () => {
-    const { editorPosition, selectionPosition } = this.props
-    const inputHeight = 25
+    const { editorPosition } = this.props
+    const { selectionPosition } = this.state
+    const textHeight = 17
     const inputWidth = 350
     let top
     let left
 
     if (editorPosition && selectionPosition) {
-      top = selectionPosition.top - editorPosition.top - inputHeight
+      top = selectionPosition.top - editorPosition.top + textHeight
       left =
         selectionPosition.left -
         editorPosition.left +
@@ -112,9 +119,8 @@ export class TextInputUrl extends Component<Props, State> {
 
           <Button
             onClick={this.confirmLink}
-            // size="2"
-            // weight='medium'
-            // color={color("black100")}
+            variant="secondaryGray"
+            size="small"
           >
             Apply
           </Button>
@@ -137,6 +143,7 @@ const TextInputUrlContainer = styled.div.attrs<{ top: number; left: number }>(
   padding: 10px;
   display: flex;
   z-index: 10;
+
   &::after {
     content: "";
     width: 0;
@@ -149,12 +156,18 @@ const TextInputUrlContainer = styled.div.attrs<{ top: number; left: number }>(
     top: -7px;
     left: 50%;
   }
+
+  button {
+    height: ${space(3)}px;
+    width: 100%;
+    border-radius: 0;
+  }
 `
 
 const Input = styled.input`
   background-color: white;
   width: 260px;
-  height: 30px;
+  height: ${space(3)}px;
   font-size: 15px;
   padding-right: 35px;
   padding-left: 5px;
@@ -179,29 +192,3 @@ export const BackgroundOverlay = styled.div`
   bottom: 0;
   z-index: 7;
 `
-
-export const Button = styled.div.attrs<{ onClick: (e: any) => void }>({})`
-  width: 70px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: color 0.15s;
-  background: ${color("black10")};
-  &:hover {
-    color: ${color("purple100")};
-  }
-`
-
-// export const Button = styled(Sans).attrs<{ onClick: (e: any) => void }>({})`
-//   width: 70px;
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-//   cursor: pointer;
-//   transition: color .15s;
-//   background: ${color('black10')};
-//   &:hover {
-//     color: ${color('purple100')};
-//   }
-// `
