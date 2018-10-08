@@ -17,7 +17,7 @@
     "camelcase": 0,
     "comma-dangle": ["error", "never"],
     "indent": ["error", 2],
-    "jsx-quotes": "prefer-double",
+    "jsx-quotes": ["prefer-double", 2],
     "no-mixed-operators": 0,
     "no-new": 0,
     "react/jsx-indent": 0,
