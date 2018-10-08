@@ -1,7 +1,9 @@
 import Backbone from "backbone"
 import * as routes from "client/apps/display/routes"
 import request from "superagent"
-import StyleSheet from "styled-components/lib/models/StyleSheet"
+
+import { __DO_NOT_USE_OR_YOU_WILL_BE_HAUNTED_BY_SPOOKY_GHOSTS as scSecrets } from 'styled-components'
+const { StyleSheet } = scSecrets
 
 StyleSheet.reset(true)
 
