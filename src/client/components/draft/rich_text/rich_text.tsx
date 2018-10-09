@@ -1,14 +1,14 @@
-import { Editor, EditorState, RichUtils } from 'draft-js'
-import { debounce } from 'lodash'
-import React, { Component } from 'react'
-import ReactDOM from 'react-dom'
-import styled from 'styled-components'
-import { TextInputUrl } from '../components/text_input_url'
-import { TextNav } from '../components/text_nav'
-import { convertDraftToHtml, convertHtmlToDraft } from './utils/convert'
-import { decorators } from './utils/decorators'
-import { confirmLink, linkDataFromSelection, removeLink } from './utils/links'
-import { AllowedStyles, StyleMap } from './utils/typings'
+import { Editor, EditorState, RichUtils } from "draft-js"
+import { debounce } from "lodash"
+import React, { Component } from "react"
+import ReactDOM from "react-dom"
+import styled from "styled-components"
+import { TextInputUrl } from "../components/text_input_url"
+import { TextNav } from "../components/text_nav"
+import { convertDraftToHtml, convertHtmlToDraft } from "./utils/convert"
+import { decorators } from "./utils/decorators"
+import { confirmLink, linkDataFromSelection, removeLink } from "./utils/links"
+import { AllowedStyles, StyleMap } from "./utils/typings"
 import {
   blockMapFromNodes,
   blockNamesFromMap,
@@ -18,7 +18,7 @@ import {
   makePlainText,
   styleMapFromNodes,
   styleNamesFromMap,
-} from './utils/utils'
+} from "./utils/utils"
 
 /**
  * TODO: new description
@@ -66,10 +66,10 @@ export class RichText extends Component<Props, State> {
     this.state = {
       editorState: this.setEditorState(),
       editorPosition: null,
-      html: props.html || '',
+      html: props.html || "",
       showNav: false,
       showUrlInput: false,
-      urlValue: '',
+      urlValue: "",
       urlIsFollow: false,
     }
 
@@ -137,36 +137,36 @@ export class RichText extends Component<Props, State> {
     const { hasLinks } = this.props
 
     switch (command) {
-      case 'link-prompt': {
+      case "link-prompt": {
         if (hasLinks) {
           // Open link input if links are supported
           return this.promptForLink()
         }
         break
       }
-      case 'blockquote':
-      case 'header-one':
-      case 'header-two':
-      case 'header-three': {
+      case "blockquote":
+      case "header-one":
+      case "header-two":
+      case "header-three": {
         return this.keyCommandBlockType(command)
       }
-      case 'bold':
-      case 'italic':
-      case 'underline': {
+      case "bold":
+      case "italic":
+      case "underline": {
         return this.keyCommandInlineStyle(command)
       }
-      case 'strikethrough': {
+      case "strikethrough": {
         // Not handled by draft's handleKeyCommand, use toggleBlockType instead
         this.toggleInlineStyle(command.toUpperCase())
-        return 'handled'
+        return "handled"
       }
-      case 'plain-text': {
+      case "plain-text": {
         this.makePlainText()
-        return 'handled'
+        return "handled"
       }
     }
     // let draft defaults or browser handle
-    return 'not-handled'
+    return "not-handled"
   }
 
   keyCommandBlockType = command => {
@@ -182,14 +182,14 @@ export class RichText extends Component<Props, State> {
       if (newState) {
         this.onChange(newState)
 
-        if (command === 'blockquote') {
+        if (command === "blockquote") {
           // handleBlockquote()
           // maybe call this from parent after change?
         }
-        return 'handled'
+        return "handled"
       }
     } else {
-      return 'not-handled'
+      return "not-handled"
     }
   }
 
@@ -204,7 +204,7 @@ export class RichText extends Component<Props, State> {
     }
     if (newState) {
       this.onChange(newState)
-      if (command === 'blockquote') {
+      if (command === "blockquote") {
         // handleBlockquote()
         // maybe call this from parent after change?
       }
@@ -222,10 +222,10 @@ export class RichText extends Component<Props, State> {
       // If an updated state is returned, command is handled
       if (newState) {
         this.onChange(newState)
-        return 'handled'
+        return "handled"
       }
     } else {
-      return 'not-handled'
+      return "not-handled"
     }
   }
 
@@ -254,7 +254,7 @@ export class RichText extends Component<Props, State> {
 
     if (!html) {
       // Wrap pasted plain text in html
-      html = '<div>' + text + '</div>'
+      html = "<div>" + text + "</div>"
     }
     const stateFromPastedFragment = this.editorStateFromHTML(html)
     const stateWithPastedText = insertPastedState(
@@ -270,7 +270,7 @@ export class RichText extends Component<Props, State> {
     // Opens a popup link input populated with selection data if link is selected
     const { editorState } = this.state
     const linkData = linkDataFromSelection(editorState)
-    const urlValue = linkData ? linkData.url : ''
+    const urlValue = linkData ? linkData.url : ""
     const editorPosition = ReactDOM.findDOMNode(
       this.editor
     ).getBoundingClientRect()
@@ -281,7 +281,7 @@ export class RichText extends Component<Props, State> {
       showNav: false,
       urlValue,
     })
-    return 'handled'
+    return "handled"
   }
 
   confirmLink = url => {
@@ -292,7 +292,7 @@ export class RichText extends Component<Props, State> {
     this.setState({
       showNav: false,
       showUrlInput: false,
-      urlValue: '',
+      urlValue: "",
     })
     this.onChange(newEditorState)
   }
@@ -303,7 +303,7 @@ export class RichText extends Component<Props, State> {
     if (editorState) {
       this.setState({
         showUrlInput: false,
-        urlValue: '',
+        urlValue: "",
       })
       this.onChange(editorState)
     }
@@ -348,11 +348,11 @@ export class RichText extends Component<Props, State> {
         )}
         {showUrlInput && (
           <TextInputUrl
-            backgroundColor={isDark ? 'white' : undefined}
-            confirmLink={this.confirmLink}
+            backgroundColor={isDark ? "white" : undefined}
+            onConfirmLink={this.confirmLink}
             editorPosition={editorPosition}
             onClickOff={() => this.setState({ showUrlInput: false })}
-            removeLink={this.removeLink}
+            onRemoveLink={this.removeLink}
             urlValue={urlValue}
           />
         )}

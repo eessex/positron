@@ -1,25 +1,29 @@
-import { convertFromHTML, convertToHTML } from 'draft-convert'
+import { convertFromHTML, convertToHTML } from "draft-convert"
 import {
   ContentState,
   DraftEntityMutability,
   RawDraftContentBlock,
   RawDraftEntity,
-} from 'draft-js'
-import React from 'react'
-import { stripGoogleStyles } from '../../../rich_text/utils/text_stripping'
-import { StyleMap, StyleMapNames, StyleName } from './typings'
-import { styleNamesFromMap, styleNodesFromMap } from './utils'
+} from "draft-js"
+import React from "react"
+import { stripGoogleStyles } from "../../../rich_text/utils/text_stripping"
+import {
+  StyleMap,
+  StyleMapNamesParagraph,
+  StyleNamesParagraph,
+} from "../../typings"
+import { styleNamesFromMap, styleNodesFromMap } from "./utils"
 
 /**
  * Helpers for draft-js Paragraph component data conversion
  */
 
 export const draftDefaultStyles = [
-  'BOLD',
-  'CODE',
-  'ITALIC',
-  'STRIKETHROUGH',
-  'UNDERLINE',
+  "BOLD",
+  "CODE",
+  "ITALIC",
+  "STRIKETHROUGH",
+  "UNDERLINE",
 ]
 
 /**
@@ -72,14 +76,14 @@ export const convertDraftToHtml = (
  * convert Html elements to Draft blocks
  */
 export const htmlToBlock = (nodeName: string, _: HTMLElement) => {
-  if (['body', 'ul', 'ol', 'tr'].includes(nodeName)) {
+  if (["body", "ul", "ol", "tr"].includes(nodeName)) {
     // Nested elements are empty, wrap their children instead
     return {}
   } else {
     // Return all elements as default block
     return {
-      type: 'unstyled',
-      element: 'div',
+      type: "unstyled",
+      element: "div",
     }
   }
 }
@@ -96,9 +100,9 @@ export const htmlToEntity = (
     data: any
   ) => void
 ) => {
-  if (nodeName === 'a') {
+  if (nodeName === "a") {
     const data = { url: node.href }
-    return createEntity('LINK', 'MUTABLE', data)
+    return createEntity("LINK", "MUTABLE", data)
   }
 }
 
@@ -112,7 +116,7 @@ export const htmlToStyle = (
 ) => {
   const styleNodes = styleNodesFromMap(allowedStyles)
   const styleNames = styleNamesFromMap(allowedStyles)
-  const isBlock = ['body', 'p', 'div'].includes(nodeName)
+  const isBlock = ["body", "p", "div"].includes(nodeName)
   const isAllowedNode = styleNodes.includes(nodeName.toUpperCase())
 
   if (isBlock || isAllowedNode) {
@@ -133,14 +137,17 @@ export const htmlToStyle = (
 /**
  * convert Draft styles to Html tags
  */
-export const styleToHTML = (style: StyleName, allowedStyles: StyleMapNames) => {
+export const styleToHTML = (
+  style: StyleNamesParagraph,
+  allowedStyles: StyleMapNamesParagraph
+) => {
   const isAllowed = allowedStyles.includes(style)
-  const plainText = { start: '', end: '' }
+  const plainText = { start: "", end: "" }
 
   switch (style) {
-    case 'BOLD':
+    case "BOLD":
       return isAllowed ? <b /> : plainText
-    case 'ITALIC':
+    case "ITALIC":
       return isAllowed ? <i /> : plainText
     default:
       return plainText
@@ -151,7 +158,7 @@ export const styleToHTML = (style: StyleName, allowedStyles: StyleMapNames) => {
  * convert Draft entities to Html links
  */
 export const entityToHTML = (entity: RawDraftEntity, text: string) => {
-  if (entity.type === 'LINK') {
+  if (entity.type === "LINK") {
     return <a href={entity.data.url}>{text}</a>
   }
   return text
@@ -162,25 +169,25 @@ export const entityToHTML = (entity: RawDraftEntity, text: string) => {
  */
 export const blockToHTML = (block: RawDraftContentBlock) => {
   // TODO: Fix type switching from draft-convert to avoid weird if statement
-  if (block.type === 'ordered-list-item') {
+  if (block.type === "ordered-list-item") {
     return {
-      start: '<p>',
-      end: '</p>',
-      nestStart: '',
-      nestEnd: '',
+      start: "<p>",
+      end: "</p>",
+      nestStart: "",
+      nestEnd: "",
     }
   }
-  if (block.type === 'unordered-list-item') {
+  if (block.type === "unordered-list-item") {
     return {
-      start: '<p>',
-      end: '</p>',
-      nestStart: '',
-      nestEnd: '',
+      start: "<p>",
+      end: "</p>",
+      nestStart: "",
+      nestEnd: "",
     }
   } else {
     return {
-      start: '<p>',
-      end: '</p>',
+      start: "<p>",
+      end: "</p>",
     }
   }
 }
@@ -189,7 +196,7 @@ export const blockToHTML = (block: RawDraftContentBlock) => {
  * convert multiple paragraphs into one
  */
 export const stripParagraphLinebreaks = (html: string) => {
-  return html.replace(/<\/p><p>/g, ' ')
+  return html.replace(/<\/p><p>/g, " ")
 }
 
 /**
@@ -197,7 +204,7 @@ export const stripParagraphLinebreaks = (html: string) => {
  */
 export const removeEmptyParagraphs = (html: string) => {
   return html
-    .replace(/<p><\/p>/g, '')
-    .replace(/<p><br \/><\/p>/g, '')
-    .replace(/<p><br><\/p>/g, '')
+    .replace(/<p><\/p>/g, "")
+    .replace(/<p><br \/><\/p>/g, "")
+    .replace(/<p><br><\/p>/g, "")
 }
