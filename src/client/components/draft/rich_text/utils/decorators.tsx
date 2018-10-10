@@ -1,6 +1,6 @@
-import { CompositeDecorator, ContentBlock, ContentState } from 'draft-js'
-import React, { ReactChild } from 'react'
-import { Decorator } from './typings'
+import { CompositeDecorator, ContentBlock, ContentState } from "draft-js"
+import React, { ReactChild } from "react"
+import { Decorator } from "./typings"
 
 /**
  * Used when creating an editor, determines
@@ -39,7 +39,7 @@ export const findLinkEntities = (
     const entityKey = character.getEntity()
     return (
       entityKey !== null &&
-      contentState.getEntity(entityKey).getType() === 'LINK'
+      contentState.getEntity(entityKey).getType() === "LINK"
     )
   }, callback)
 }
@@ -52,12 +52,12 @@ export const Link = (props: LinkProps) => {
   const { url, className } = contentState.getEntity(entityKey).getData()
   // Don't allow links to click through from editor
   const onClick = e => e.preventDefault()
-  const artist = url.split('/artist/')[1]
+  const artist = url.split("/artist/")[1]
 
-  if (className === 'is-follow-link') {
+  if (className === "is-follow-link") {
     return (
       <span>
-        <a href={url} className={className}>
+        <a href={url} className={className} onClick={onClick}>
           {children}
         </a>
         <a data-id={artist} className="entity-follow artist-follow" />

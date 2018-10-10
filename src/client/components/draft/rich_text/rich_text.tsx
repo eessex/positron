@@ -112,7 +112,7 @@ export class RichText extends Component<Props, State> {
     return EditorState.createWithContent(contentBlocks, decorators(hasLinks))
   }
 
-  onChange = editorState => {
+  onChange = (editorState: EditorState) => {
     const html = this.editorStateToHTML(editorState)
 
     this.setState({ editorState, html })
@@ -266,7 +266,7 @@ export class RichText extends Component<Props, State> {
     return true
   }
 
-  promptForLink = () => {
+  promptForLink = (urlIsFollow: boolean = false) => {
     // Opens a popup link input populated with selection data if link is selected
     const { editorState } = this.state
     const linkData = linkDataFromSelection(editorState)
@@ -280,19 +280,20 @@ export class RichText extends Component<Props, State> {
       showUrlInput: true,
       showNav: false,
       urlValue,
+      urlIsFollow,
     })
     return "handled"
   }
 
-  confirmLink = url => {
-    const { hasFollowButton } = this.props
+  confirmLink = (url: string, urlIsFollow: boolean) => {
     const { editorState } = this.state
-    const newEditorState = confirmLink(url, editorState, hasFollowButton)
+    const newEditorState = confirmLink(url, editorState, urlIsFollow)
 
     this.setState({
       showNav: false,
       showUrlInput: false,
       urlValue: "",
+      urlIsFollow: false,
     })
     this.onChange(newEditorState)
   }
@@ -322,12 +323,13 @@ export class RichText extends Component<Props, State> {
   }
 
   render() {
-    const { hasLinks, isDark, placeholder } = this.props
+    const { hasFollowButton, hasLinks, isDark, placeholder } = this.props
     const {
       editorState,
       editorPosition,
       showNav,
       showUrlInput,
+      urlIsFollow,
       urlValue,
     } = this.state
     const promptForLink = hasLinks ? this.promptForLink : undefined
@@ -339,6 +341,7 @@ export class RichText extends Component<Props, State> {
             allowedBlocks={this.allowedBlocks}
             allowedStyles={this.allowedStyles}
             editorPosition={editorPosition}
+            hasFollowButton={hasFollowButton}
             onClickOff={() => this.setState({ showNav: false })}
             promptForLink={promptForLink}
             toggleBlock={this.toggleBlockType}
@@ -349,9 +352,10 @@ export class RichText extends Component<Props, State> {
         {showUrlInput && (
           <TextInputUrl
             backgroundColor={isDark ? "white" : undefined}
-            onConfirmLink={this.confirmLink}
             editorPosition={editorPosition}
+            isFollowLink={urlIsFollow}
             onClickOff={() => this.setState({ showUrlInput: false })}
+            onConfirmLink={this.confirmLink}
             onRemoveLink={this.removeLink}
             urlValue={urlValue}
           />

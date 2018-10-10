@@ -1,4 +1,5 @@
 import { color } from "@artsy/palette"
+import { unica } from "@artsy/reaction/dist/Assets/Fonts"
 import { IconArtist } from "@artsy/reaction/dist/Components/Publishing/Icon/IconArtist"
 import { IconBlockquote } from "@artsy/reaction/dist/Components/Publishing/Icon/IconBlockquote"
 import { IconClearFormatting } from "@artsy/reaction/dist/Components/Publishing/Icon/IconClearFormatting"
@@ -6,6 +7,7 @@ import { IconLink } from "@artsy/reaction/dist/Components/Publishing/Icon/IconLi
 import { IconOrderedList } from "@artsy/reaction/dist/Components/Publishing/Icon/IconOrderedList"
 import { IconUnorderedList } from "@artsy/reaction/dist/Components/Publishing/Icon/IconUnorderedList"
 import { getVisibleSelectionRect } from "draft-js"
+
 import { flatten, map } from "lodash"
 import React, { Component } from "react"
 import styled from "styled-components"
@@ -229,7 +231,7 @@ export class TextNav extends Component<Props, State> {
 }
 
 const TextNavContainer = styled.div.attrs<{ top: number; left: number }>({})`
-  max-width: 250px;
+  max-width: 300px;
   background: ${color("black100")};
   border-radius: 5px;
   display: flex;
@@ -293,4 +295,10 @@ export const Button = styled.div.attrs<{ styleType: string }>({})`
     `
     text-decoration: underline;
   `}
+  ${props =>
+    ["header-one", "header-three"].includes(props.styleType) &&
+    `
+    ${unica("s14", "medium")};
+  `}
 `
+// TODO: fix fonts upstream in reaction
