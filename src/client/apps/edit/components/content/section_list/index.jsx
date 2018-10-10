@@ -52,7 +52,7 @@ export class SectionList extends Component {
             <SectionContainer
               key={`${index}-container`}
               sections={article.sections}
-              section={editing ? editSection : section}
+              section={editing && section.type !== "text" ? editSection : section}
               index={index}
               isDraggable
               editing={editing}
@@ -93,8 +93,8 @@ export class SectionList extends Component {
             {this.renderSectionList()}
           </DragContainer>
         ) : (
-          <div>{this.renderSectionList()}</div>
-        )}
+            <div>{this.renderSectionList()}</div>
+          )}
       </div>
     )
   }

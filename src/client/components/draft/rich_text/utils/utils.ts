@@ -5,12 +5,12 @@ import {
   KeyBindingUtil,
   Modifier,
   RichUtils,
-} from 'draft-js'
-import Immutable from 'immutable'
-import { map, uniq } from 'lodash'
-import React from 'react'
-import { getSelectionDetails } from '../../../rich_text/utils/text_selection'
-import { AllowedBlocks, AllowedStyles, StyleMap } from './typings'
+} from "draft-js"
+import Immutable from "immutable"
+import { map, uniq } from "lodash"
+import React from "react"
+import { getSelectionDetails } from "../../../rich_text/utils/text_selection"
+import { AllowedBlocks, AllowedStyles, StyleMap } from "./typings"
 
 /**
  * Helpers for draft-js Paragraph component setup
@@ -20,23 +20,23 @@ import { AllowedBlocks, AllowedStyles, StyleMap } from './typings'
  * Default allowedBlocks for RichText component
  */
 export const richTextBlockRenderMap = Immutable.Map({
-  'header-two': {
-    element: 'h2',
+  "header-two": {
+    element: "h2",
   },
-  'header-three': {
-    element: 'h3',
+  "header-three": {
+    element: "h3",
   },
   blockquote: {
-    element: 'blockquote',
+    element: "blockquote",
   },
-  'unordered-list-item': {
-    element: 'li',
+  "unordered-list-item": {
+    element: "li",
   },
-  'ordered-list-item': {
-    element: 'li',
+  "ordered-list-item": {
+    element: "li",
   },
   unstyled: {
-    element: 'div',
+    element: "div",
   },
 })
 
@@ -44,7 +44,7 @@ export const richTextBlockRenderMap = Immutable.Map({
  * Default allowedBlockNodes for RichText component
  */
 
-export const richTextBlockNodes: AllowedBlocks = ['h2', 'h3', 'ul', 'ol', 'p']
+export const richTextBlockNodes: AllowedBlocks = ["h2", "h3", "ul", "ol", "p"]
 
 /**
  * Returns blockMap from element names
@@ -55,32 +55,32 @@ export const blockMapFromNodes = (allowedBlocks: AllowedBlocks) => {
 
   allowedBlocks.map(block => {
     switch (block) {
-      case 'h1': {
-        blockMap.push({ name: 'header-one', element: 'h1' })
+      case "h1": {
+        blockMap.push({ name: "header-one", element: "h1" })
         break
       }
-      case 'h2': {
-        blockMap.push({ name: 'header-two', element: 'h2' })
+      case "h2": {
+        blockMap.push({ name: "header-two", element: "h2" })
         break
       }
-      case 'h3': {
-        blockMap.push({ name: 'header-three', element: 'h3' })
+      case "h3": {
+        blockMap.push({ name: "header-three", element: "h3" })
         break
       }
-      case 'blockquote': {
-        blockMap.push({ name: 'blockquote', element: 'blockquote' })
+      case "blockquote": {
+        blockMap.push({ name: "blockquote", element: "blockquote" })
         break
       }
-      case 'ul': {
-        blockMap.push({ name: 'unordered-list-item', element: 'li' })
+      case "ul": {
+        blockMap.push({ name: "unordered-list-item", element: "li" })
         break
       }
-      case 'ol': {
-        blockMap.push({ name: 'ordered-list-item', element: 'li' })
+      case "ol": {
+        blockMap.push({ name: "ordered-list-item", element: "li" })
         break
       }
-      case 'p': {
-        blockMap.push({ name: 'unstyled', element: 'div' })
+      case "p": {
+        blockMap.push({ name: "unstyled", element: "div" })
         break
       }
     }
@@ -108,17 +108,17 @@ export const blockNamesFromMap = (blocks: any = richTextBlockRenderMap) => {
  * Used for draft-convert
  */
 export const blockElementsFromMap = (blocks: any = richTextBlockRenderMap) => {
-  return uniq(map(Array.from(blocks.values()), 'element'))
+  return uniq(map(Array.from(blocks.values()), "element"))
 }
 
 /**
  * Default allowedStyles for RichText component
  */
 export const richTextStyleMap: StyleMap = [
-  { element: 'B', name: 'BOLD' },
-  { element: 'I', name: 'ITALIC' },
-  { element: 'U', name: 'UNDERLINE' },
-  { element: 'S', name: 'STRIKETHROUGH' },
+  { element: "B", name: "BOLD" },
+  { element: "I", name: "ITALIC" },
+  { element: "U", name: "UNDERLINE" },
+  { element: "S", name: "STRIKETHROUGH" },
 ]
 
 /**
@@ -126,30 +126,30 @@ export const richTextStyleMap: StyleMap = [
  * Used to attach node-names to props.allowedStyles
  */
 export const styleMapFromNodes = (
-  allowedStyles: AllowedStyles = ['B', 'I', 'U', 'S']
+  allowedStyles: AllowedStyles = ["B", "I", "U", "S"]
 ) => {
   const styleMap: StyleMap = []
 
   allowedStyles.map(style => {
     switch (style.toUpperCase()) {
-      case 'B':
-      case 'BOLD': {
-        styleMap.push({ element: 'B', name: 'BOLD' })
+      case "B":
+      case "BOLD": {
+        styleMap.push({ element: "B", name: "BOLD" })
         break
       }
-      case 'I':
-      case 'ITALIC': {
-        styleMap.push({ element: 'I', name: 'ITALIC' })
+      case "I":
+      case "ITALIC": {
+        styleMap.push({ element: "I", name: "ITALIC" })
         break
       }
-      case 'U':
-      case 'UNDERLINE': {
-        styleMap.push({ element: 'U', name: 'UNDERLINE' })
+      case "U":
+      case "UNDERLINE": {
+        styleMap.push({ element: "U", name: "UNDERLINE" })
         break
       }
-      case 'S':
-      case 'STRIKETHROUGH': {
-        styleMap.push({ element: 'S', name: 'STRIKETHROUGH' })
+      case "S":
+      case "STRIKETHROUGH": {
+        styleMap.push({ element: "S", name: "STRIKETHROUGH" })
         break
       }
     }
@@ -162,7 +162,7 @@ export const styleMapFromNodes = (
  * Used for key commands, TextNav, and draft-convert
  */
 export const styleNamesFromMap = (styles: StyleMap = richTextStyleMap) => {
-  return map(styles, 'name')
+  return map(styles, "name")
 }
 
 /**
@@ -170,7 +170,7 @@ export const styleNamesFromMap = (styles: StyleMap = richTextStyleMap) => {
  * Used for draft-convert
  */
 export const styleNodesFromMap = (styles: StyleMap = richTextStyleMap) => {
-  return map(styles, 'element')
+  return map(styles, "element")
 }
 
 /**
@@ -182,32 +182,32 @@ export const keyBindingFn = (e: React.KeyboardEvent<{}>) => {
     switch (e.keyCode) {
       case 49:
         // command + 1
-        return 'header-one'
+        return "header-one"
       case 50:
         // command + 2
-        return 'header-two'
+        return "header-two"
       case 51:
         // command + 3
-        return 'header-three'
+        return "header-three"
       case 191:
         // command + /
-        return 'plain-text'
+        return "plain-text"
       case 55:
         // command + 7
-        return 'ordered-list-item'
+        return "ordered-list-item"
       case 56:
         // command + 8
-        return 'unordered-list-item'
+        return "unordered-list-item"
       case 75:
         // command + k
-        return 'link-prompt'
+        return "link-prompt"
       case 219:
         // command + [
-        return 'blockquote'
+        return "blockquote"
       case 88:
         // command + shift + X
         if (e.shiftKey) {
-          return 'strikethrough'
+          return "strikethrough"
         }
       default:
         return getDefaultKeyBinding(e)
@@ -221,27 +221,18 @@ export const keyBindingFn = (e: React.KeyboardEvent<{}>) => {
  */
 export const handleReturn = (
   e: React.KeyboardEvent<{}>,
-  editorState: EditorState,
-  callback?: (editorState: EditorState, anchorKey: string) => void
+  editorState: EditorState
 ) => {
-  const { anchorKey, anchorOffset, isFirstBlock } = getSelectionDetails(
-    editorState
-  )
+  const { anchorOffset, isFirstBlock } = getSelectionDetails(editorState)
 
   if (isFirstBlock || anchorOffset) {
     // If first block, no chance of empty block before
     // If anchor offset, the block is not empty
-    return 'not-handled'
+    return "not-handled"
   } else {
     // Return handled to avoid creating empty blocks
     e.preventDefault()
-
-    if (callback) {
-      // Potentially call props.handleReturn
-      // to let parent handle possible section splitting
-      callback(editorState, anchorKey)
-    }
-    return 'handled'
+    return "handled"
   }
 }
 
@@ -291,7 +282,7 @@ export const insertPastedState = (
     blockMap
   )
   // Create a new editorState from merged content
-  return EditorState.push(editorState, modifiedContent, 'insert-fragment')
+  return EditorState.push(editorState, modifiedContent, "insert-fragment")
 }
 
 export const makePlainText = (editorState: EditorState) => {
@@ -305,7 +296,7 @@ export const makePlainText = (editorState: EditorState) => {
   return EditorState.push(
     editorState,
     contentStateWithoutBlocks,
-    'change-inline-style'
+    "change-inline-style"
   )
 }
 
@@ -322,7 +313,7 @@ export const removeInlineStyles = (editorState: EditorState) => {
       style
     )
   })
-  return EditorState.push(editorState, contentState, 'change-inline-style')
+  return EditorState.push(editorState, contentState, "change-inline-style")
 }
 
 /**
@@ -339,6 +330,6 @@ export const removeBlocks = (editorState: EditorState) => {
   return Modifier.setBlockType(
     editorState.getCurrentContent(),
     editorState.getSelection(),
-    'unstyled'
+    "unstyled"
   )
 }

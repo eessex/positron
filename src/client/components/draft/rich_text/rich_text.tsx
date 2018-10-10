@@ -30,8 +30,11 @@ interface Props {
   html?: string
   hasLinks: boolean
   hasFollowButton: boolean
-  handleBlockquote?: (html: string) => void
-  handleReturn?: (editorState: EditorState, html: string) => void
+  onHandleBlockQuote?: (html: string, resetEditorState: () => void) => void
+  onHandleReturn?: (
+    editorState: EditorState,
+    resetEditorState: () => void
+  ) => void
   onChange: (html: string) => void
   placeholder?: string
   isDark?: boolean
@@ -75,7 +78,7 @@ export class RichText extends Component<Props, State> {
 
     this.debouncedOnChange = debounce(html => {
       props.onChange(html)
-    }, 250)
+    }, 150)
   }
 
   setEditorState = () => {
@@ -127,10 +130,23 @@ export class RichText extends Component<Props, State> {
     this.checkSelection()
   }
 
+  resetEditorState = () => {
+    setTimeout(() => {
+      // why setTimeout i dont know!!
+      const editorState = this.setEditorState()
+      this.onChange(editorState)
+    }, 1)
+  }
+
   handleReturn = e => {
     const { editorState } = this.state
-    // Maybe split-block, and don't create consecutive empty paragraphs
-    return handleReturn(e, editorState, this.props.handleReturn)
+    const { onHandleReturn } = this.props
+    const handledValue = handleReturn(e, editorState)
+
+    if (onHandleReturn && handledValue === "handled") {
+      onHandleReturn(editorState, this.resetEditorState)
+    }
+    return handledValue
   }
 
   handleKeyCommand = command => {
@@ -171,7 +187,7 @@ export class RichText extends Component<Props, State> {
 
   keyCommandBlockType = command => {
     // Handle block changes from key command
-    // const { handleBlockquote } = this.props
+    const { onHandleBlockQuote } = this.props
     const { editorState } = this.state
     const blocks = blockNamesFromMap(this.allowedBlocks)
 
@@ -180,14 +196,15 @@ export class RichText extends Component<Props, State> {
 
       // If an updated state is returned, command is handled
       if (newState) {
-        this.onChange(newState)
-
-        if (command === "blockquote") {
-          // handleBlockquote()
-          // maybe call this from parent after change?
+        if (command === "blockquote" && onHandleBlockQuote) {
+          const html = this.editorStateToHTML(newState)
+          if (html.includes("<blockquote>")) {
+            return onHandleBlockQuote(html, this.resetEditorState)
+          }
         }
-        return "handled"
+        this.onChange(newState)
       }
+      return "handled"
     } else {
       return "not-handled"
     }
