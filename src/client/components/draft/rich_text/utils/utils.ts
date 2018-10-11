@@ -236,36 +236,6 @@ export const handleReturn = (
   }
 }
 
-// export const divideEditorState = (editorState, anchorKey, layout) => {
-// const blockArray = editorState.getCurrentContent().getBlocksAsArray()
-// let beforeBlocks
-// let afterBlocks
-
-// blockArray.map((block, index) => {
-//   if (block.getKey() === anchorKey) {
-//     // split blocks at end of selected block
-//     beforeBlocks = blockArray.splice(0, index)
-//     afterBlocks = clone(blockArray)
-//   }
-// })
-// if (beforeBlocks) {
-//   const beforeContent = ContentState.createFromBlockArray(beforeBlocks)
-//   const currentSectionState = EditorState.push(
-//     editorState, beforeContent, 'remove-range'
-//   )
-//   const afterContent = ContentState.createFromBlockArray(afterBlocks)
-//   const afterState = EditorState.push(
-//     editorState, afterContent, null
-//   )
-//   const newSection = convertToRichHtml(afterState, layout)
-
-//   return {
-//     currentSectionState,
-//     newSection
-//   }
-// }
-// }
-
 /**
  * Merges a state created from pasted text into editorState
  */

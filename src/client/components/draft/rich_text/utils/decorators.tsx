@@ -54,13 +54,17 @@ export const Link = (props: LinkProps) => {
   const onClick = e => e.preventDefault()
   const artist = url.split("/artist/")[1]
 
-  if (className === "is-follow-link") {
+  if (className === "is-follow-link" && artist) {
     return (
       <span>
         <a href={url} className={className} onClick={onClick}>
           {children}
         </a>
-        <a data-id={artist} className="entity-follow artist-follow" />
+        <a
+          data-id={artist}
+          className="entity-follow artist-follow"
+          onClick={onClick}
+        />
       </span>
     )
   } else {

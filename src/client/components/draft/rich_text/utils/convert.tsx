@@ -1,31 +1,31 @@
-import { convertFromHTML, convertToHTML } from 'draft-convert'
+import { convertFromHTML, convertToHTML } from "draft-convert"
 import {
   ContentState,
   DraftEntityMutability,
   RawDraftContentBlock,
   RawDraftEntity,
-} from 'draft-js'
-import React from 'react'
-import { unescapeHTML } from 'underscore.string'
-import { stripGoogleStyles } from '../../../rich_text/utils/text_stripping'
-import { StyleMap, StyleMapNames, StyleName } from './typings'
+} from "draft-js"
+import React from "react"
+import { unescapeHTML } from "underscore.string"
+import { stripGoogleStyles } from "../../../rich_text/utils/text_stripping"
+import { StyleMap, StyleMapNames, StyleName } from "./typings"
 import {
   blockElementsFromMap,
   blockNamesFromMap,
   styleNamesFromMap,
   styleNodesFromMap,
-} from './utils'
+} from "./utils"
 
 /**
  * Helpers for draft-js Paragraph component data conversion
  */
 
 export const draftDefaultStyles = [
-  'BOLD',
-  'CODE',
-  'ITALIC',
-  'STRIKETHROUGH',
-  'UNDERLINE',
+  "BOLD",
+  "CODE",
+  "ITALIC",
+  "STRIKETHROUGH",
+  "UNDERLINE",
 ]
 
 /**
@@ -84,58 +84,58 @@ export const htmlToBlock = (
   const blocks = blockElementsFromMap(allowedBlocks)
   const isAllowedBlock = blocks.includes(nodeName)
 
-  if (['body', 'ul', 'ol', 'tr'].includes(nodeName)) {
+  if (["body", "ul", "ol", "tr"].includes(nodeName)) {
     // Nested elements are empty, wrap their children instead
     return {}
   } else if (!isAllowedBlock) {
     return {
-      type: 'unstyled',
-      element: 'div',
+      type: "unstyled",
+      element: "div",
     }
   } else {
     switch (nodeName) {
-      case 'blockquote': {
+      case "blockquote": {
         return {
-          type: 'blockquote',
-          element: 'blockquote',
+          type: "blockquote",
+          element: "blockquote",
         }
       }
-      case 'h1': {
+      case "h1": {
         return {
-          type: 'header-one',
-          element: 'h1',
+          type: "header-one",
+          element: "h1",
         }
       }
-      case 'h2': {
+      case "h2": {
         return {
-          type: 'header-two',
-          element: 'h2',
+          type: "header-two",
+          element: "h2",
         }
       }
-      case 'h3': {
+      case "h3": {
         return {
-          type: 'header-three',
-          element: 'h3',
+          type: "header-three",
+          element: "h3",
         }
       }
-      case 'li': {
+      case "li": {
         const parent = node.parentElement
-        if (parent && parent.nodeName === 'OL') {
+        if (parent && parent.nodeName === "OL") {
           return {
-            type: 'ordered-list-item',
-            element: 'li',
+            type: "ordered-list-item",
+            element: "li",
           }
         } else {
           return {
-            type: 'unordered-list-item',
-            element: 'li',
+            type: "unordered-list-item",
+            element: "li",
           }
         }
       }
       default: {
         return {
-          type: 'unstyled',
-          element: 'div',
+          type: "unstyled",
+          element: "div",
         }
       }
     }
@@ -154,13 +154,13 @@ export const htmlToEntity = (
     data: any
   ) => void
 ) => {
-  if (nodeName === 'a') {
+  if (nodeName === "a") {
     const data = {
       url: node.href,
-      className: node.classList ? node.classList.toString() : '',
+      className: node.classList ? node.classList.toString() : "",
     }
 
-    return createEntity('LINK', 'MUTABLE', data)
+    return createEntity("LINK", "MUTABLE", data)
   }
 }
 
@@ -174,7 +174,7 @@ export const htmlToStyle = (
 ) => {
   const styleNodes = styleNodesFromMap(allowedStyles)
   const styleNames = styleNamesFromMap(allowedStyles)
-  const isBlock = ['body', 'p', 'div'].includes(nodeName)
+  const isBlock = ["body", "p", "div"].includes(nodeName)
   const isAllowedNode = styleNodes.includes(nodeName.toUpperCase())
 
   if (isBlock || isAllowedNode) {
@@ -197,16 +197,16 @@ export const htmlToStyle = (
  */
 export const styleToHTML = (style: StyleName, allowedStyles: StyleMapNames) => {
   const isAllowed = allowedStyles.includes(style)
-  const plainText = { start: '', end: '' }
+  const plainText = { start: "", end: "" }
 
   switch (style) {
-    case 'BOLD':
+    case "BOLD":
       return isAllowed ? <b /> : plainText
-    case 'ITALIC':
+    case "ITALIC":
       return isAllowed ? <i /> : plainText
-    case 'UNDERLINE':
+    case "UNDERLINE":
       return isAllowed ? <u /> : plainText
-    case 'STRIKETHROUGH':
+    case "STRIKETHROUGH":
       return isAllowed ? <s /> : plainText
     default:
       return plainText
@@ -221,13 +221,13 @@ export const entityToHTML = (
   text: string,
   hasFollowButton: boolean
 ) => {
-  if (entity.type === 'LINK') {
+  if (entity.type === "LINK") {
     const { className, url } = entity.data
     const innerText = unescapeHTML(text)
-    const isFollowLink = className && className.includes('is-follow-link')
+    const isFollowLink = className && className.includes("is-follow-link")
 
     if (hasFollowButton && isFollowLink) {
-      const artist = url.split('/artist/')[1]
+      const artist = url.split("/artist/")[1]
       return (
         <span>
           <a href={url} className={className}>
@@ -253,45 +253,50 @@ export const blockToHTML = (
   const { type } = block
   const isAllowed = allowedBlocks.includes(type)
 
-  if (type === 'blockquote' && isAllowed) {
+  if (type === "blockquote" && isAllowed) {
     return {
-      start: '<blockquote>',
-      end: '</blockquote>',
+      start: "<blockquote>",
+      end: "</blockquote>",
     }
   }
-  if (type === 'header-two' && isAllowed) {
+  if (type === "header-one" && isAllowed) {
     return {
-      start: '<h2>',
-      end: '</h2>',
+      start: "<h1>",
+      end: "</h1>",
     }
   }
-  if (type === 'header-three' && isAllowed) {
+  if (type === "header-two" && isAllowed) {
     return {
-      start: '<h3>',
-      end: '</h3>',
+      start: "<h2>",
+      end: "</h2>",
+    }
+  }
+  if (type === "header-three" && isAllowed) {
+    return {
+      start: "<h3>",
+      end: "</h3>",
     }
   }
   // TODO: Fix type switching from draft-convert to avoid weird if statement
-  if (type === 'ordered-list-item' && isAllowed) {
+  if (type === "ordered-list-item" && isAllowed) {
     return {
-      start: '<li>',
-      end: '</li>',
-      nestStart: '<ol>',
-      nestEnd: '</ol>',
+      start: "<li>",
+      end: "</li>",
+      nestStart: "<ol>",
+      nestEnd: "</ol>",
     }
   }
-  if (type === 'unordered-list-item' && isAllowed) {
+  if (type === "unordered-list-item" && isAllowed) {
     return {
-      start: '<li>',
-      end: '</li>',
-      nestStart: '<ul>',
-      nestEnd: '</ul>',
+      start: "<li>",
+      end: "</li>",
+      nestStart: "<ul>",
+      nestEnd: "</ul>",
     }
   } else {
-    // TODO: add all block types and limit by allowed styles
     return {
-      start: '<p>',
-      end: '</p>',
+      start: "<p>",
+      end: "</p>",
     }
   }
 }
