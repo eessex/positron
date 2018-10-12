@@ -3,6 +3,7 @@ import {
   newSection,
   onChangeSection,
   onInsertBlockquote,
+  onMergeTextSections,
   onSplitTextSection,
   removeSection,
   setSection,
@@ -10,15 +11,15 @@ import {
 import { RichText } from "client/components/draft/rich_text/rich_text"
 import { convertDraftToHtml } from "client/components/draft/rich_text/utils/convert"
 import {
-  AllowedStyles,
-  BlockElement,
-} from "client/components/draft/rich_text/utils/typings"
-import { richTextBlockNodes } from "client/components/draft/rich_text/utils/utils"
-import {
-  blockMapFromNodes,
-  styleMapFromNodes,
+  richTextBlockElements,
+  richTextStyleElements,
 } from "client/components/draft/rich_text/utils/utils"
-import { getSelectionDetails } from "client/components/rich_text/utils/text_selection"
+import { blockMapFromNodes } from "client/components/draft/rich_text/utils/utils"
+import {
+  getSelectionDetails,
+  styleMapFromNodes,
+} from "client/components/draft/shared"
+import { BlockElement } from "client/components/draft/typings"
 import { ContentState, EditorState } from "draft-js"
 import { cloneDeep } from "lodash"
 import React from "react"
@@ -38,25 +39,56 @@ interface Props {
     beforeHtml: string,
     afterHtml: string
   ) => void
+  onMergeTextSectionsAction: (sectionIndex: number, html: string) => void
   onSplitTextSectionAction: (
     sectionIndex: number,
     originalBody: string,
     newBody: string
   ) => void
   section: any
+  sectionIndex: number | null
   setSectionAction: (sectionIndex: number | null) => void
 }
 
 export class SectionText extends React.Component<Props> {
-  onHandleReturn = (editorState: EditorState, resetEditorState: () => void) => {
+  getAllowedBlocks = () => {
     const {
-      article,
+      isInternalChannel,
+      article: { layout },
+    } = this.props
+    let blocks: BlockElement[] = richTextBlockElements
+
+    switch (layout) {
+      case "feature": {
+        blocks = ["h1", "h2", "h3", "blockquote", "ol", "ul", "p"]
+      }
+      case "standard": {
+        blocks = ["h2", "h3", "blockquote", "ol", "ul", "p"]
+      }
+      case "news": {
+        blocks = ["h3", "blockquote", "ol", "ul", "p"]
+      }
+      case "classic": {
+        if (isInternalChannel) {
+          blocks = ["h2", "h3", "blockquote", "ol", "ul", "p"]
+        }
+      }
+    }
+    return blocks
+  }
+
+  onHandleReturn = (
+    editorState: EditorState,
+    _resetEditorState: () => void
+  ) => {
+    const {
       index,
       isInternalChannel,
       onSplitTextSectionAction,
+      setSectionAction,
     } = this.props
-    const allowedBlocks = getAllowedBlocks(article.layout, isInternalChannel)
-    const allowedStyles: AllowedStyles = ["B", "I", "S"]
+    const allowedBlocks = this.getAllowedBlocks()
+    const allowedStyles = richTextStyleElements
     const { anchorKey } = getSelectionDetails(editorState)
 
     const newBlocks = divideEditorState(
@@ -68,20 +100,52 @@ export class SectionText extends React.Component<Props> {
     )
     if (newBlocks) {
       onSplitTextSectionAction(index, newBlocks.beforeHtml, newBlocks.afterHtml)
-      resetEditorState()
-      // TODO: Select next section
+      // resetEditorState()
+      setSectionAction(index + 2) // TODO: Select next section
     }
   }
 
-  onHandleBlockQuote = (html: string, resetEditorState: () => void) => {
-    const { onInsertBlockquoteAction } = this.props
+  onHandleTab = (e: any, resetEditorState: () => void) => {
+    const { index, setSectionAction } = this.props
+
+    if (e.shiftKey) {
+      setSectionAction(index - 1)
+    } else {
+      setSectionAction(index + 1)
+    }
+    resetEditorState()
+  }
+
+  /**
+   * Extract blockquote to its own section to accomodate wide layout
+   */
+  onHandleBlockQuote = (html: string, _resetEditorState: () => void) => {
+    const { onInsertBlockquoteAction, setSectionAction } = this.props
     const newBlocks = extractBlockQuote(html)
     if (newBlocks) {
       const { blockquote, beforeHtml, afterHtml } = newBlocks
 
       onInsertBlockquoteAction(blockquote, beforeHtml, afterHtml)
-      resetEditorState()
-      // setSectionAction(null) // TODO: Select next section
+      setSectionAction(null) // TODO: Select blockquote section
+    }
+  }
+
+  /**
+   * Maybe merge two text sections into one
+   */
+  onHandleBackspace = (html: string) => {
+    const {
+      article: { sections },
+      index,
+      onMergeTextSectionsAction,
+    } = this.props
+
+    const sectionBefore = sections[index - 1]
+    const sectionBeforeIsText = sectionBefore && sectionBefore.type === "text"
+
+    if (index !== 0 && sectionBeforeIsText) {
+      const newHtml = sectionBefore.body + html
+      onMergeTextSectionsAction(index, newHtml)
     }
   }
 
@@ -92,55 +156,33 @@ export class SectionText extends React.Component<Props> {
       isInternalChannel,
       onChangeSectionAction,
       section,
+      sectionIndex,
     } = this.props
     const isDark = ["series", "video"].includes(article.layout)
-    const allowedBlocks = getAllowedBlocks(article.layout, isInternalChannel)
-    const allowedStyles: AllowedStyles = ["B", "I", "S"]
+    const allowedBlocks = this.getAllowedBlocks()
 
     return (
-      // maybe hide tooltips?
       <SectionTextContainer isEditing={editing}>
         <Text layout={article.layout}>
           <RichText
             allowedBlocks={allowedBlocks}
-            allowedStyles={allowedStyles}
-            hasLinks
+            allowedStyles={richTextStyleElements}
+            editIndex={sectionIndex}
+            isReadonly={!editing}
             hasFollowButton={isInternalChannel}
+            hasLinks
             html={section.body || ""}
             isDark={isDark}
+            onHandleBackspace={this.onHandleBackspace}
             onHandleBlockQuote={this.onHandleBlockQuote}
             onHandleReturn={this.onHandleReturn}
+            onHandleTab={this.onHandleTab}
             onChange={html => onChangeSectionAction("body", html)}
           />
         </Text>
       </SectionTextContainer>
     )
   }
-}
-
-export const getAllowedBlocks = (
-  layout: string,
-  isInternalChannel: boolean
-) => {
-  let blocks: BlockElement[] = richTextBlockNodes
-
-  switch (layout) {
-    case "feature": {
-      blocks = ["h1", "h2", "h3", "blockquote", "ol", "ul", "p"]
-    }
-    case "standard": {
-      blocks = ["h2", "h3", "blockquote", "ol", "ul", "p"]
-    }
-    case "news": {
-      blocks = ["h3", "blockquote", "ol", "ul", "p"]
-    }
-    case "classic": {
-      if (isInternalChannel) {
-        blocks = ["h2", "h3", "blockquote", "ol", "ul", "p"]
-      }
-    }
-  }
-  return blocks
 }
 
 export const extractBlockQuote = (html: string) => {
@@ -150,19 +192,18 @@ export const extractBlockQuote = (html: string) => {
 
   if (beforeHtml) {
     // add text before blockquote to new text section
-    blockquote = html.replace(beforeHtml, "")
+    blockquote = blockquote.replace(beforeHtml, "")
   }
-
   if (afterHtml) {
     // add text after blockquote to new text section
-    blockquote = html.replace(afterHtml, "")
+    blockquote = blockquote.replace(afterHtml, "")
   }
-
-  return {
+  const newBlocks = {
     blockquote,
     beforeHtml,
     afterHtml,
   }
+  return newBlocks
 }
 
 export const divideEditorState = (
@@ -211,11 +252,13 @@ export const divideEditorState = (
 const mapStateToProps = state => ({
   article: state.edit.article,
   isInternalChannel: state.app.channel.type !== "partner",
+  sectionIndex: state.edit.sectionIndex,
 })
 
 const mapDispatchToProps = {
   onChangeSectionAction: onChangeSection,
   onInsertBlockquoteAction: onInsertBlockquote,
+  onMergeTextSectionsAction: onMergeTextSections,
   onSplitTextSectionAction: onSplitTextSection,
   newSectionAction: newSection,
   removeSectionAction: removeSection,

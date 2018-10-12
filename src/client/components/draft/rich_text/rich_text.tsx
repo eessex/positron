@@ -5,45 +5,54 @@ import ReactDOM from "react-dom"
 import styled from "styled-components"
 import { TextInputUrl } from "../components/text_input_url"
 import { TextNav } from "../components/text_nav"
+import { decorators } from "../decorators"
 import { convertDraftToHtml, convertHtmlToDraft } from "./utils/convert"
-import { decorators } from "./utils/decorators"
 import { confirmLink, linkDataFromSelection, removeLink } from "./utils/links"
-import { AllowedStyles, StyleMap } from "./utils/typings"
 import {
   blockMapFromNodes,
-  blockNamesFromMap,
-  handleReturn,
-  insertPastedState,
   keyBindingFn,
   makePlainText,
+  richTextBlockElements,
+  richTextStyleElements,
+} from "./utils/utils"
+
+import {
+  blockNamesFromMap,
+  getSelectionDetails,
+  handleReturn,
+  insertPastedState,
   styleMapFromNodes,
   styleNamesFromMap,
-} from "./utils/utils"
+} from "../shared"
+import { StyleElements, StyleMap } from "../typings"
 
 /**
  * TODO: new description
  */
-
 interface Props {
-  allowedBlocks?: any
-  allowedStyles?: AllowedStyles
+  allowedBlocks?: any // TODO: type blockmap
+  allowedStyles?: StyleElements[]
+  editIndex?: number | null
   html?: string
   hasLinks: boolean
   hasFollowButton: boolean
+  isDark?: boolean
+  isReadonly?: boolean
+  onChange: (html: string) => void
+  onHandleBackspace: (html: string, resetEditorState: () => void) => void
   onHandleBlockQuote?: (html: string, resetEditorState: () => void) => void
   onHandleReturn?: (
     editorState: EditorState,
     resetEditorState: () => void
   ) => void
-  onChange: (html: string) => void
+  onHandleTab: (e: any, resetEditorState: () => void) => void
   placeholder?: string
-  isDark?: boolean
 }
 
 interface State {
   editorState: EditorState
   html: string
-  editorPosition: any
+  editorPosition: ClientRect | null
   showNav: boolean
   showUrlInput: boolean
   urlValue: string
@@ -63,8 +72,12 @@ export class RichText extends Component<Props, State> {
 
   constructor(props: Props) {
     super(props)
-    this.allowedStyles = styleMapFromNodes(props.allowedStyles)
-    this.allowedBlocks = blockMapFromNodes(props.allowedBlocks)
+    this.allowedStyles = styleMapFromNodes(
+      props.allowedStyles || richTextStyleElements
+    )
+    this.allowedBlocks = blockMapFromNodes(
+      props.allowedBlocks || richTextBlockElements
+    )
 
     this.state = {
       editorState: this.setEditorState(),
@@ -138,6 +151,36 @@ export class RichText extends Component<Props, State> {
     }, 1)
   }
 
+  componentWillReceiveProps = nextProps => {
+    // Update if editor has changed position
+    const { isReadonly, editIndex, html } = this.props
+    const listPositionHasChanged =
+      editIndex && editIndex !== nextProps.editIndex
+    const bodyHasChanged = html && isReadonly && html !== nextProps.html
+
+    if (listPositionHasChanged || bodyHasChanged) {
+      this.resetEditorState()
+      if (!isReadonly) {
+        this.focus()
+      }
+    }
+  }
+
+  handleBackspace = () => {
+    const { editorState, html } = this.state
+    const { onHandleBackspace } = this.props
+    const { anchorOffset, isFirstBlock } = getSelectionDetails(editorState)
+    const textIsSelected = editorState.getSelection().getAnchorOffset() > 0
+    const isStartOfBlock = !anchorOffset && isFirstBlock
+
+    if (onHandleBackspace && isStartOfBlock && !textIsSelected) {
+      onHandleBackspace(html, this.resetEditorState)
+      return "handled"
+    } else {
+      return "not-handled"
+    }
+  }
+
   handleReturn = e => {
     const { editorState } = this.state
     const { onHandleReturn } = this.props
@@ -153,6 +196,9 @@ export class RichText extends Component<Props, State> {
     const { hasLinks } = this.props
 
     switch (command) {
+      case "backspace": {
+        return this.handleBackspace()
+      }
       case "link-prompt": {
         if (hasLinks) {
           // Open link input if links are supported
@@ -173,7 +219,7 @@ export class RichText extends Component<Props, State> {
       }
       case "strikethrough": {
         // Not handled by draft's handleKeyCommand, use toggleBlockType instead
-        this.toggleInlineStyle(command.toUpperCase())
+        this.toggleInlineStyle(command)
         return "handled"
       }
       case "plain-text": {
@@ -213,6 +259,7 @@ export class RichText extends Component<Props, State> {
   toggleBlockType = command => {
     // Handle block type changes from menu click
     const { editorState } = this.state
+    const { onHandleBlockQuote } = this.props
     const blocks = blockNamesFromMap(this.allowedBlocks)
     let newState
 
@@ -221,9 +268,11 @@ export class RichText extends Component<Props, State> {
     }
     if (newState) {
       this.onChange(newState)
-      if (command === "blockquote") {
-        // handleBlockquote()
-        // maybe call this from parent after change?
+      if (command === "blockquote" && onHandleBlockQuote) {
+        const html = this.editorStateToHTML(newState)
+        if (html.includes("<blockquote>")) {
+          return onHandleBlockQuote(html, this.resetEditorState)
+        }
       }
     }
   }
@@ -252,8 +301,8 @@ export class RichText extends Component<Props, State> {
     const styles = styleNamesFromMap(this.allowedStyles)
     let newState
 
-    if (styles.includes(command)) {
-      newState = RichUtils.toggleInlineStyle(editorState, command)
+    if (styles.includes(command.toUpperCase())) {
+      newState = RichUtils.toggleInlineStyle(editorState, command.toUpperCase())
     }
     if (newState) {
       this.onChange(newState)
@@ -262,7 +311,7 @@ export class RichText extends Component<Props, State> {
 
   makePlainText = () => {
     const { editorState } = this.state
-    const newState = makePlainText(editorState)
+    const newState = makePlainText(editorState, this.allowedBlocks)
     this.onChange(newState)
   }
 
@@ -340,7 +389,13 @@ export class RichText extends Component<Props, State> {
   }
 
   render() {
-    const { hasFollowButton, hasLinks, isDark, placeholder } = this.props
+    const {
+      hasFollowButton,
+      hasLinks,
+      isDark,
+      // isReadonly,
+      placeholder,
+    } = this.props
     const {
       editorState,
       editorPosition,
@@ -352,7 +407,7 @@ export class RichText extends Component<Props, State> {
     const promptForLink = hasLinks ? this.promptForLink : undefined
 
     return (
-      <RichTextContainer>
+      <RichTextContainer onDragEnd={this.resetEditorState}>
         {showNav && (
           <TextNav
             allowedBlocks={this.allowedBlocks}
@@ -389,8 +444,10 @@ export class RichText extends Component<Props, State> {
             handleKeyCommand={this.handleKeyCommand as any}
             handlePastedText={this.handlePastedText as any}
             handleReturn={this.handleReturn}
+            onTab={e => this.props.onHandleTab(e, this.resetEditorState)}
             onChange={this.onChange}
             placeholder={placeholder}
+            // readOnly={isReadonly}
             ref={ref => {
               this.editor = ref
             }}

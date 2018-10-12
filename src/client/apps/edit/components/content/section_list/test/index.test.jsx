@@ -17,12 +17,12 @@ describe("SectionList", () => {
     const mockStore = configureStore([])
     const store = mockStore({
       app: {
-        channel: {},
+        channel: {}
       },
       edit: {
         article: props.article,
-        sectionIndex: props.sectionIndex,
-      },
+        sectionIndex: props.sectionIndex
+      }
     })
 
     return mount(
@@ -40,7 +40,7 @@ describe("SectionList", () => {
       logErrorAction: jest.fn(),
       onChangeArticleAction: jest.fn(),
       sectionIndex: null,
-      setSectionAction: jest.fn(),
+      setSectionAction: jest.fn()
     }
   })
 

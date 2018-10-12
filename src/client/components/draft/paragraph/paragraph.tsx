@@ -5,6 +5,7 @@ import ReactDOM from "react-dom"
 import styled from "styled-components"
 import { TextInputUrl } from "../components/text_input_url"
 import { TextNav } from "../components/text_nav"
+import { styleMapFromNodes, styleNamesFromMap } from "../shared"
 import {
   AllowedStylesParagraph,
   StyleMap,
@@ -18,8 +19,7 @@ import {
   handleReturn,
   insertPastedState,
   keyBindingFn,
-  styleMapFromNodes,
-  styleNamesFromMap,
+  paragraphStyleElements,
 } from "./utils/utils"
 
 interface Props {
@@ -58,7 +58,9 @@ export class Paragraph extends Component<Props, State> {
 
   constructor(props: Props) {
     super(props)
-    this.allowedStyles = styleMapFromNodes(props.allowedStyles)
+    this.allowedStyles = styleMapFromNodes(
+      props.allowedStyles || paragraphStyleElements
+    )
 
     this.state = {
       editorPosition: null,

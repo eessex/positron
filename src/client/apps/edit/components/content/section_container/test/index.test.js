@@ -7,7 +7,7 @@ import { StandardArticle } from "@artsy/reaction/dist/Components/Publishing/Fixt
 import { IconDrag } from "@artsy/reaction/dist/Components/Publishing/Icon/IconDrag"
 import { RemoveButton } from "client/components/remove_button"
 import SectionSlideshow from "../../sections/slideshow"
-import { SectionText } from "../../sections/text/index.jsx"
+import { SectionText } from "../../sections/text/index2.tsx"
 import { SectionEmbed } from "../../sections/embed"
 import { SectionImages } from "../../sections/images"
 import { SectionVideo } from "../../sections/video"

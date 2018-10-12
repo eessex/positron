@@ -7,8 +7,8 @@ import {
 import Immutable from "immutable"
 import { map } from "lodash"
 import React from "react"
-import { getSelectionDetails } from "../../../rich_text/utils/text_selection"
-import { AllowedStylesParagraph, StyleMap } from "../../typings"
+import { getSelectionDetails } from "../../shared"
+import { AllowedStyles, StyleMap } from "../../typings"
 
 /**
  * Helpers for draft-js Paragraph component setup
@@ -28,6 +28,11 @@ export const blockRenderMap = Immutable.Map({
 })
 
 /**
+ * Default allowedStyle elements for RichText component
+ */
+export const paragraphStyleElements: AllowedStyles = ["B", "I"]
+
+/**
  * Default allowedStyles for Paragraph component
  */
 export const paragraphStyleMap: StyleMap = [
@@ -40,7 +45,7 @@ export const paragraphStyleMap: StyleMap = [
  * Used to attach node-names to props.allowedStyles
  */
 export const styleMapFromNodes = (
-  allowedStyles: AllowedStylesParagraph = ["B", "I"]
+  allowedStyles: AllowedStyles = paragraphStyleElements
 ) => {
   const styleMap: StyleMap = []
 

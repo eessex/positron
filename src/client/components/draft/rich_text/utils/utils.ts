@@ -7,13 +7,12 @@ import {
   RichUtils,
 } from "draft-js"
 import Immutable from "immutable"
-import { map, uniq } from "lodash"
 import React from "react"
-import { getSelectionDetails } from "../../../rich_text/utils/text_selection"
-import { AllowedBlocks, AllowedStyles, StyleMap } from "./typings"
+import { styleNamesFromMap } from "../../shared"
+import { AllowedBlocks, AllowedStyles, StyleMap } from "../../typings"
 
 /**
- * Helpers for draft-js Paragraph component setup
+ * Helpers for draft-js html support, shared by Paragraph and RichText components
  */
 
 /**
@@ -41,10 +40,30 @@ export const richTextBlockRenderMap = Immutable.Map({
 })
 
 /**
- * Default allowedBlockNodes for RichText component
+ * Default allowedBlock elements for RichText component
  */
+export const richTextBlockElements: AllowedBlocks = [
+  "h2",
+  "h3",
+  "ul",
+  "ol",
+  "p",
+]
 
-export const richTextBlockNodes: AllowedBlocks = ["h2", "h3", "ul", "ol", "p"]
+/**
+ * Default allowedStyle elements for RichText component
+ */
+export const richTextStyleElements: AllowedStyles = ["B", "I", "S"]
+
+/**
+ * Default allowedStyles for RichText component
+ */
+export const richTextStyleMap: StyleMap = [
+  { element: "B", name: "BOLD" },
+  { element: "I", name: "ITALIC" },
+  { element: "U", name: "UNDERLINE" },
+  { element: "S", name: "STRIKETHROUGH" },
+]
 
 /**
  * Returns blockMap from element names
@@ -96,84 +115,6 @@ export const blockMapFromNodes = (allowedBlocks: AllowedBlocks) => {
 }
 
 /**
- * Returns the names of allowed blocks
- * Used for key commands, TextNav, and draft-convert
- */
-export const blockNamesFromMap = (blocks: any = richTextBlockRenderMap) => {
-  return Array.from(blocks.keys())
-}
-
-/**
- * Returns the element type for allowed blocks
- * Used for draft-convert
- */
-export const blockElementsFromMap = (blocks: any = richTextBlockRenderMap) => {
-  return uniq(map(Array.from(blocks.values()), "element"))
-}
-
-/**
- * Default allowedStyles for RichText component
- */
-export const richTextStyleMap: StyleMap = [
-  { element: "B", name: "BOLD" },
-  { element: "I", name: "ITALIC" },
-  { element: "U", name: "UNDERLINE" },
-  { element: "S", name: "STRIKETHROUGH" },
-]
-
-/**
- * Returns styleMap from nodeNames
- * Used to attach node-names to props.allowedStyles
- */
-export const styleMapFromNodes = (
-  allowedStyles: AllowedStyles = ["B", "I", "U", "S"]
-) => {
-  const styleMap: StyleMap = []
-
-  allowedStyles.map(style => {
-    switch (style.toUpperCase()) {
-      case "B":
-      case "BOLD": {
-        styleMap.push({ element: "B", name: "BOLD" })
-        break
-      }
-      case "I":
-      case "ITALIC": {
-        styleMap.push({ element: "I", name: "ITALIC" })
-        break
-      }
-      case "U":
-      case "UNDERLINE": {
-        styleMap.push({ element: "U", name: "UNDERLINE" })
-        break
-      }
-      case "S":
-      case "STRIKETHROUGH": {
-        styleMap.push({ element: "S", name: "STRIKETHROUGH" })
-        break
-      }
-    }
-  })
-  return styleMap
-}
-
-/**
- * Returns the names of allowed styles
- * Used for key commands, TextNav, and draft-convert
- */
-export const styleNamesFromMap = (styles: StyleMap = richTextStyleMap) => {
-  return map(styles, "name")
-}
-
-/**
- * Returns the nodeNames for allowed styles
- * Used for draft-convert
- */
-export const styleNodesFromMap = (styles: StyleMap = richTextStyleMap) => {
-  return map(styles, "element")
-}
-
-/**
  * Extend keybindings
  */
 export const keyBindingFn = (e: React.KeyboardEvent<{}>) => {
@@ -216,50 +157,17 @@ export const keyBindingFn = (e: React.KeyboardEvent<{}>) => {
   return getDefaultKeyBinding(e)
 }
 
-/**
- * Prevents consecutive empty paragraphs
- */
-export const handleReturn = (
-  e: React.KeyboardEvent<{}>,
-  editorState: EditorState
+export const makePlainText = (
+  editorState: EditorState,
+  allowedBlockMap: any
 ) => {
-  const { anchorOffset, isFirstBlock } = getSelectionDetails(editorState)
-
-  if (isFirstBlock || anchorOffset) {
-    // If first block, no chance of empty block before
-    // If anchor offset, the block is not empty
-    return "not-handled"
-  } else {
-    // Return handled to avoid creating empty blocks
-    e.preventDefault()
-    return "handled"
-  }
-}
-
-/**
- * Merges a state created from pasted text into editorState
- */
-export const insertPastedState = (
-  pastedState: EditorState,
-  editorState: EditorState
-) => {
-  const blockMap = pastedState.getCurrentContent().getBlockMap()
-
-  // Merge blockMap from pasted text into existing content
-  const modifiedContent = Modifier.replaceWithFragment(
-    editorState.getCurrentContent(),
-    editorState.getSelection(),
-    blockMap
-  )
-  // Create a new editorState from merged content
-  return EditorState.push(editorState, modifiedContent, "insert-fragment")
-}
-
-export const makePlainText = (editorState: EditorState) => {
   // Remove links
   const editorStateWithoutLinks = removeLinks(editorState)
   // Remove inline styles
-  const editorStateWithoutStyles = removeInlineStyles(editorStateWithoutLinks)
+  const editorStateWithoutStyles = removeInlineStyles(
+    editorStateWithoutLinks,
+    allowedBlockMap
+  )
   // Remove blocks from selection
   const contentStateWithoutBlocks = removeBlocks(editorStateWithoutStyles)
   // Merge existing and stripped states
@@ -273,10 +181,13 @@ export const makePlainText = (editorState: EditorState) => {
 /**
  * Strips all inline styles from selected text
  */
-export const removeInlineStyles = (editorState: EditorState) => {
+export const removeInlineStyles = (
+  editorState: EditorState,
+  allowedBlockMap: any
+) => {
   let contentState = editorState.getCurrentContent()
 
-  styleNamesFromMap().forEach((style: string) => {
+  styleNamesFromMap(allowedBlockMap).forEach((style: string) => {
     contentState = Modifier.removeInlineStyle(
       contentState,
       editorState.getSelection(),

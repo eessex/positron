@@ -7,12 +7,12 @@ import {
 } from "draft-js"
 import React from "react"
 import { stripGoogleStyles } from "../../../rich_text/utils/text_stripping"
+import { styleNamesFromMap, styleNodesFromMap } from "../../shared"
 import {
   StyleMap,
   StyleMapNamesParagraph,
   StyleNamesParagraph,
 } from "../../typings"
-import { styleNamesFromMap, styleNodesFromMap } from "./utils"
 
 /**
  * Helpers for draft-js Paragraph component data conversion

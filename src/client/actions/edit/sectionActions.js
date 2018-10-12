@@ -88,18 +88,26 @@ export const onSplitTextSection = (sectionIndex, existingSectionBody, newSection
   }
 }
 
+export const onMergeTextSections = (sectionIndex, newHtml) => {
+  return (dispatch, getState) => {
+    dispatch(changeSection("body", newHtml))
+    dispatch(removeSection(sectionIndex - 1))
+    dispatch(setSection(sectionIndex - 1))
+  }
+}
+
 export const onInsertBlockquote = (blockquoteHtml, beforeHtml, afterHtml) => {
-  // sectionIndex
   return (dispatch, getState) => {
     const {
       edit: { sectionIndex },
     } = getState()
+
     dispatch(changeSection("body", blockquoteHtml))
-    if (beforeHtml) {
-      dispatch(newSection("text", sectionIndex, { body: beforeHtml }))
-    }
     if (afterHtml) {
       dispatch(newSection("text", sectionIndex + 1, { body: afterHtml }))
+    }
+    if (beforeHtml) {
+      dispatch(newSection("text", sectionIndex, { body: beforeHtml }))
     }
   }
 }

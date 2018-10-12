@@ -8,13 +8,13 @@ import {
 import React from "react"
 import { unescapeHTML } from "underscore.string"
 import { stripGoogleStyles } from "../../../rich_text/utils/text_stripping"
-import { StyleMap, StyleMapNames, StyleName } from "./typings"
 import {
   blockElementsFromMap,
   blockNamesFromMap,
   styleNamesFromMap,
   styleNodesFromMap,
-} from "./utils"
+} from "../../shared"
+import { StyleMap, StyleNames } from "../../typings"
 
 /**
  * Helpers for draft-js Paragraph component data conversion
@@ -195,7 +195,7 @@ export const htmlToStyle = (
 /**
  * convert Draft styles to Html tags
  */
-export const styleToHTML = (style: StyleName, allowedStyles: StyleMapNames) => {
+export const styleToHTML = (style: StyleNames, allowedStyles: StyleNames[]) => {
   const isAllowed = allowedStyles.includes(style)
   const plainText = { start: "", end: "" }
 
@@ -277,13 +277,13 @@ export const blockToHTML = (
       end: "</h3>",
     }
   }
-  // TODO: Fix type switching from draft-convert to avoid weird if statement
   if (type === "ordered-list-item" && isAllowed) {
     return {
       start: "<li>",
       end: "</li>",
       nestStart: "<ol>",
       nestEnd: "</ol>",
+      nest: "<ol />",
     }
   }
   if (type === "unordered-list-item" && isAllowed) {
@@ -292,11 +292,11 @@ export const blockToHTML = (
       end: "</li>",
       nestStart: "<ul>",
       nestEnd: "</ul>",
+      nest: "<ul />",
     }
-  } else {
-    return {
-      start: "<p>",
-      end: "</p>",
-    }
+  }
+  return {
+    start: "<p>",
+    end: "</p>",
   }
 }

@@ -1,7 +1,6 @@
 import { EditorState, Modifier } from "draft-js"
 import { map, uniq } from "lodash"
-import { getSelectionDetails } from "../rich_text/utils/text_selection"
-import { StyleMap } from "./typings"
+import { AllowedStyles, StyleMap } from "./typings"
 
 /**
  * Returns the names of allowed styles
@@ -38,6 +37,36 @@ export const blockElementsFromMap = (blocks: any) => {
 }
 
 /**
+ * Returns styleMap from elements
+ * Used to attach node-names to props.allowedStyles
+ */
+export const styleMapFromNodes = (allowedStyles: AllowedStyles) => {
+  const styleMap: StyleMap = []
+
+  for (const style of allowedStyles) {
+    switch (style) {
+      case "B": {
+        styleMap.push({ element: "B", name: "BOLD" })
+        break
+      }
+      case "I": {
+        styleMap.push({ element: "I", name: "ITALIC" })
+        break
+      }
+      case "U": {
+        styleMap.push({ element: "U", name: "UNDERLINE" })
+        break
+      }
+      case "S": {
+        styleMap.push({ element: "S", name: "STRIKETHROUGH" })
+        break
+      }
+    }
+  }
+  return styleMap
+}
+
+/**
  * Prevents consecutive empty paragraphs
  */
 export const handleReturn = (
@@ -45,7 +74,6 @@ export const handleReturn = (
   editorState: EditorState
 ) => {
   const { anchorOffset, isFirstBlock } = getSelectionDetails(editorState)
-
   if (isFirstBlock || anchorOffset) {
     // If first block, no chance of empty block before
     // If anchor offset, the block is not empty
@@ -74,4 +102,33 @@ export const insertPastedState = (
   )
   // Create a new editorState from merged content
   return EditorState.push(editorState, modifiedContent, "insert-fragment")
+}
+
+export const getSelectionDetails = (editorState: EditorState) => {
+  // Returns some commonly used selection attrs
+  const selection = editorState.getSelection()
+  const content = editorState.getCurrentContent()
+
+  const anchorKey = selection.getAnchorKey()
+  const anchorOffset = selection.getAnchorOffset()
+  const anchorBlock = content.getBlockForKey(anchorKey)
+  const anchorType = anchorBlock.getType()
+
+  const beforeKey = content.getKeyBefore(anchorKey)
+  const blockBefore = content.getBlockForKey(beforeKey)
+
+  const isFirstBlock = !blockBefore
+  const isFirstCharacter = selection.getStartOffset() === 0
+  const isLastBlock = content.getLastBlock().getKey() === anchorKey
+  const isLastCharacter = selection.getStartOffset() === anchorBlock.getLength()
+
+  return {
+    anchorKey,
+    anchorOffset,
+    anchorType,
+    isFirstBlock,
+    isFirstCharacter,
+    isLastBlock,
+    isLastCharacter,
+  }
 }
