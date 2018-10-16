@@ -76,7 +76,7 @@ export const onChangeSection = (key, value) => {
 export const onSplitTextSection = (existingSectionBody, newSectionBody) => {
   return (dispatch, getState) => {
     const { edit: { article, sectionIndex } } = getState()
-    // update original section with new content
+    // update original section with updated content
     dispatch(onChangeSection("body", existingSectionBody))
     dispatch(newSection("text", sectionIndex + 1, { body: newSectionBody }))
 
@@ -103,15 +103,17 @@ export const maybeMergeTextSections = () => {
         sectionIndex
       },
     } = getState()
-    const sectionBefore = sections[sectionIndex - 1]
-    const sectionBeforeIsText = sectionBefore && sectionBefore.type === "text"
+    if (sections.length && sectionIndex !== 0) {
+      const sectionBefore = sections[sectionIndex - 1]
+      const sectionBeforeIsText = sectionBefore && sectionBefore.type === "text"
 
-    if (sectionBeforeIsText) {
-      const newHtml = sectionBefore.body + section.body
-      const strippedHtml = newHtml
-        .replace("<blockquote>", "<p>")
-        .replace("</blockquote>", "</p>")
-      dispatch(onMergeTextSections(strippedHtml))
+      if (sectionBeforeIsText) {
+        const newHtml = sectionBefore.body + section.body
+        const strippedHtml = newHtml
+          .replace("<blockquote>", "<p>")
+          .replace("</blockquote>", "</p>")
+        dispatch(onMergeTextSections(strippedHtml))
+      }
     }
   }
 }

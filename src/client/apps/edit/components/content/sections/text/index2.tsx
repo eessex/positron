@@ -50,7 +50,7 @@ interface Props {
   setSectionAction: (sectionIndex: number | null) => void
 }
 
-export class SectionText extends React.Component<Props> {
+export class SectionText2 extends React.Component<Props> {
   getAllowedBlocks = () => {
     const {
       isInternalChannel,
@@ -252,7 +252,7 @@ const mapDispatchToProps = {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(SectionText)
+)(SectionText2)
 
 const SectionTextContainer = styled.div.attrs<{
   isEditing?: boolean
