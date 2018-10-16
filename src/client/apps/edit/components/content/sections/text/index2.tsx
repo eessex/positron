@@ -1,9 +1,9 @@
 import { Text } from "@artsy/reaction/dist/Components/Publishing/Sections/Text"
 import {
+  maybeMergeTextSections,
   newSection,
   onChangeSection,
   onInsertBlockquote,
-  onMergeTextSections,
   onSplitTextSection,
   removeSection,
   setSection,
@@ -39,12 +39,8 @@ interface Props {
     beforeHtml: string,
     afterHtml: string
   ) => void
-  onMergeTextSectionsAction: (sectionIndex: number, html: string) => void
-  onSplitTextSectionAction: (
-    sectionIndex: number,
-    originalBody: string,
-    newBody: string
-  ) => void
+  maybeMergeTextSectionsAction: () => void
+  onSplitTextSectionAction: (originalBody: string, newBody: string) => void
   section: any
   sectionIndex: number | null
   setSectionAction: (sectionIndex: number | null) => void
@@ -81,12 +77,7 @@ export class SectionText extends React.Component<Props> {
     editorState: EditorState,
     _resetEditorState: () => void
   ) => {
-    const {
-      index,
-      isInternalChannel,
-      onSplitTextSectionAction,
-      setSectionAction,
-    } = this.props
+    const { isInternalChannel, onSplitTextSectionAction } = this.props
     const allowedBlocks = this.getAllowedBlocks()
     const allowedStyles = richTextStyleElements
     const { anchorKey } = getSelectionDetails(editorState)
@@ -99,9 +90,7 @@ export class SectionText extends React.Component<Props> {
       isInternalChannel
     )
     if (newBlocks) {
-      onSplitTextSectionAction(index, newBlocks.beforeHtml, newBlocks.afterHtml)
-      // resetEditorState()
-      setSectionAction(index + 2) // TODO: Select next section
+      onSplitTextSectionAction(newBlocks.beforeHtml, newBlocks.afterHtml)
     }
   }
 
@@ -119,33 +108,24 @@ export class SectionText extends React.Component<Props> {
   /**
    * Extract blockquote to its own section to accomodate wide layout
    */
-  onHandleBlockQuote = (html: string, _resetEditorState: () => void) => {
-    const { onInsertBlockquoteAction, setSectionAction } = this.props
+  onHandleBlockQuote = (html: string) => {
+    const { onInsertBlockquoteAction } = this.props
     const newBlocks = extractBlockQuote(html)
+
     if (newBlocks) {
       const { blockquote, beforeHtml, afterHtml } = newBlocks
-
       onInsertBlockquoteAction(blockquote, beforeHtml, afterHtml)
-      setSectionAction(null) // TODO: Select blockquote section
     }
   }
 
   /**
    * Maybe merge two text sections into one
    */
-  onHandleBackspace = (html: string) => {
-    const {
-      article: { sections },
-      index,
-      onMergeTextSectionsAction,
-    } = this.props
+  onHandleBackspace = () => {
+    const { index, maybeMergeTextSectionsAction } = this.props
 
-    const sectionBefore = sections[index - 1]
-    const sectionBeforeIsText = sectionBefore && sectionBefore.type === "text"
-
-    if (index !== 0 && sectionBeforeIsText) {
-      const newHtml = sectionBefore.body + html
-      onMergeTextSectionsAction(index, newHtml)
+    if (index !== 0) {
+      maybeMergeTextSectionsAction()
     }
   }
 
@@ -258,7 +238,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = {
   onChangeSectionAction: onChangeSection,
   onInsertBlockquoteAction: onInsertBlockquote,
-  onMergeTextSectionsAction: onMergeTextSections,
+  maybeMergeTextSectionsAction: maybeMergeTextSections,
   onSplitTextSectionAction: onSplitTextSection,
   newSectionAction: newSection,
   removeSectionAction: removeSection,

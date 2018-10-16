@@ -39,7 +39,7 @@ interface Props {
   isDark?: boolean
   isReadonly?: boolean
   onChange: (html: string) => void
-  onHandleBackspace: (html: string, resetEditorState: () => void) => void
+  onHandleBackspace: () => void
   onHandleBlockQuote?: (html: string, resetEditorState: () => void) => void
   onHandleReturn?: (
     editorState: EditorState,
@@ -143,6 +143,10 @@ export class RichText extends Component<Props, State> {
     this.checkSelection()
   }
 
+  blur = () => {
+    this.editor.blur()
+  }
+
   resetEditorState = () => {
     setTimeout(() => {
       // why setTimeout i dont know!!
@@ -154,8 +158,7 @@ export class RichText extends Component<Props, State> {
   componentWillReceiveProps = nextProps => {
     // Update if editor has changed position
     const { isReadonly, editIndex, html } = this.props
-    const listPositionHasChanged =
-      editIndex && editIndex !== nextProps.editIndex
+    const listPositionHasChanged = editIndex !== nextProps.editIndex
     const bodyHasChanged = html && isReadonly && html !== nextProps.html
 
     if (listPositionHasChanged || bodyHasChanged) {
@@ -167,14 +170,15 @@ export class RichText extends Component<Props, State> {
   }
 
   handleBackspace = () => {
-    const { editorState, html } = this.state
+    const { editorState } = this.state
     const { onHandleBackspace } = this.props
     const { anchorOffset, isFirstBlock } = getSelectionDetails(editorState)
     const textIsSelected = editorState.getSelection().getAnchorOffset() > 0
     const isStartOfBlock = !anchorOffset && isFirstBlock
 
     if (onHandleBackspace && isStartOfBlock && !textIsSelected) {
-      onHandleBackspace(html, this.resetEditorState)
+      this.blur()
+      onHandleBackspace()
       return "handled"
     } else {
       return "not-handled"
