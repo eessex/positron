@@ -8,13 +8,17 @@ import {
   removeSection,
   setSection,
 } from "client/actions/edit/sectionActions"
+import {
+  Button,
+  TextNavContainer,
+} from "client/components/draft/components/text_nav"
 import { RichText } from "client/components/draft/rich_text/rich_text"
 import { convertDraftToHtml } from "client/components/draft/rich_text/utils/convert"
+import { blockMapFromNodes } from "client/components/draft/rich_text/utils/utils"
 import {
   richTextBlockElements,
   richTextStyleElements,
 } from "client/components/draft/rich_text/utils/utils"
-import { blockMapFromNodes } from "client/components/draft/rich_text/utils/utils"
 import {
   getSelectionDetails,
   styleMapFromNodes,
@@ -131,19 +135,19 @@ export class SectionText extends React.Component<Props> {
 
   render() {
     const {
-      article,
+      article: { layout },
       editing,
       isInternalChannel,
       onChangeSectionAction,
       section,
       sectionIndex,
     } = this.props
-    const isDark = ["series", "video"].includes(article.layout)
+    const isDark = ["series", "video"].includes(layout)
     const allowedBlocks = this.getAllowedBlocks()
 
     return (
-      <SectionTextContainer isEditing={editing}>
-        <Text layout={article.layout}>
+      <SectionTextContainer isEditing={editing} layout={layout}>
+        <Text layout={layout}>
           <RichText
             allowedBlocks={allowedBlocks}
             allowedStyles={richTextStyleElements}
@@ -250,7 +254,10 @@ export default connect(
   mapDispatchToProps
 )(SectionText)
 
-const SectionTextContainer = styled.div.attrs<{ isEditing?: boolean }>({})`
+const SectionTextContainer = styled.div.attrs<{
+  isEditing?: boolean
+  layout: string
+}>({})`
   position: relative;
   z-index: ${props => (props.isEditing ? 2 : -1)};
 
@@ -269,5 +276,16 @@ const SectionTextContainer = styled.div.attrs<{ isEditing?: boolean }>({})`
   ul li .public-DraftStyleDefault-ltr,
   li.public-DraftStyleDefault-unorderedListItem .public-DraftStyleDefault-ltr {
     list-style disc
+  }
+  ${TextNavContainer} {
+    ${Button} {
+      ${props =>
+        props.layout === "standard" &&
+        `
+        &:nth-child(1) {
+          background: blue;
+        }
+      }
+    `}
   }
 `

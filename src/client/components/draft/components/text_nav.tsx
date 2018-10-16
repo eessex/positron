@@ -209,12 +209,13 @@ export class TextNav extends Component<Props, State> {
   render() {
     const { onClickOff } = this.props
     const { top, left } = this.stickyControlsBox()
+    const { width } = this.getNavDimensions()
     const buttons = this.getButtonArray()
 
     return (
       <>
         <BackgroundOverlay onClick={onClickOff} />
-        <TextNavContainer top={top} left={left}>
+        <TextNavContainer top={top} left={left} width={width}>
           {buttons.map((button, i) => (
             <Button
               key={i}
@@ -230,8 +231,12 @@ export class TextNav extends Component<Props, State> {
   }
 }
 
-const TextNavContainer = styled.div.attrs<{ top: number; left: number }>({})`
-  max-width: 300px;
+export const TextNavContainer = styled.div.attrs<{
+  top: number
+  left: number
+  width: number
+}>({})`
+  max-width: ${props => props.width}px;
   background: ${color("black100")};
   border-radius: 5px;
   display: flex;
