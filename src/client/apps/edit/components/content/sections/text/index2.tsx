@@ -278,12 +278,17 @@ const SectionTextContainer = styled.div.attrs<{
     list-style disc
   }
   ${TextNavContainer} {
+    ${({ layout }) =>
+      layout === "standard" &&
+      `
+      max-width: 250px;
+    `}
     ${Button} {
       ${props =>
         props.layout === "standard" &&
         `
-        &:nth-child(1) {
-          background: blue;
+        &:nth-child(7) {
+          display: none;
         }
       }
     `}
