@@ -135,7 +135,9 @@ export class SectionContainer extends Component {
                     background={color("black30")}
                   />
                 </RemoveButtonContainer>
-                <ClickToEdit onClick={this.onSetEditing} />
+                {type !== "text" &&
+                  <ClickToEdit onClick={this.onSetEditing} />
+                }
               </>
             }
           </HoverControls>
@@ -188,9 +190,12 @@ export const HoverControls = styled.div`
   &:hover {
     opacity: 1;
   }
+  ${props => props.type === "text" && `
+    z-index: -1
+  `}
   ${props => props.isEditing && `
     opacity: 1;
-    border-color: ${props.type === "text" ? color("white100") : color("black100")};
+    border-color: ${props.type === "text" ? color("black100") : color("black100")};
   `}
 `
 
@@ -225,7 +230,7 @@ const IconContainer = styled.div`
 const RemoveButtonContainer = styled(IconContainer)`
   top: -15px;
   &:hover circle {
-    fill: ${color("red100")}
+    fill: ${ color("red100")}
   }
   ${props => props.isFillwidth && `
     top: 20px;

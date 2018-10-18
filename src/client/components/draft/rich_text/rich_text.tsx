@@ -41,13 +41,11 @@ interface Props {
   isDark?: boolean
   isReadonly?: boolean
   onChange: (html: string) => void
-  onHandleBackspace: () => void
+  onClick?: (e: any) => void
+  onHandleBackspace?: () => void
   onHandleBlockQuote?: (html: string, resetEditorState: () => void) => void
-  onHandleReturn?: (
-    editorState: EditorState,
-    resetEditorState: () => void
-  ) => void
-  onHandleTab: (e: any, resetEditorState: () => void) => void
+  onHandleReturn?: (editorState: EditorState) => void
+  onHandleTab?: (e: any, resetEditorState: () => void) => void
   placeholder?: string
 }
 
@@ -166,9 +164,9 @@ export class RichText extends Component<Props, State> {
 
     if (listPositionHasChanged || bodyHasChanged) {
       this.resetEditorState()
-      if (!isReadonly) {
-        this.focus()
-      }
+      // if (!isReadonly) {
+      //   // this.focus()
+      // }
     }
   }
 
@@ -200,7 +198,7 @@ export class RichText extends Component<Props, State> {
     const handledValue = handleReturn(e, editorState)
 
     if (onHandleReturn && handledValue === "handled") {
-      onHandleReturn(editorState, this.resetEditorState)
+      onHandleReturn(editorState)
     }
     return handledValue
   }
@@ -402,7 +400,14 @@ export class RichText extends Component<Props, State> {
   }
 
   render() {
-    const { hasFollowButton, hasLinks, isDark, placeholder } = this.props
+    const {
+      hasFollowButton,
+      hasLinks,
+      isDark,
+      placeholder,
+      onClick,
+      onHandleTab,
+    } = this.props
     const {
       editorState,
       editorPosition,
@@ -414,7 +419,10 @@ export class RichText extends Component<Props, State> {
     const promptForLink = hasLinks ? this.promptForLink : undefined
 
     return (
-      <RichTextContainer onDragEnd={this.resetEditorState}>
+      <RichTextContainer
+        onClick={onClick ? onClick : undefined}
+        onDragEnd={this.resetEditorState}
+      >
         {showNav && (
           <TextNav
             allowedBlocks={this.allowedBlocks}
@@ -451,7 +459,7 @@ export class RichText extends Component<Props, State> {
             handleKeyCommand={this.handleKeyCommand as any}
             handlePastedText={this.handlePastedText as any}
             handleReturn={this.handleReturn}
-            onTab={e => this.props.onHandleTab(e, this.resetEditorState)}
+            onTab={e => onHandleTab && onHandleTab(e, this.resetEditorState)}
             onChange={this.onChange}
             placeholder={placeholder}
             ref={ref => {
@@ -467,4 +475,5 @@ export class RichText extends Component<Props, State> {
 
 const RichTextContainer = styled.div`
   position: relative;
+  z-index: 3;
 `

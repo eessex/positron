@@ -84,10 +84,7 @@ export class SectionText2 extends React.Component<Props> {
     return blocks
   }
 
-  onHandleReturn = (
-    editorState: EditorState,
-    _resetEditorState: () => void
-  ) => {
+  onHandleReturn = (editorState: EditorState) => {
     const { isInternalChannel, onSplitTextSectionAction } = this.props
     const allowedBlocks = this.getAllowedBlocks()
     const allowedStyles = richTextStyleElements
@@ -129,6 +126,10 @@ export class SectionText2 extends React.Component<Props> {
     }
   }
 
+  onFocusEditor = (_e: any) => {
+    this.props.setSectionAction(this.props.index)
+  }
+
   render() {
     const {
       article: { layout },
@@ -159,6 +160,7 @@ export class SectionText2 extends React.Component<Props> {
             onHandleReturn={this.onHandleReturn}
             onHandleTab={this.onHandleTab}
             onChange={html => onChangeSectionAction("body", html)}
+            onClick={this.onFocusEditor}
           />
         </Text>
       </SectionTextContainer>
@@ -253,12 +255,13 @@ export default connect(
   mapDispatchToProps
 )(SectionText2)
 
+// z-index: ${props => (props.isEditing ? 2 : -1)};
 const SectionTextContainer = styled.div.attrs<{
   isEditing?: boolean
   layout: string
 }>({})`
   position: relative;
-  z-index: ${props => (props.isEditing ? 2 : -1)};
+
 
   ol li, ul li, li {
     list-style: none;
