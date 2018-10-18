@@ -1,3 +1,4 @@
+import styled from "styled-components"
 import PropTypes from "prop-types"
 import React, { Component } from "react"
 import { connect } from "react-redux"
@@ -138,12 +139,13 @@ export class SectionTool extends Component {
     const isLastSection = sections && index === sections.length - 1
 
     return (
-      <div
+      <SectionToolContainer
         className={"edit-tool"}
         data-state-open={open}
         data-editing={isEditing}
         data-visible={isFirstSection || isLastSection}
         data-hero={isHero}
+        isEditing={isEditing}
       >
         <div className="edit-tool__icon" onClick={this.toggleOpen}>
           <IconEditSection
@@ -153,7 +155,7 @@ export class SectionTool extends Component {
         </div>
 
         {isHero ? this.renderHeroMenu() : this.renderSectionMenu()}
-      </div>
+      </SectionToolContainer>
     )
   }
 }
@@ -172,3 +174,15 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(SectionTool)
+
+const SectionToolContainer = styled.div`
+  z-index: 1;
+  max-height: 0;
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  ${props => props.isEditing && `
+    z-index: -1;
+  `}
+`

@@ -62,7 +62,12 @@ export class SectionList extends Component {
               index={index}
               isDraggable
               editing={editing}
-              onSetEditing={i => setSectionAction(i)}
+              onSetEditing={
+                i => {
+                  console.log('in here')
+                  setSectionAction(i)
+                }
+              }
             />,
             <SectionTool
               key={`${index}-tool`}

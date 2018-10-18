@@ -118,7 +118,6 @@ export class SectionContainer extends Component {
           isFillwidth={isFillwidth}
         >
           <HoverControls
-            onClick={this.onSetEditing}
             isEditing={isEditing}
             type={type}
           >
@@ -136,6 +135,7 @@ export class SectionContainer extends Component {
                     background={color("black30")}
                   />
                 </RemoveButtonContainer>
+                <ClickToEdit onClick={this.onSetEditing} />
               </>
             }
           </HoverControls>
@@ -194,7 +194,15 @@ export const HoverControls = styled.div`
   `}
 `
 
-const ContainerBackground = styled.div`
+export const ClickToEdit = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+`
+
+export const ContainerBackground = styled.div`
   width: 100%;
   height: 100%;
   position: fixed;
@@ -208,6 +216,7 @@ const IconContainer = styled.div`
   position: absolute;
   right: -15px;
   cursor: pointer;
+  z-index: 5;
   ${props => props.isFillwidth && `
     right: 18px;
   `}
