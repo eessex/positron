@@ -174,12 +174,18 @@ export class RichText extends Component<Props, State> {
 
   handleBackspace = () => {
     const { editorState } = this.state
-    const { onHandleBackspace } = this.props
+    const { editIndex, onHandleBackspace } = this.props
     const { anchorOffset, isFirstBlock } = getSelectionDetails(editorState)
     const textIsSelected = editorState.getSelection().getAnchorOffset() > 0
     const isStartOfBlock = !anchorOffset && isFirstBlock
+    const isFirstSection = editIndex === 0
 
-    if (onHandleBackspace && isStartOfBlock && !textIsSelected) {
+    if (
+      onHandleBackspace &&
+      isStartOfBlock &&
+      !textIsSelected &&
+      !isFirstSection
+    ) {
       this.blur()
       onHandleBackspace()
       return "handled"

@@ -129,22 +129,12 @@ export class SectionText2 extends React.Component<Props> {
     }
   }
 
-  /**
-   * Maybe merge two text sections into one
-   */
-  onHandleBackspace = () => {
-    const { index, maybeMergeTextSectionsAction } = this.props
-
-    if (index !== 0) {
-      maybeMergeTextSectionsAction()
-    }
-  }
-
   render() {
     const {
       article: { layout },
       editing,
       isInternalChannel,
+      maybeMergeTextSectionsAction,
       onChangeSectionAction,
       section,
       sectionIndex,
@@ -164,7 +154,7 @@ export class SectionText2 extends React.Component<Props> {
             hasLinks
             html={section.body || ""}
             isDark={isDark}
-            onHandleBackspace={this.onHandleBackspace}
+            onHandleBackspace={maybeMergeTextSectionsAction}
             onHandleBlockQuote={this.onHandleBlockQuote}
             onHandleReturn={this.onHandleReturn}
             onHandleTab={this.onHandleTab}

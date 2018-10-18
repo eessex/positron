@@ -6,6 +6,7 @@ export const standardizeSpacing = html => {
   const newHtml = html
     .replace(/<br>/g, "")
     .replace(/<br\/>/g, "")
+    .replace(/<br \/>/g, "")
     .replace(/<span><\/span>/g, "")
     .replace(/<h2><\/h2>/g, "<p><br></p>")
     .replace(/<h3><\/h3>/g, "<p><br></p>")
@@ -26,8 +27,8 @@ export const replaceUnicodeSpaces = html => {
 
   for (let i = 0; i < ps.length; i++) {
     const innerP = doc
-      .getElementsByTagName("p")
-      [i].innerHTML.replace(/[\u{2028}-\u{2029}]/gu, "</p><p>")
+      .getElementsByTagName("p")[i]
+      .innerHTML.replace(/[\u{2028}-\u{2029}]/gu, "</p><p>")
     const newP = `<p>${innerP}</p>`
     $(doc.getElementsByTagName("p")[i]).replaceWith(newP)
   }
@@ -60,8 +61,8 @@ export const stripH3Tags = html => {
   const h3s = doc.getElementsByTagName("h3")
   for (let i = 0; i < h3s.length; i++) {
     const innerH3 = doc
-      .getElementsByTagName("h3")
-      [i].innerHTML.replace(/<em>/g, "")
+      .getElementsByTagName("h3")[i]
+      .innerHTML.replace(/<em>/g, "")
       .replace(/<\/em>/g, "")
       .replace(/<strong>/g, "")
       .replace(/<\/strong>/g, "")
