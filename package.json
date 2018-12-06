@@ -41,6 +41,7 @@
     "@babel/preset-typescript": "7.0.0",
     "@babel/register": "7.0.0",
     "@babel/runtime": "7.0.0",
+    "@types/styled-system": "^3.0.9",
     "airtable": "^0.4.5",
     "artsy-backbone-mixins": "artsy/artsy-backbone-mixins",
     "artsy-ezel-components": "artsy/artsy-ezel-components",

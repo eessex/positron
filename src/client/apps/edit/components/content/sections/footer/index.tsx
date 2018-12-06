@@ -7,6 +7,8 @@ import styled from "styled-components"
 import { onChangeArticle } from "../../../../../../actions/edit/articleActions"
 import { Paragraph } from "../../../../../../components/draft/paragraph/paragraph"
 
+import { Box } from "@artsy/palette"
+
 interface Props {
   article: any
   isEditorial: boolean
@@ -20,19 +22,21 @@ export class SectionFooter extends Component<Props> {
 
     return (
       <FooterContainer layout={article.layout}>
-        {isEditorial && (
-          <SectionFooterPostscript width={width}>
-            <Text layout={article.layout} postscript>
-              <Paragraph
-                allowedStyles={["B"]}
-                hasLinks
-                html={article.postscript || ""}
-                onChange={html => onChangeArticleAction("postscript", html)}
-                placeholder="Postscript (optional)"
-              />
-            </Text>
-          </SectionFooterPostscript>
-        )}
+        <Box p={30}>
+          {isEditorial && (
+            <SectionFooterPostscript width={width}>
+              <Text layout={article.layout} postscript>
+                <Paragraph
+                  allowedStyles={["B"]}
+                  hasLinks
+                  html={article.postscript || ""}
+                  onChange={html => onChangeArticleAction("postscript", html)}
+                  placeholder="Postscript (optional)"
+                />
+              </Text>
+            </SectionFooterPostscript>
+          )}
+        </Box>
       </FooterContainer>
     )
   }
