@@ -9,7 +9,7 @@ import { AdminArticle } from "../../../components/article"
 import { ArticleAuthors } from "../../../components/article/article_authors"
 import { ArticlePublishDate } from "../../../components/article/article_publish_date"
 import { AutocompleteList } from "/client/components/autocomplete2/list"
-import { ButtonMedium } from '../../../components/article/button_medium'
+import { ButtonMedium } from "../../../components/article/button_medium"
 require("typeahead.js")
 
 jest.mock("superagent", () => {
@@ -275,14 +275,18 @@ describe("AdminArticle", () => {
       expect(inputForMin.props().defaultValue).toEqual(3)
       expect(inputForSec.props().defaultValue).toEqual(32)
 
-      inputForMin.simulate('change', { target: { value: 10 }})
-      inputForSec.simulate('change', { target: { value: 30 }})
+      inputForMin.simulate("change", { target: { value: 10 } })
+      inputForSec.simulate("change", { target: { value: 30 } })
 
       expect(props.onChangeArticleAction.mock.calls[0][0]).toEqual("media")
-      expect(props.onChangeArticleAction.mock.calls[0][1]).toEqual({ duration: 632 })
+      expect(props.onChangeArticleAction.mock.calls[0][1]).toEqual({
+        duration: 632,
+      })
 
       expect(props.onChangeArticleAction.mock.calls[1][0]).toEqual("media")
-      expect(props.onChangeArticleAction.mock.calls[1][1]).toEqual({ duration: 630 })
+      expect(props.onChangeArticleAction.mock.calls[1][1]).toEqual({
+        duration: 630,
+      })
     })
 
     it("Can change video release date", () => {
@@ -301,7 +305,9 @@ describe("AdminArticle", () => {
         .simulate("click")
 
       expect(props.onChangeArticleAction.mock.calls[0][0]).toEqual("media")
-      expect(props.onChangeArticleAction.mock.calls[0][1].release_date).toMatch("2017-02-07")
+      expect(props.onChangeArticleAction.mock.calls[0][1].release_date).toMatch(
+        "2017-02-07"
+      )
     })
 
     it("Can change video published", () => {
@@ -315,7 +321,9 @@ describe("AdminArticle", () => {
         .simulate("click")
 
       expect(props.onChangeArticleAction.mock.calls[0][0]).toBe("media")
-      expect(props.onChangeArticleAction.mock.calls[0][1]).toEqual({ published: true })
+      expect(props.onChangeArticleAction.mock.calls[0][1]).toEqual({
+        published: true,
+      })
     })
   })
 })

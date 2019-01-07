@@ -1,24 +1,23 @@
-import request from "superagent"
+import { Box, Flex } from "@artsy/palette"
 import { clone, uniq } from "lodash"
-import { connect } from "react-redux"
-import { difference, flatten, pluck } from "underscore"
-import PropTypes from "prop-types"
 import React, { Component } from "react"
-import { Col, Row } from "react-styled-flexboxgrid"
-import { onChangeArticle } from "client/actions/edit/articleActions"
-import { AutocompleteList } from "client/components/autocomplete2/list"
-import AutocompleteListMetaphysics from "client/components/autocomplete2/list_metaphysics"
-import { AuthorsQuery } from "client/queries/authors"
+import { connect } from "react-redux"
+import request from "superagent"
+import { difference, flatten, pluck } from "underscore"
+import { onChangeArticle } from "../../../../../../actions/edit/articleActions"
+import { AutocompleteList } from "../../../../../../components/autocomplete2/list"
+import AutocompleteListMetaphysics from "../../../../../../components/autocomplete2/list_metaphysics"
+import { AuthorsQuery } from "../../../../../../queries/authors"
 
-export class ArticleAuthors extends Component {
-  static propTypes = {
-    article: PropTypes.object,
-    apiURL: PropTypes.string,
-    isEditorial: PropTypes.bool,
-    onChangeArticleAction: PropTypes.func,
-    user: PropTypes.object,
-  }
+export interface ArticleAuthorsProps {
+  article: any
+  apiURL: string
+  isEditorial: boolean
+  onChangeArticleAction: (key: string, value: any) => void
+  user: any
+}
 
+export class ArticleAuthors extends Component<ArticleAuthorsProps> {
   onChangeAuthor = name => {
     const { article, onChangeArticleAction } = this.props
     const author = clone(article.author) || {}
@@ -33,7 +32,7 @@ export class ArticleAuthors extends Component {
 
     const alreadyFetched = pluck(fetchedItems, "id")
     const idsToFetch = difference(author_ids, alreadyFetched)
-    let newItems = clone(fetchedItems)
+    const newItems = clone(fetchedItems)
 
     if (idsToFetch.length) {
       request
@@ -45,7 +44,7 @@ export class ArticleAuthors extends Component {
         .query({ query: AuthorsQuery(idsToFetch) })
         .end((err, res) => {
           if (err) {
-            console.error(err)
+            new Error(err)
           }
           newItems.push(res.body.data.authors)
           const uniqItems = uniq(flatten(newItems))
@@ -61,32 +60,30 @@ export class ArticleAuthors extends Component {
     const name = article.author ? article.author.name : ""
 
     return (
-      <Row>
-        <Col xs={6}>
-          <div className="field-group">
-            <label>Primary Author</label>
-            <input
-              className="bordered-input"
-              defaultValue={name}
-              onChange={e => this.onChangeAuthor(e.target.value)}
-            />
-          </div>
-        </Col>
+      <Flex flexDirection={["column", "row"]}>
+        <Box width={["100%", "50%"]} pb={40} pr={[0, 20]}>
+          <label>Primary Author</label>
+          <input
+            className="bordered-input"
+            defaultValue={name}
+            onChange={e => this.onChangeAuthor(e.target.value)}
+          />
+        </Box>
 
-        <Col xs={6}>
+        <Box width={["100%", "50%"]} pl={[0, 20]}>
           {isEditorial && (
-            <div className="field-group">
+            <Box pb={40}>
               <label>Authors</label>
               <AutocompleteList
                 fetchItems={this.fetchAuthors}
                 items={article.author_ids || []}
                 filter={items => {
                   return items.results.map(item => {
-                    const { id, image_url, name } = item
+                    const { id, image_url } = item
                     return {
                       id,
                       thumbnail_image: image_url,
-                      name,
+                      name: item.name,
                     }
                   })
                 }}
@@ -96,19 +93,19 @@ export class ArticleAuthors extends Component {
                 placeholder="Search by author name..."
                 url={`${apiURL}/authors?q=%QUERY`}
               />
-            </div>
+            </Box>
           )}
           {article.layout !== "news" && (
-            <div className="field-group">
+            <Box pb={40}>
               <AutocompleteListMetaphysics
                 field="contributing_authors"
                 label="Contributing Authors"
                 model="users"
               />
-            </div>
+            </Box>
           )}
-        </Col>
-      </Row>
+        </Box>
+      </Flex>
     )
   }
 }
