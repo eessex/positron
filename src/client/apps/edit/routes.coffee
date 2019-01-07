@@ -3,6 +3,7 @@ User = require '../../models/user'
 Channel = require '../../models/channel'
 sd = require('sharify').data
 { getSessionsForChannel } = require '../websocket'
+{ createMediaStyle } = require "@artsy/reaction/dist/Utils/Responsive"
 
 @create = (req, res, next) ->
   channel = new Channel req.user.get('current_channel')
@@ -26,6 +27,7 @@ sd = require('sharify').data
       res.locals.sd.ACCESS_TOKEN = req.user.get('access_token')
       channel = new Channel req.user.get('current_channel')
       res.locals.sd.CURRENT_CHANNEL = channel
+      res.locals.sd.RESPONSIVE_CSS = createMediaStyle()
 
       # TODO: Remove after text2
       url = req.originalUrl.split('/').pop()
