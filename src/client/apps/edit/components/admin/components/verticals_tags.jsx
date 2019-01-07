@@ -1,11 +1,12 @@
 import PropTypes from "prop-types"
 import React, { Component } from "react"
-import { Col, Row } from "react-styled-flexboxgrid"
 import { connect } from "react-redux"
 import { filter, map } from "lodash"
 import Verticals from "../../../../../collections/verticals.coffee"
 import { AutocompleteInlineList } from "/client/components/autocomplete2/inline_list"
 import { onChangeArticle } from "client/actions/edit/articleActions"
+import { Flex, Box, Sans } from "@artsy/palette"
+import { SansLabelProps } from "client/apps/edit/components/admin/components/article/index"
 
 export class AdminVerticalsTags extends Component {
   static propTypes = {
@@ -72,15 +73,15 @@ export class AdminVerticalsTags extends Component {
     const { apiURL, article, onChangeArticleAction } = this.props
 
     return (
-      <Row className="AdminVerticalsTags">
-        <Col xs={6} className="field-group verticals">
-          <label>Editorial Vertical</label>
+      <Flex flexDirection={["column", "row"]}>
+        <Box width={["100%", "50%"]} pr={[0, 20]} pb={40} className="verticals">
+          <Sans {...SansLabelProps}>Editorial Vertical</Sans>
           {this.renderVerticalsList()}
-        </Col>
+        </Box>
 
-        <Col xs={6} className="field-group">
-          <div className="field-group tags">
-            <label>Topic Tags</label>
+        <Box width={["100%", "50%"]} pl={[0, 20]} pb={40}>
+          <Box pb={40}>
+            <Sans {...SansLabelProps}>Topic Tags</Sans>
             <AutocompleteInlineList
               items={article.tags}
               filter={tags => {
@@ -93,10 +94,10 @@ export class AdminVerticalsTags extends Component {
               placeholder="Start typing a topic tag..."
               url={`${apiURL}/tags?public=true&q=%QUERY`}
             />
-          </div>
+          </Box>
 
-          <div className="field-group tracking-tags">
-            <label>Tracking Tags</label>
+          <Box className="tracking-tags">
+            <Sans {...SansLabelProps}>Tracking Tags</Sans>
             <AutocompleteInlineList
               items={article.tracking_tags}
               filter={tags => {
@@ -109,9 +110,9 @@ export class AdminVerticalsTags extends Component {
               placeholder="Start typing a tracking tag..."
               url={`${apiURL}/tags?public=false&q=%QUERY`}
             />
-          </div>
-        </Col>
-      </Row>
+          </Box>
+        </Box>
+      </Flex>
     )
   }
 }

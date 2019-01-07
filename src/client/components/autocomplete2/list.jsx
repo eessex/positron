@@ -1,14 +1,12 @@
-import colors from "@artsy/reaction/dist/Assets/Colors"
 import styled from "styled-components"
 import { clone, map, uniq } from "lodash"
 import PropTypes from "prop-types"
 import React, { Component } from "react"
-import { garamond } from "@artsy/reaction/dist/Assets/Fonts"
 import { Autocomplete } from "/client/components/autocomplete2/index"
+import { color, Box, Flex, Sans, Serif } from "@artsy/palette"
 
 export class AutocompleteList extends Component {
   static propTypes = {
-    className: PropTypes.string,
     disabled: PropTypes.bool,
     filter: PropTypes.func,
     fetchItems: PropTypes.func,
@@ -16,6 +14,7 @@ export class AutocompleteList extends Component {
     formatListItem: PropTypes.func,
     formatSearchResult: PropTypes.func,
     items: PropTypes.array,
+    label: PropTypes.string,
     onSelect: PropTypes.func,
     placeholder: PropTypes.string,
     url: PropTypes.string,
@@ -61,21 +60,28 @@ export class AutocompleteList extends Component {
   }
 
   render() {
-    const { className, formatListItem } = this.props
+    const { formatListItem, label } = this.props
     const { items } = this.state
 
     return (
-      <div className={`AutocompleteList ${className || ""}`}>
+      <div>
+        {label && (
+          <Sans size="3t" weight="medium">
+            {label}
+          </Sans>
+        )}
         {items.length > 0 && (
-          <div className="Autocomplete__list">
+          <Box mt={1}>
             {items.map((item, i) => {
               const title = item ? item.title || item.name : ""
               return (
-                <ListItem className="Autocomplete__list-item" key={i}>
+                <ListItem key={i}>
                   {formatListItem ? (
                     formatListItem()
                   ) : (
-                    <span className="selected">{title}</span>
+                    <Serif size="4t" color={color("purple100")}>
+                      {title}
+                    </Serif>
                   )}
                   <button
                     className="remove-button"
@@ -84,7 +90,7 @@ export class AutocompleteList extends Component {
                 </ListItem>
               )
             })}
-          </div>
+          </Box>
         )}
         <Autocomplete {...this.props} />
       </div>
@@ -92,18 +98,16 @@ export class AutocompleteList extends Component {
   }
 }
 
-export const ListItem = styled.div`
-  ${garamond("s17")} align-items: center;
-  border: 2px solid ${colors.grayRegular};
-  color: ${props => (props.color ? props.color : colors.purpleRegular)};
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  letter-spacing: 0;
-  line-height: 26px;
-  margin-bottom: 10px;
-  overflow: ellipsis;
-  padding: 5px 20px 5px 10px;
+export const ListItem = styled(Flex)`
+  border: 1px solid ${color("black10")};
   position: relative;
-  text-transform: none;
+  padding: 10px 10px 10px;
+  margin-bottom: 10px;
+  align-items: center;
+  justify-content: space-between;
+
+  button,
+  button:hover {
+    top: 3px;
+  }
 `

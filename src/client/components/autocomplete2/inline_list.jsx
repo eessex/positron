@@ -1,11 +1,17 @@
 import PropTypes from "prop-types"
 import React, { Component } from "react"
-import { Autocomplete } from "/client/components/autocomplete2/index"
+import {
+  Autocomplete,
+  AutocompleteResults,
+  AutocompleteResultImg,
+  SearchIcon,
+} from "client/components/autocomplete2/index"
 import { clone } from "lodash"
+import styled from "styled-components"
+import { color, Flex } from "@artsy/palette"
 
 export class AutocompleteInlineList extends Component {
   static propTypes = {
-    className: PropTypes.string,
     disabled: PropTypes.bool,
     filter: PropTypes.func,
     formatSelected: PropTypes.func,
@@ -25,25 +31,75 @@ export class AutocompleteInlineList extends Component {
   }
 
   render() {
-    const { items, className } = this.props
+    const { items } = this.props
 
     return (
-      <div className={`Autocomplete--inline ${className ? className : ""}`}>
-        <div className="Autocomplete__list">
+      <List>
+        <Flex flexWrap="wrap" mt={0.5}>
           {items.map((item, i) => {
             return (
-              <div className="Autocomplete__list-item" key={i}>
+              <ListItem key={i} width="initial" height="fit-content">
                 {item}
-                <button onClick={() => this.onRemoveItem(i)} />
-              </div>
+                <button
+                  className="remove-button"
+                  onClick={() => this.onRemoveItem(i)}
+                />
+              </ListItem>
             )
           })}
-        </div>
+        </Flex>
 
         <Autocomplete {...this.props} />
-      </div>
+      </List>
     )
   }
 }
 
 AutocompleteInlineList.defaultProps = { items: [] }
+
+const List = styled(Flex)`
+  border: 1px solid ${color("black10")};
+  position: relative;
+  padding: 5px 10px 0 10px;
+
+  ${SearchIcon} {
+    display: none;
+  }
+
+  input {
+    border: none;
+    margin: 0;
+    padding-left: 0;
+    padding-bottom: 0;
+    padding-top: 0;
+    height: 35px;
+  }
+
+  ${AutocompleteResults} {
+    left: -1px;
+    top: calc(100% + 1px);
+    width: calc(100% + 2px);
+  }
+
+  ${AutocompleteResultImg} {
+    display: none;
+  }
+`
+
+const ListItem = styled(Flex)`
+  align-items: center;
+  background: ${color("black10")};
+  margin: 0 10px 5px 0px;
+  padding: 3px 5px 3px 10px;
+  text-transform: capitalize;
+
+  button,
+  button:hover {
+    position: relative;
+    cursor: pointer;
+    height: 20px;
+    width: 15px;
+    margin-left: 5px;
+    border: none;
+  }
+`

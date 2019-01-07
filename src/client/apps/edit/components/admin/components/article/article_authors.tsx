@@ -1,4 +1,5 @@
-import { Box, Flex } from "@artsy/palette"
+import { Box, Flex, Sans } from "@artsy/palette"
+import Input from "@artsy/reaction/dist/Components/Input"
 import { clone, uniq } from "lodash"
 import React, { Component } from "react"
 import { connect } from "react-redux"
@@ -8,16 +9,9 @@ import { onChangeArticle } from "../../../../../../actions/edit/articleActions"
 import { AutocompleteList } from "../../../../../../components/autocomplete2/list"
 import AutocompleteListMetaphysics from "../../../../../../components/autocomplete2/list_metaphysics"
 import { AuthorsQuery } from "../../../../../../queries/authors"
+import { AdminArticleProps } from "./index"
 
-export interface ArticleAuthorsProps {
-  article: any
-  apiURL: string
-  isEditorial: boolean
-  onChangeArticleAction: (key: string, value: any) => void
-  user: any
-}
-
-export class ArticleAuthors extends Component<ArticleAuthorsProps> {
+export class ArticleAuthors extends Component<AdminArticleProps> {
   onChangeAuthor = name => {
     const { article, onChangeArticleAction } = this.props
     const author = clone(article.author) || {}
@@ -62,19 +56,22 @@ export class ArticleAuthors extends Component<ArticleAuthorsProps> {
     return (
       <Flex flexDirection={["column", "row"]}>
         <Box width={["100%", "50%"]} pb={40} pr={[0, 20]}>
-          <label>Primary Author</label>
-          <input
-            className="bordered-input"
+          <Sans size="3t" weight="medium">
+            Primary Author
+          </Sans>
+          <Input
             defaultValue={name}
-            onChange={e => this.onChangeAuthor(e.target.value)}
+            type="text"
+            onChange={e => this.onChangeAuthor(e.currentTarget.value)}
+            block
           />
         </Box>
 
         <Box width={["100%", "50%"]} pl={[0, 20]}>
           {isEditorial && (
             <Box pb={40}>
-              <label>Authors</label>
               <AutocompleteList
+                label="Authors"
                 fetchItems={this.fetchAuthors}
                 items={article.author_ids || []}
                 filter={items => {
@@ -96,13 +93,11 @@ export class ArticleAuthors extends Component<ArticleAuthorsProps> {
             </Box>
           )}
           {article.layout !== "news" && (
-            <Box pb={40}>
-              <AutocompleteListMetaphysics
-                field="contributing_authors"
-                label="Contributing Authors"
-                model="users"
-              />
-            </Box>
+            <AutocompleteListMetaphysics
+              field="contributing_authors"
+              label="Contributing Authors"
+              model="users"
+            />
           )}
         </Box>
       </Flex>

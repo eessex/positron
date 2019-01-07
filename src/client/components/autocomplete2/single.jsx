@@ -5,7 +5,6 @@ import { ListItem } from "./list"
 
 export class AutocompleteSingle extends Component {
   static propTypes = {
-    className: PropTypes.string,
     disabled: PropTypes.bool,
     filter: PropTypes.func,
     fetchItem: PropTypes.func,
@@ -54,7 +53,7 @@ export class AutocompleteSingle extends Component {
   }
 
   render() {
-    const { className, formatListItem } = this.props
+    const { formatListItem } = this.props
     const { item } = this.state
 
     const props = {
@@ -65,21 +64,19 @@ export class AutocompleteSingle extends Component {
 
     const title = item ? item.title || item.name : ""
     return (
-      <div className={`AutocompleteList ${className || ""}`}>
+      <div>
         {item ? (
-          <div className="Autocomplete__list">
-            <ListItem className="Autocomplete__list-item">
-              {formatListItem ? (
-                formatListItem()
-              ) : (
-                <span className="selected">{title}</span>
-              )}
-              <button
-                className="remove-button"
-                onClick={() => this.onRemoveItem()}
-              />
-            </ListItem>
-          </div>
+          <ListItem>
+            {formatListItem ? (
+              formatListItem()
+            ) : (
+              <span className="selected">{title}</span>
+            )}
+            <button
+              className="remove-button"
+              onClick={() => this.onRemoveItem()}
+            />
+          </ListItem>
         ) : (
           <Autocomplete {...props} />
         )}

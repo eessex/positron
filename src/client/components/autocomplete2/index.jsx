@@ -2,11 +2,13 @@ import PropTypes from "prop-types"
 import React, { Component } from "react"
 import { clone, compact, uniq } from "lodash"
 import Icon from "@artsy/reaction/dist/Components/Icon"
+import Input from "@artsy/reaction/dist/Components/Input"
+import styled from "styled-components"
+import { Box, color, Flex } from "@artsy/palette"
 
 export class Autocomplete extends Component {
   static propTypes = {
     autoFocus: PropTypes.bool,
-    className: PropTypes.string,
     disabled: PropTypes.bool,
     filter: PropTypes.func,
     formatSelected: PropTypes.func,
@@ -121,14 +123,12 @@ export class Autocomplete extends Component {
 
   formatResult(item) {
     return (
-      <div className="Autocomplete__item">
-        <div className="Autocomplete__item-img">
+      <AutocompleteResult>
+        <AutocompleteResultImg width={45} height={45} mr={15}>
           {item.thumbnail_image && <img src={item.thumbnail_image || ""} />}
-        </div>
-        <div className="Autocomplete__item-title">
-          {item.title || item.name}
-        </div>
-      </div>
+        </AutocompleteResultImg>
+        <div>{item.title || item.name}</div>
+      </AutocompleteResult>
     )
   }
 
@@ -146,9 +146,9 @@ export class Autocomplete extends Component {
             onClick={() => this.onSelect(item)}
           >
             {formatSearchResult ? (
-              <div className="Autocomplete__item">
+              <AutocompleteResult>
                 {formatSearchResult(item)}
-              </div>
+              </AutocompleteResult>
             ) : (
               this.formatResult(item)
             )}
@@ -157,16 +157,12 @@ export class Autocomplete extends Component {
       })
     } else if (loading) {
       return (
-        <div className="Autocomplete__item Autocomplete__item--loading">
+        <AutocompleteResult>
           <div className="loading-spinner" />
-        </div>
+        </AutocompleteResult>
       )
     } else {
-      return (
-        <div className="Autocomplete__item Autocomplete__item--empty">
-          No results
-        </div>
-      )
+      return <AutocompleteResult isEmpty>No results</AutocompleteResult>
     }
   }
 
@@ -174,34 +170,97 @@ export class Autocomplete extends Component {
     if (this.isFocused()) {
       // display if input is focused
       return (
-        <div className="Autocomplete__results">
-          <div className="Autocomplete__results-list">
-            {this.formatSearchResults()}
-          </div>
-          <div className="Autocomplete__results-bg" onClick={this.onBlur} />
-        </div>
+        <AutocompleteResults>
+          <div>{this.formatSearchResults()}</div>
+          <AutocompleteResultsBackground onClick={this.onBlur} />
+        </AutocompleteResults>
       )
     }
   }
 
   render() {
-    const { autoFocus, className, disabled, placeholder } = this.props
+    const { autoFocus, disabled, placeholder } = this.props
 
     return (
-      <div className={`Autocomplete ${className ? className : ""}`}>
-        <Icon name="search" color="black" className="Autocomplete__icon" />
-        <input
+      <AutocompleteWrapper className={`Autocomplete`}>
+        <SearchIcon name="search" color="black" />
+        <Input
           autoFocus={autoFocus}
-          className="Autocomplete__input bordered-input"
+          block
           disabled={disabled}
-          onChange={e => this.search(e.target.value)}
-          placeholder={placeholder}
-          ref={input => {
+          innerRef={input => {
             this.textInput = input
           }}
+          onChange={e => this.search(e.currentTarget.value)}
+          placeholder={placeholder}
+          type="text"
         />
         {this.renderSearchResults()}
-      </div>
+      </AutocompleteWrapper>
     )
   }
 }
+
+const AutocompleteWrapper = styled.div`
+  position: relative;
+
+  input {
+    padding-left: 36px;
+  }
+`
+
+export const SearchIcon = styled(Icon)`
+  position: absolute;
+  top: 7px;
+  left: 3px;
+`
+
+export const AutocompleteResults = styled.div`
+  border-left: 1px solid ${color("black10")};
+  border-right: 1px solid ${color("black10")};
+  position: absolute;
+  z-index: 10;
+  width: 100%;
+  top: calc(100% - 5px);
+`
+
+const AutocompleteResultsBackground = styled.div`
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  opacity: 0;
+  z-index: -1;
+`
+
+const AutocompleteResult = styled(Flex)`
+  padding: 10px;
+  background: white;
+  color: ${color("black100")};
+  align-items: center;
+  border-bottom: 1px solid ${color("black10")};
+  min-height: 50px;
+  z-index: 3;
+
+  &:hover {
+    background: ${color("black10")};
+    cursor: pointer;
+  }
+
+  ${props =>
+    props.isEmpty &&
+    `
+    background: ${color("black10")};
+    color: ${color("black30")};
+  `};
+`
+
+export const AutocompleteResultImg = styled(Box)`
+  background: ${color("black10")};
+  img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+  }
+`

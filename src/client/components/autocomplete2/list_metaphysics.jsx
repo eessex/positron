@@ -8,6 +8,8 @@ import { onChangeArticle } from "client/actions/edit/articleActions"
 import { AutocompleteList } from "client/components/autocomplete2/list"
 import { AutocompleteSingle } from "client/components/autocomplete2/single"
 import * as Queries from "client/queries/metaphysics"
+import { Box } from "@artsy/palette"
+import { capitalize } from "underscore.string"
 
 export class AutocompleteListMetaphysics extends Component {
   static propTypes = {
@@ -153,6 +155,7 @@ export class AutocompleteListMetaphysics extends Component {
       article,
       artsyURL,
       field,
+      label,
       model,
       onChangeArticleAction,
       placeholder,
@@ -170,6 +173,7 @@ export class AutocompleteListMetaphysics extends Component {
               model === "users" ? this.formatSelectedUser : undefined
             }
             item={article[field] || null}
+            label={label || model}
             filter={this.getFilter()}
             onSelect={result => onChangeArticleAction(field, result)}
             placeholder={placeholder || `Search ${model} by name...`}
@@ -186,6 +190,7 @@ export class AutocompleteListMetaphysics extends Component {
             }
             items={article[field] || []}
             filter={this.getFilter()}
+            label={capitalize(label || model)}
             onSelect={results => onChangeArticleAction(field, results)}
             placeholder={placeholder || `Search ${model} by name...`}
             url={`${artsyURL}/api/v1/match/${model}?term=%QUERY`}
@@ -196,14 +201,7 @@ export class AutocompleteListMetaphysics extends Component {
   }
 
   render() {
-    const { label, model } = this.props
-
-    return (
-      <div className="field-group">
-        <label>{label || model}</label>
-        {this.renderAutocompleteType()}
-      </div>
-    )
+    return <Box pb={40}>{this.renderAutocompleteType()}</Box>
   }
 }
 
