@@ -1,30 +1,32 @@
-import request from "superagent"
-import { clone, compact, dropRight, uniq } from "lodash"
-import { connect } from "react-redux"
-import { difference, flatten, pluck } from "underscore"
-import PropTypes from "prop-types"
-import React, { Component } from "react"
+import { Box } from "@artsy/palette"
+import { ArticleData } from "@artsy/reaction/dist/Components/Publishing/Typings"
 import { onChangeArticle } from "client/actions/edit/articleActions"
 import { AutocompleteList } from "client/components/autocomplete2/list"
 import { AutocompleteSingle } from "client/components/autocomplete2/single"
 import * as Queries from "client/queries/metaphysics"
-import { Box } from "@artsy/palette"
+import { clone, compact, dropRight, uniq } from "lodash"
+import React, { Component } from "react"
+import { connect } from "react-redux"
+import request from "superagent"
+import { difference, flatten, pluck } from "underscore"
 import { capitalize } from "underscore.string"
+import { AutocompleteProps } from "./index"
 
-export class AutocompleteListMetaphysics extends Component {
-  static propTypes = {
-    article: PropTypes.object,
-    artsyURL: PropTypes.string,
-    field: PropTypes.string,
-    label: PropTypes.string,
-    metaphysicsURL: PropTypes.string,
-    model: PropTypes.string,
-    onChangeArticleAction: PropTypes.func,
-    placeholder: PropTypes.string,
-    user: PropTypes.object,
-    type: PropTypes.string,
-  }
+export interface AutocompleteListProps extends AutocompleteProps {
+  article: ArticleData
+  artsyURL?: string
+  field?: string
+  label?: string
+  model?: string
+  metaphysicsURL?: string
+  onChangeArticleAction?: any
+  type?: any
+  user?: any
+}
 
+export class AutocompleteListMetaphysics extends Component<
+  AutocompleteListProps
+> {
   static defaultProps = {
     type: "list",
   }
@@ -60,7 +62,7 @@ export class AutocompleteListMetaphysics extends Component {
   idsToFetch = fetchedItems => {
     const { article, field, model } = this.props
     let alreadyFetched = uniq(pluck(fetchedItems, "_id"))
-    let allIds = clone(article[field])
+    let allIds = field && clone(article[field])
 
     if (model === "users") {
       allIds = pluck(allIds, "id")
@@ -72,8 +74,8 @@ export class AutocompleteListMetaphysics extends Component {
   fetchItems = (fetchedItems, cb) => {
     const { metaphysicsURL, model, user } = this.props
 
-    let newItems = clone(fetchedItems)
-    const query = this.getQuery(model)
+    const newItems = clone(fetchedItems)
+    const query: any = this.getQuery()
     const idsToFetch = this.idsToFetch(fetchedItems)
 
     if (idsToFetch.length) {
@@ -86,9 +88,9 @@ export class AutocompleteListMetaphysics extends Component {
         .query({ query: query(idsToFetch) })
         .end((err, res) => {
           if (err) {
-            console.error(err)
+            new Error(err)
           }
-          newItems.push(res.body.data[model])
+          model && newItems.push(res.body.data[model])
           const uniqItems = uniq(flatten(newItems))
           cb(uniqItems)
         })
@@ -97,12 +99,12 @@ export class AutocompleteListMetaphysics extends Component {
     }
   }
 
-  fetchItem = (item, cb) => {
+  fetchItem = (_item, cb) => {
     const { article, field, metaphysicsURL, model, user } = this.props
 
-    const query = this.getQuery(model)
+    const query: any = this.getQuery()
 
-    const idToFetch = article[field]
+    const idToFetch = article && field && article[field]
 
     if (idToFetch) {
       request
@@ -114,10 +116,9 @@ export class AutocompleteListMetaphysics extends Component {
         .query({ query: query(idToFetch) })
         .end((err, res) => {
           if (err) {
-            console.error(err)
+            new Error(err)
           }
-
-          cb(res.body.data[model])
+          model && cb(res.body.data[model])
         })
     }
   }
@@ -161,20 +162,22 @@ export class AutocompleteListMetaphysics extends Component {
       placeholder,
       type,
     } = this.props
+    const idToFetch = article && field && article[field]
 
     switch (type) {
       case "single": {
         return (
           <AutocompleteSingle
+            article={article}
             fetchItem={(item, cb) => {
               this.fetchItem(item, cb)
             }}
+            filter={this.getFilter()}
             formatSelected={
               model === "users" ? this.formatSelectedUser : undefined
             }
-            item={article[field] || null}
-            label={label || model}
-            filter={this.getFilter()}
+            item={idToFetch || null}
+            label={capitalize(label || model)}
             onSelect={result => onChangeArticleAction(field, result)}
             placeholder={placeholder || `Search ${model} by name...`}
             url={`${artsyURL}/api/v1/match/${model}?term=%QUERY`}
@@ -188,7 +191,7 @@ export class AutocompleteListMetaphysics extends Component {
             formatSelected={
               model === "users" ? this.formatSelectedUser : undefined
             }
-            items={article[field] || []}
+            items={idToFetch || []}
             filter={this.getFilter()}
             label={capitalize(label || model)}
             onSelect={results => onChangeArticleAction(field, results)}

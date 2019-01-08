@@ -1,23 +1,29 @@
-import PropTypes from "prop-types"
-import React, { Component } from "react"
-import { clone, compact, uniq } from "lodash"
+import { Box, color, Flex } from "@artsy/palette"
 import Icon from "@artsy/reaction/dist/Components/Icon"
 import Input from "@artsy/reaction/dist/Components/Input"
+import { clone, compact, uniq } from "lodash"
+import React, { Component, ReactNode } from "react"
 import styled from "styled-components"
-import { Box, color, Flex } from "@artsy/palette"
 
-export class Autocomplete extends Component {
-  static propTypes = {
-    autoFocus: PropTypes.bool,
-    disabled: PropTypes.bool,
-    filter: PropTypes.func,
-    formatSelected: PropTypes.func,
-    formatSearchResult: PropTypes.func,
-    items: PropTypes.array,
-    onSelect: PropTypes.func,
-    placeholder: PropTypes.string,
-    url: PropTypes.string,
-  }
+export interface Item {
+  name?: string
+  title?: string
+}
+
+export interface AutocompleteProps {
+  disabled?: boolean
+  filter?: any
+  formatSelected?: any
+  formatSearchResult?: (item: Item | undefined) => ReactNode
+  items?: Item[]
+  onSelect: any
+  placeholder: string
+  url: string
+}
+
+export class Autocomplete extends Component<AutocompleteProps> {
+  private engine
+  private textInput
 
   state = {
     searchResults: [],
@@ -42,10 +48,14 @@ export class Autocomplete extends Component {
         }
       })
     }
-
+    // @ts-ignore
+    const datumTokenizer = Bloodhound.tokenizers.obj.whitespace("value")
+    // @ts-ignore
+    const queryTokenizer = Bloodhound.tokenizers.whitespace
+    // @ts-ignore
     this.engine = new Bloodhound({
-      datumTokenizer: Bloodhound.tokenizers.obj.whitespace("value"),
-      queryTokenizer: Bloodhound.tokenizers.whitespace,
+      datumTokenizer,
+      queryTokenizer,
       remote: {
         url,
         filter: filter || returnItems,
@@ -81,7 +91,7 @@ export class Autocomplete extends Component {
         return await formatSelected(selected)
       }
     } catch (error) {
-      console.error(error)
+      new Error(error)
     }
   }
 
@@ -105,7 +115,7 @@ export class Autocomplete extends Component {
         this.textInput.focus()
       }
     } catch (err) {
-      console.error(err)
+      new Error(err)
     }
   }
 
@@ -140,11 +150,7 @@ export class Autocomplete extends Component {
     if (searchResults.length) {
       return searchResults.map((item, i) => {
         return (
-          <div
-            key={i}
-            className="Autocomplete__result"
-            onClick={() => this.onSelect(item)}
-          >
+          <div key={i} onClick={() => this.onSelect(item)}>
             {formatSearchResult ? (
               <AutocompleteResult>
                 {formatSearchResult(item)}
@@ -179,18 +185,15 @@ export class Autocomplete extends Component {
   }
 
   render() {
-    const { autoFocus, disabled, placeholder } = this.props
+    const { disabled, placeholder } = this.props
 
     return (
-      <AutocompleteWrapper className={`Autocomplete`}>
+      <AutocompleteWrapper>
         <SearchIcon name="search" color="black" />
         <Input
-          autoFocus={autoFocus}
           block
           disabled={disabled}
-          innerRef={input => {
-            this.textInput = input
-          }}
+          innerRef={ref => (this.textInput = ref)}
           onChange={e => this.search(e.currentTarget.value)}
           placeholder={placeholder}
           type="text"
@@ -234,7 +237,10 @@ const AutocompleteResultsBackground = styled.div`
   z-index: -1;
 `
 
-const AutocompleteResult = styled(Flex)`
+const AutocompleteResult = styled(Flex).attrs<{
+  isEmpty?: boolean
+  children?: any
+}>({})`
   padding: 10px;
   background: white;
   color: ${color("black100")};

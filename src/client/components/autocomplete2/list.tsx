@@ -1,27 +1,25 @@
-import styled from "styled-components"
+import { Box, color, Flex, Sans, Serif } from "@artsy/palette"
 import { clone, map, uniq } from "lodash"
-import PropTypes from "prop-types"
 import React, { Component } from "react"
-import { Autocomplete } from "/client/components/autocomplete2/index"
-import { color, Box, Flex, Sans, Serif } from "@artsy/palette"
+import styled from "styled-components"
+import { Autocomplete, AutocompleteProps, Item } from "./index"
 
-export class AutocompleteList extends Component {
-  static propTypes = {
-    disabled: PropTypes.bool,
-    filter: PropTypes.func,
-    fetchItems: PropTypes.func,
-    formatSelected: PropTypes.func,
-    formatListItem: PropTypes.func,
-    formatSearchResult: PropTypes.func,
-    items: PropTypes.array,
-    label: PropTypes.string,
-    onSelect: PropTypes.func,
-    placeholder: PropTypes.string,
-    url: PropTypes.string,
-  }
+interface AutocompleteListProps extends AutocompleteProps {
+  fetchItems: (fetchedItems: Item[], cb: (Items: Item[]) => void) => void
+  formatListItem?: any
+  label?: string
+}
 
+interface AutocompleteListState {
+  items: Item[]
+}
+
+export class AutocompleteList extends Component<
+  AutocompleteListProps,
+  AutocompleteListState
+> {
   state = {
-    items: [],
+    items: [] as Item[],
   }
 
   componentWillMount = () => {

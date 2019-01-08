@@ -132,7 +132,6 @@ export class AdminArticle extends Component<
                         color={article.tier === 1 ? "black100" : "black10"}
                         onClick={() => onChangeArticleAction("tier", 1)}
                         variant="noOutline"
-                        borderRadius={0}
                       >
                         Tier 1
                       </Button>
@@ -140,7 +139,6 @@ export class AdminArticle extends Component<
                         color={article.tier === 2 ? "black100" : "black10"}
                         onClick={() => onChangeArticleAction("tier", 2)}
                         variant="noOutline"
-                        borderRadius={0}
                       >
                         Tier 2
                       </Button>
@@ -154,7 +152,6 @@ export class AdminArticle extends Component<
                         color={article.featured ? "black100" : "black10"}
                         onClick={() => onChangeArticleAction("featured", true)}
                         variant="noOutline"
-                        borderRadius={0}
                       >
                         Yes
                       </Button>
@@ -162,7 +159,6 @@ export class AdminArticle extends Component<
                         color={!article.featured ? "black100" : "black10"}
                         onClick={() => onChangeArticleAction("featured", false)}
                         variant="noOutline"
-                        borderRadius={0}
                       >
                         No
                       </Button>
@@ -179,7 +175,6 @@ export class AdminArticle extends Component<
                       <ButtonGroup>
                         <Button
                           variant="noOutline"
-                          borderRadius={0}
                           onClick={() =>
                             onChangeArticleAction("layout", "standard")
                           }
@@ -193,7 +188,6 @@ export class AdminArticle extends Component<
                         </Button>
                         <Button
                           variant="noOutline"
-                          borderRadius={0}
                           color={
                             article.layout === "feature"
                               ? "black100"
@@ -348,6 +342,7 @@ const Button = styled(SystemButton).attrs<{
 const ButtonGroup = styled(Flex)`
   margin-top: 10px;
   border: 1px solid ${color("black10")};
+  border-radius: 3px;
 
   button {
     width: 100%;

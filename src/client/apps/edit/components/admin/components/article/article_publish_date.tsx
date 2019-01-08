@@ -164,6 +164,7 @@ export class ArticlePublishDate extends Component<ArticlePublishDateProps> {
             disabled={!hasChanged}
             onClick={this.onScheduleChange}
             width="100%"
+            height="auto"
           >
             {this.getPublishText()}
           </Button>
@@ -183,8 +184,9 @@ export const InputGroup = styled(Flex).attrs<{ hasFocus?: boolean }>({})`
     border: 1px solid ${color("purple100")};
   }
 
-  input {
+  input,
+  .bordered-input {
     border: none;
-    margin-top: 0;
+    margin-top: 3px;
   }
 `

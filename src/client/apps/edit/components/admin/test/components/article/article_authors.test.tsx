@@ -111,7 +111,7 @@ describe("ArticleAuthors", () => {
     component
       .find("input")
       .at(0)
-      .simulate("change", { target: { value } })
+      .simulate("change", { currentTarget: { value } })
 
     expect(props.onChangeArticleAction.mock.calls[0][0]).toBe("author")
     expect(props.onChangeArticleAction.mock.calls[0][1].name).toBe(value)

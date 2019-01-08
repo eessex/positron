@@ -5,8 +5,9 @@ import { filter, map } from "lodash"
 import Verticals from "../../../../../collections/verticals.coffee"
 import { AutocompleteInlineList } from "/client/components/autocomplete2/inline_list"
 import { onChangeArticle } from "client/actions/edit/articleActions"
-import { Flex, Box, Sans } from "@artsy/palette"
+import { Flex, Box, Button, Sans } from "@artsy/palette"
 import { SansLabelProps } from "client/apps/edit/components/admin/components/article/index"
+import styled from "styled-components"
 
 export class AdminVerticalsTags extends Component {
   static propTypes = {
@@ -51,20 +52,20 @@ export class AdminVerticalsTags extends Component {
 
     return verticals.map((item, index) => {
       const isActive = name && item.name === name
-      const activeClass = isActive ? "avant-garde-button-black" : ""
 
       return (
-        <button
+        <Button
           key={index}
-          className={`avant-garde-button ${activeClass}`}
-          data-active={isActive}
+          variant={isActive ? "primaryBlack" : "secondaryOutline"}
           onClick={() => {
             const vertical = isActive ? null : item
             onChangeArticleAction("vertical", vertical)
           }}
+          mr={1}
+          mt={1}
         >
           {item.name}
-        </button>
+        </Button>
       )
     })
   }
@@ -74,9 +75,9 @@ export class AdminVerticalsTags extends Component {
 
     return (
       <Flex flexDirection={["column", "row"]}>
-        <Box width={["100%", "50%"]} pr={[0, 20]} pb={40} className="verticals">
+        <Box width={["100%", "50%"]} pr={[0, 20]} pb={40}>
           <Sans {...SansLabelProps}>Editorial Vertical</Sans>
-          {this.renderVerticalsList()}
+          <VerticalsList mt={0.5}>{this.renderVerticalsList()}</VerticalsList>
         </Box>
 
         <Box width={["100%", "50%"]} pl={[0, 20]} pb={40}>
@@ -96,7 +97,7 @@ export class AdminVerticalsTags extends Component {
             />
           </Box>
 
-          <Box className="tracking-tags">
+          <Box>
             <Sans {...SansLabelProps}>Tracking Tags</Sans>
             <AutocompleteInlineList
               items={article.tracking_tags}
@@ -130,3 +131,9 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(AdminVerticalsTags)
+
+const VerticalsList = styled(Box)`
+  button {
+    outline: none;
+  }
+`
