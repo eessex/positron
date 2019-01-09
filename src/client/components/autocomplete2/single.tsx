@@ -4,14 +4,18 @@ import React, { Component, ReactNode } from "react"
 import { ListItem } from "./list"
 import { AutocompleteListProps } from "./list_metaphysics"
 
+interface MetaphysicsItem extends Item {
+  _id: string
+}
+
 interface AutocompleteSingleProps extends AutocompleteListProps {
-  item?: Item
-  fetchItem: (item?: Item | null, cb?: (item: Item[]) => void) => void
+  idToFetch?: string
+  fetchItem: (idToFetch: string, cb?: (item: any[]) => void) => void
   formatListItem?: () => ReactNode
 }
 
 interface AutocompleteSingleState {
-  item?: Item
+  item?: Item | MetaphysicsItem
 }
 
 export class AutocompleteSingle extends Component<
@@ -27,18 +31,19 @@ export class AutocompleteSingle extends Component<
   }
 
   componentDidUpdate = prevProps => {
-    if (prevProps.item !== this.props.item) {
+    if (prevProps.idToFetch !== this.props.idToFetch) {
       this.fetchItem()
     }
   }
 
   fetchItem = () => {
-    const { fetchItem } = this.props
-    const { item } = this.state
+    const { fetchItem, idToFetch } = this.props
 
-    fetchItem(item, fetchedItems => {
-      this.setState({ item: fetchedItems[0] })
-    })
+    if (idToFetch) {
+      fetchItem(idToFetch, fetchedItems => {
+        this.setState({ item: fetchedItems[0] })
+      })
+    }
   }
 
   onRemoveItem = () => {
@@ -53,6 +58,12 @@ export class AutocompleteSingle extends Component<
     onSelect(items[0])
   }
 
+  formatItem = (item: Item | MetaphysicsItem) => (
+    <Serif size="4t" color={color("purple100")}>
+      {item && (item.title || item.name || "")}
+    </Serif>
+  )
+
   render() {
     const { formatListItem, label } = this.props
     const { item } = this.state
@@ -63,7 +74,6 @@ export class AutocompleteSingle extends Component<
       onSelect: this.onSelect,
     }
 
-    const title = item ? item.title || item.name : ""
     return (
       <div>
         {label && (
@@ -74,13 +84,7 @@ export class AutocompleteSingle extends Component<
         {item ? (
           <Box mt={2}>
             <ListItem>
-              {formatListItem ? (
-                formatListItem()
-              ) : (
-                <Serif size="4t" color={color("purple100")}>
-                  {title}
-                </Serif>
-              )}
+              {formatListItem ? formatListItem() : this.formatItem(item)}
               <button
                 className="remove-button"
                 onClick={() => this.onRemoveItem()}

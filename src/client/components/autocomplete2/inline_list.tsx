@@ -6,6 +6,7 @@ import {
   AutocompleteProps,
   AutocompleteResultImg,
   AutocompleteResults,
+  AutocompleteWrapper,
   SearchIcon,
 } from "client/components/autocomplete2/index"
 import { clone } from "lodash"
@@ -34,13 +35,12 @@ export class AutocompleteInlineList extends Component<AutocompleteProps> {
               return (
                 <ListItem key={i}>
                   <Button size="small" variant="secondaryGray" mr={1} mb={1}>
-                    <Flex alignItems="center">
+                    <Flex
+                      alignItems="center"
+                      onClick={() => this.onRemoveItem(i)}
+                    >
                       {item}
-                      <IconRemove
-                        color="black"
-                        background="transparent"
-                        onClick={() => this.onRemoveItem(i)}
-                      />
+                      <IconRemove color="black" background="transparent" />
                     </Flex>
                   </Button>
                 </ListItem>
@@ -80,6 +80,10 @@ const List = styled(Flex)`
 
   ${AutocompleteResultImg} {
     display: none;
+  }
+
+  ${AutocompleteWrapper} {
+    position: initial;
   }
 
   svg {

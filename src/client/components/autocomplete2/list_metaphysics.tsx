@@ -176,7 +176,7 @@ export class AutocompleteListMetaphysics extends Component<
             formatSelected={
               model === "users" ? this.formatSelectedUser : undefined
             }
-            item={idToFetch || null}
+            idToFetch={idToFetch || null}
             label={capitalize(label || model)}
             onSelect={result => onChangeArticleAction(field, result)}
             placeholder={placeholder || `Search ${model} by name...`}

@@ -10,6 +10,11 @@ export interface Item {
   title?: string
 }
 
+export interface SearchResultItem extends Item {
+  id?: string
+  thumbnail_image?: string
+}
+
 export interface AutocompleteProps {
   disabled?: boolean
   filter?: any
@@ -21,12 +26,26 @@ export interface AutocompleteProps {
   url: string
 }
 
-export class Autocomplete extends Component<AutocompleteProps> {
+interface AutocompleteState {
+  searchResults: any[]
+  hasFocus: boolean
+  loading: boolean
+}
+
+export class Autocomplete extends Component<
+  AutocompleteProps,
+  AutocompleteState
+> {
+  private textInput: React.RefObject<HTMLInputElement>
+  constructor(props) {
+    super(props)
+    this.textInput = React.createRef()
+  }
   private engine
-  private textInput
 
   state = {
     searchResults: [],
+    hasFocus: false,
     loading: false,
   }
 
@@ -110,34 +129,24 @@ export class Autocomplete extends Component<AutocompleteProps> {
       newItems.push(item)
       onSelect(uniq(newItems))
       this.onBlur()
-
-      if (this.textInput) {
-        this.textInput.focus()
-      }
     } catch (err) {
       new Error(err)
     }
   }
 
   onBlur = () => {
-    if (this.textInput) {
-      this.textInput.blur()
-      this.textInput.value = ""
-    }
-    this.setState({ searchResults: [] })
+    this.setState({ searchResults: [], hasFocus: false })
   }
 
-  isFocused = () => {
-    return this.textInput === document.activeElement
-  }
-
-  formatResult(item) {
+  formatResult = (searchResult: SearchResultItem) => {
     return (
       <AutocompleteResult>
         <AutocompleteResultImg width={45} height={45} mr={15}>
-          {item.thumbnail_image && <img src={item.thumbnail_image || ""} />}
+          {searchResult.thumbnail_image && (
+            <img src={searchResult.thumbnail_image || ""} />
+          )}
         </AutocompleteResultImg>
-        <div>{item.title || item.name}</div>
+        <div>{searchResult.title || searchResult.name}</div>
       </AutocompleteResult>
     )
   }
@@ -148,15 +157,15 @@ export class Autocomplete extends Component<AutocompleteProps> {
     const searchResults = compact(this.state.searchResults)
 
     if (searchResults.length) {
-      return searchResults.map((item, i) => {
+      return searchResults.map((searchResult, i) => {
         return (
-          <div key={i} onClick={() => this.onSelect(item)}>
+          <div key={i} onClick={() => this.onSelect(searchResult)}>
             {formatSearchResult ? (
               <AutocompleteResult>
-                {formatSearchResult(item)}
+                {formatSearchResult(searchResult)}
               </AutocompleteResult>
             ) : (
-              this.formatResult(item)
+              this.formatResult(searchResult)
             )}
           </div>
         )
@@ -173,12 +182,11 @@ export class Autocomplete extends Component<AutocompleteProps> {
   }
 
   renderSearchResults = () => {
-    if (this.isFocused()) {
-      // display if input is focused
+    if (this.state.hasFocus) {
       return (
         <AutocompleteResults>
-          <div>{this.formatSearchResults()}</div>
           <AutocompleteResultsBackground onClick={this.onBlur} />
+          <div>{this.formatSearchResults()}</div>
         </AutocompleteResults>
       )
     }
@@ -193,8 +201,9 @@ export class Autocomplete extends Component<AutocompleteProps> {
         <Input
           block
           disabled={disabled}
-          innerRef={ref => (this.textInput = ref)}
+          innerRef={this.textInput}
           onChange={e => this.search(e.currentTarget.value)}
+          onFocus={() => this.setState({ hasFocus: true })}
           placeholder={placeholder}
           type="text"
         />
@@ -204,7 +213,7 @@ export class Autocomplete extends Component<AutocompleteProps> {
   }
 }
 
-const AutocompleteWrapper = styled.div`
+export const AutocompleteWrapper = styled.div`
   position: relative;
 
   input {
@@ -224,7 +233,7 @@ export const AutocompleteResults = styled.div`
   position: absolute;
   z-index: 10;
   width: 100%;
-  top: calc(100% - 5px);
+  top: calc(100% - 15px);
 `
 
 const AutocompleteResultsBackground = styled.div`
@@ -237,10 +246,7 @@ const AutocompleteResultsBackground = styled.div`
   z-index: -1;
 `
 
-const AutocompleteResult = styled(Flex).attrs<{
-  isEmpty?: boolean
-  children?: any
-}>({})`
+const AutocompleteResult = styled(Flex)<{ isEmpty?: boolean; children: any }>`
   padding: 10px;
   background: white;
   color: ${color("black100")};
@@ -253,7 +259,6 @@ const AutocompleteResult = styled(Flex).attrs<{
     background: ${color("black10")};
     cursor: pointer;
   }
-
   ${props =>
     props.isEmpty &&
     `
