@@ -1,6 +1,6 @@
 import PropTypes from "prop-types"
 import React from "react"
-import { Col, Row } from "react-styled-flexboxgrid"
+import { Col, Row } from "@artsy/palette"
 import styled from "styled-components"
 import { CanvasControls } from "./canvas_controls.jsx"
 import { CanvasImages } from "./canvas_images.jsx"

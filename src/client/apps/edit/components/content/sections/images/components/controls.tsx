@@ -1,35 +1,37 @@
-import PropTypes from "prop-types"
-import React, { Component } from "react"
-import { clone, difference } from "lodash"
-import { connect } from "react-redux"
-import { data as sd } from "sharify"
-import { Row, Col } from "react-styled-flexboxgrid"
-import Artwork from "/client/models/artwork.coffee"
-import FileInput from "/client/components/file_input"
-import SectionControls from "../../../section_controls"
+import { Box, Flex, Radio, RadioGroup } from "@artsy/palette"
+import { Input } from "@artsy/reaction/dist/Components/Input"
 import { logError } from "client/actions/edit/errorActions"
 import {
   onChangeHero,
   onChangeSection,
   removeSection,
 } from "client/actions/edit/sectionActions"
-import { Autocomplete } from "/client/components/autocomplete2"
+import { Autocomplete } from "client/components/autocomplete2"
+import FileInput from "client/components/file_input"
+import { FormLabel } from "client/components/form_label"
+import { clone, difference } from "lodash"
+import React, { Component } from "react"
+import { connect } from "react-redux"
+import { data as sd } from "sharify"
+import styled from "styled-components"
+import SectionControls from "../../../section_controls"
 import { InputArtworkUrl } from "./input_artwork_url"
+const Artwork = require("client/models/artwork.coffee")
 
-export class ImagesControls extends Component {
-  static propTypes = {
-    article: PropTypes.object,
-    isHero: PropTypes.bool,
-    logErrorAction: PropTypes.func,
-    onChangeHeroAction: PropTypes.func,
-    onChangeSectionAction: PropTypes.func,
-    removeSectionAction: PropTypes.func,
-    editSection: PropTypes.object,
-    section: PropTypes.object,
-    sectionIndex: PropTypes.number,
-    setProgress: PropTypes.func,
-  }
+interface ImagesControlsProps {
+  article: any
+  isHero: boolean
+  logErrorAction: (e: any) => void
+  onChangeHeroAction: (key: string, val: any) => void
+  onChangeSectionAction: (key: string, val: any) => void
+  removeSectionAction: (i: number) => void
+  editSection: any
+  section: any
+  sectionIndex: number
+  setProgress: () => void
+}
 
+export class ImagesControls extends Component<ImagesControlsProps> {
   componentWillUnmount = () => {
     const {
       removeSectionAction,
@@ -105,8 +107,8 @@ export class ImagesControls extends Component {
     this.onNewImage({
       url: image,
       type: "image",
-      width: width,
-      height: height,
+      width,
+      height,
       caption: "",
     })
   }
@@ -173,11 +175,11 @@ export class ImagesControls extends Component {
         </div>
 
         {!isHero && (
-          <Row
-            className="edit-controls__artwork-inputs"
+          <ArtworkInputs
+            pt={10}
             onClick={inputsAreDisabled ? this.fillWidthAlert : undefined}
           >
-            <Col xs={6}>
+            <Box width="50%" pr={1}>
               <Autocomplete
                 disabled={inputsAreDisabled}
                 filter={this.filterAutocomplete}
@@ -187,52 +189,46 @@ export class ImagesControls extends Component {
                 placeholder="Search artworks by title..."
                 url={`${sd.ARTSY_URL}/api/search?q=%QUERY`}
               />
-            </Col>
-            <Col xs={6}>
+            </Box>
+            <Box width="50%" pl={1}>
               <InputArtworkUrl
                 addArtwork={this.onNewImage}
                 fetchArtwork={this.fetchDenormalizedArtwork}
               />
-            </Col>
-          </Row>
+            </Box>
+          </ArtworkInputs>
         )}
 
         {!isHero &&
           section.type === "image_set" && (
-            <Row className="edit-controls__image-set-inputs">
-              <Col xs={6}>
-                <input
-                  ref="title"
-                  className="bordered-input bordered-input-dark"
+            <ArtworkInputs>
+              <Box width="50%" pr={1} pt={1}>
+                <Input
+                  block
                   defaultValue={section.title}
                   onChange={e => {
-                    onChangeSectionAction("title", e.target.value)
+                    onChangeSectionAction("title", e.currentTarget.value)
                   }}
                   placeholder="Image Set Title (optional)"
                 />
-              </Col>
-              <Col xs={6} className="inputs">
-                <label>Entry Point:</label>
-                <div className="layout-inputs">
-                  <div className="input-group">
-                    <div
-                      className="radio-input"
-                      onClick={() => onChangeSectionAction("layout", "mini")}
-                      data-active={section.layout !== "full"}
-                    />
-                    Mini
-                  </div>
-                  <div className="input-group">
-                    <div
-                      className="radio-input"
-                      onClick={() => onChangeSectionAction("layout", "full")}
-                      data-active={section.layout === "full"}
-                    />
-                    Full
-                  </div>
-                </div>
-              </Col>
-            </Row>
+              </Box>
+              <Flex width="50%" pl={1} pt={2}>
+                <FormLabel color="white">Entry Point:</FormLabel>
+                <RadioGroup
+                  pl={2}
+                  defaultValue="mini"
+                  flexDirection="row"
+                  onSelect={val => onChangeSectionAction("layout", val)}
+                >
+                  <Radio value="mini" mr={2}>
+                    <FormLabel color="white">Mini</FormLabel>
+                  </Radio>
+                  <Radio value="full">
+                    <FormLabel color="white">Full</FormLabel>
+                  </Radio>
+                </RadioGroup>
+              </Flex>
+            </ArtworkInputs>
           )}
       </SectionControls>
     )
@@ -256,3 +252,9 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(ImagesControls)
+
+const ArtworkInputs = styled(Flex)`
+  input {
+    margin-bottom: 0;
+  }
+`

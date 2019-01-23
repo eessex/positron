@@ -1,7 +1,7 @@
 import styled from "styled-components"
 import PropTypes from "prop-types"
 import React from "react"
-import { Col, Row } from "react-styled-flexboxgrid"
+import { Col, Row } from "@artsy/palette"
 import ImageUpload from "../../../../../../edit/components/admin/components/image_upload.coffee"
 import { RemoveButtonContainer } from "client/components/remove_button"
 

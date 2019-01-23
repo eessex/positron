@@ -1,7 +1,7 @@
 import moment from "moment"
 import PropTypes from "prop-types"
 import React from "react"
-import { Col, Row } from "react-styled-flexboxgrid"
+import { Col, Row } from "@artsy/palette"
 
 function onChangeDate(name, value, index, onChange) {
   const date = moment(value).toISOString()

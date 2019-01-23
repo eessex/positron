@@ -1,6 +1,6 @@
 import PropTypes from "prop-types"
 import React from "react"
-import { Col, Row } from "react-styled-flexboxgrid"
+import { Col, Row } from "@artsy/palette"
 import { Paragraph } from "client/components/draft/paragraph/paragraph"
 import { Metadata } from "client/apps/settings/client/curations/gucci/components/metadata"
 import ImageUpload from "client/apps/edit/components/admin/components/image_upload.coffee"

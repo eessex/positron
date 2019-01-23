@@ -1,6 +1,6 @@
 import PropTypes from "prop-types"
 import React from "react"
-import { Col, Row } from "react-styled-flexboxgrid"
+import { Col, Row } from "@artsy/palette"
 import { CharacterLimit } from "client/components/character_limit"
 import { PanelImages } from "./panel_images.jsx"
 

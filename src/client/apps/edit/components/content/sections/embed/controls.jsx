@@ -1,7 +1,7 @@
 import PropTypes from "prop-types"
 import { connect } from "react-redux"
 import React, { Component } from "react"
-import { Col, Row } from "react-styled-flexboxgrid"
+import { Col, Row } from "@artsy/palette"
 import SectionControls from "../../section_controls/index"
 import {
   onChangeSection,

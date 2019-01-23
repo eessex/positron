@@ -1,7 +1,7 @@
 import PropTypes from "prop-types"
 import { connect } from "react-redux"
 import React, { Component } from "react"
-import { Col, Row } from "react-styled-flexboxgrid"
+import { Col, Row } from "@artsy/palette"
 import SectionControls from "../../section_controls/index"
 import {
   onChangeSection,
@@ -48,7 +48,7 @@ export class SocialEmbedControls extends Component {
 
 const mapStateToProps = state => ({
   sectionIndex: state.edit.sectionIndex,
-  section: state.edit.section
+  section: state.edit.section,
 })
 
 const mapDispatchToProps = {
