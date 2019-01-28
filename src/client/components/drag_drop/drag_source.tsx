@@ -1,16 +1,15 @@
-import React, { Component } from "react"
-import PropTypes from "prop-types"
+import React from "react"
 
-export class DragSource extends Component {
-  static propTypes = {
-    activeSource: PropTypes.bool,
-    children: PropTypes.any.isRequired,
-    isDraggable: PropTypes.bool,
-    index: PropTypes.number.isRequired,
-    onDragEnd: PropTypes.func.isRequired,
-    setDragSource: PropTypes.func.isRequired,
-  }
+interface DragSourceProps {
+  activeSource?: boolean
+  children: any
+  isDraggable?: boolean
+  index: number
+  onDragEnd: () => void
+  setDragSource: (i: number, height: number, startY: number) => void
+}
 
+export class DragSource extends React.Component<DragSourceProps> {
   setDragSource = e => {
     const { isDraggable, index, setDragSource } = this.props
     const { clientY, currentTarget } = e
