@@ -1,4 +1,5 @@
 import React from "react"
+import styled from "styled-components"
 
 interface DragSourceProps {
   activeSource?: boolean
@@ -27,15 +28,19 @@ export class DragSource extends React.Component<DragSourceProps> {
     const { activeSource, children, isDraggable, onDragEnd } = this.props
 
     return (
-      <div
-        className="DragSource"
-        data-source={activeSource}
-        draggable={isDraggable}
+      <DragSourceContainer
+        isActiveSource={activeSource}
+        isDraggable={isDraggable}
         onDragEnd={onDragEnd}
         onDragStart={this.setDragSource}
       >
         {children}
-      </div>
+      </DragSourceContainer>
     )
   }
 }
+
+const DragSourceContainer = styled.div.attrs<{
+  isDraggable?: boolean
+  isActiveSource?: boolean
+}>({})``
