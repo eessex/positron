@@ -152,7 +152,10 @@ export class SectionContainer extends Component<SectionContainerProps> {
 
           {this.getSectionComponent()}
 
-          {isEditing && <ContainerBackground onClick={this.onSetEditing} />}
+          {isEditing &&
+            section.type !== "text" && (
+              <ContainerBackground onClick={this.onSetEditing} />
+            )}
         </SectionWrapper>
       </ErrorBoundary>
     )
