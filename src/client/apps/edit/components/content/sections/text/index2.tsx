@@ -271,7 +271,7 @@ const SectionTextContainer = styled.div<{
   layout: string
 }>`
   position: relative;
-  z-index: ${props => (props.isEditing ? 100 : -1)};
+  z-index: ${props => (props.isEditing ? 10 : -1)};
 
   ol li,
   ul li,
