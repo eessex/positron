@@ -18,9 +18,10 @@ describe("SectionText", () => {
 
     props = {
       article,
+      divideEditorStateAction: jest.fn(),
+      getAllowedBlocksAction: jest.fn(),
       index: 2,
       onChangeSectionAction: jest.fn(),
-      newSectionAction: jest.fn(),
       onSetEditing: jest.fn(),
       removeSectionAction: jest.fn(),
       section: cloneDeep(article.sections[11]),
@@ -31,39 +32,6 @@ describe("SectionText", () => {
   it("Renders RichText component", () => {
     const component = getWrapper()
     expect(component.find(RichText).length).toBe(1)
-  })
-
-  describe("#getAllowedBlocks", () => {
-    it("Returns correct blocks for feature", () => {
-      props.article.layout = "feature"
-      const instance = getWrapper().instance() as SectionText2
-      const blocks = instance.getAllowedBlocks()
-
-      expect(blocks).toEqual(["h1", "h2", "h3", "blockquote", "ol", "ul", "p"])
-    })
-
-    it("Returns correct blocks for standard", () => {
-      const instance = getWrapper().instance() as SectionText2
-      const blocks = instance.getAllowedBlocks()
-
-      expect(blocks).toEqual(["h2", "h3", "blockquote", "ol", "ul", "p"])
-    })
-
-    it("Returns correct blocks for news", () => {
-      props.article.layout = "news"
-      const instance = getWrapper().instance() as SectionText2
-      const blocks = instance.getAllowedBlocks()
-
-      expect(blocks).toEqual(["h3", "blockquote", "ol", "ul", "p"])
-    })
-
-    it("Returns correct blocks for classic", () => {
-      props.article.layout = "classic"
-      const instance = getWrapper().instance() as SectionText2
-      const blocks = instance.getAllowedBlocks()
-
-      expect(blocks).toEqual(["h2", "h3", "blockquote", "ul", "ol", "p"])
-    })
   })
 
   xdescribe("#onHandleReturn", () => {
@@ -77,25 +45,8 @@ describe("SectionText", () => {
     // it("calls #resetEditorState", () => {})
   })
 
-  xdescribe("#onHandleBlockQuote", () => {
-    // it("calls #onInsertBlockquoteAction if section should be split", () => {})
-    // it("does nothing if section should not be split", () => {})
-  })
-
   xdescribe("#onHandleBackspace", () => {
     // it("calls #maybeMergeTextSectionsAction if section is not first", () => {})
     // it("does nothing if section is first", () => {})
-  })
-
-  xdescribe("#extractBlockQuote", () => {
-    // it("separates a blockquote from text before", () => {})
-    // it("separates a blockquote from text after", () => {})
-    // it("separates a blockquote from text before and after", () => {})
-  })
-
-  xdescribe("#divideEditorState", () => {
-    // it("separates selection from text before", () => {})
-    // it("separates selection from text after", () => {})
-    // it("separates selection from text before and after", () => {})
   })
 })
