@@ -59,19 +59,10 @@ describe("SectionText", () => {
 
     it("Returns correct blocks for classic", () => {
       props.article.layout = "classic"
-      props.isInternalChannel = true
       const instance = getWrapper().instance() as SectionText2
       const blocks = instance.getAllowedBlocks()
 
-      expect(blocks).toEqual(["h2", "h3", "blockquote", "ol", "ul", "p"])
-    })
-
-    it("Returns correct blocks for classic internal channels", () => {
-      props.article.layout = "classic"
-      const instance = getWrapper().instance() as SectionText2
-      const blocks = instance.getAllowedBlocks()
-
-      expect(blocks).toEqual(["h2", "h3", "ul", "ol", "p"])
+      expect(blocks).toEqual(["h2", "h3", "blockquote", "ul", "ol", "p"])
     })
   })
 
