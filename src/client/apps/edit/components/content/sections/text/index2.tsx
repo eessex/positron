@@ -55,7 +55,7 @@ export class SectionText2 extends React.Component<Props> {
       article: { layout },
     } = this.props
     const blocks: BlockElement[] = richTextBlockElements
-
+    // TODO: Move to redux actions
     switch (layout) {
       case "feature": {
         return [
@@ -283,20 +283,25 @@ const SectionTextContainer = styled.div<{
       padding-left: 10px;
     }
   }
+
   ol li .public-DraftStyleDefault-ltr,
   li.public-DraftStyleDefault-orderedListItem .public-DraftStyleDefault-ltr {
     list-style: decimal;
   }
+
   ul li .public-DraftStyleDefault-ltr,
   li.public-DraftStyleDefault-unorderedListItem .public-DraftStyleDefault-ltr {
     list-style: disc;
   }
+
   ${TextNavContainer} {
     ${({ layout }) =>
       layout === "standard" &&
       `
       max-width: 250px;
-    `} ${Button} {
+    `};
+
+    ${Button} {
       ${({ layout }) =>
         layout === "standard" &&
         `
